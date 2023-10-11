@@ -1,9 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using AppKit;
 using Foundation;
 
-namespace MacTweaks
+namespace MacTweaks.Helpers
 {
     public static class AccessibilityHelpers
     {
