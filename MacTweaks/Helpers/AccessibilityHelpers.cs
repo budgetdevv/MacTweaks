@@ -57,18 +57,45 @@ namespace MacTweaks.Helpers
             public AXUIElement(AXUIElementMarshaller marshaller)
             {
                 var mTitle = marshaller.AXTitle;
-                AXTitle = Runtime.GetNSObject<NSString>(mTitle);
-                CFRelease(mTitle);
+
+                if (mTitle != IntPtr.Zero)
+                {
+                    AXTitle = Runtime.GetNSObject<NSString>(mTitle);
+                    CFRelease(mTitle);
+                }
+
+                else
+                {
+                    AXTitle = default;
+                }
 
                 var mSubrole = marshaller.AXSubrole;
-                AXSubrole = Runtime.GetNSObject<NSString>(mSubrole);
-                CFRelease(mSubrole);
+
+                if (mSubrole != IntPtr.Zero)
+                {
+                    AXSubrole = Runtime.GetNSObject<NSString>(mSubrole);
+                    CFRelease(mSubrole);
+                }
+
+                else
+                {
+                    AXSubrole = default;
+                }
                 
                 Rect = marshaller.Rect;
 
                 var mAXIsApplicationRunning = marshaller.AXIsApplicationRunning;
-                AXIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning);
-                CFRelease(mAXIsApplicationRunning);
+                
+                if (mAXIsApplicationRunning != IntPtr.Zero)
+                {
+                    AXIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning);
+                    CFRelease(mAXIsApplicationRunning);
+                }
+                
+                else
+                {
+                    AXIsApplicationRunning = default;
+                }
             }
         }
         
