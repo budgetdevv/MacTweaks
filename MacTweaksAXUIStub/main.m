@@ -22,21 +22,21 @@ bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElemen
     NSRect rect;
 
     // Check to see if this found something, if not, return undefined.
-    if (err == kAXErrorSuccess && AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*)&output.AXSubrole) == 0)
+    if (err == kAXErrorSuccess && AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*) &output.AXSubrole) == 0)
     {
         // Get the size of the element
         AXUIElementCopyAttributeValue(element, kAXSizeAttribute, (CFTypeRef*)&value);
-        AXValueGetValue(value, kAXValueCGSizeType, (void *) &rect.size);
+        AXValueGetValue(value, kAXValueCGSizeType, (void*) &rect.size);
 
         // Get the position of the element
         AXUIElementCopyAttributeValue(element, kAXPositionAttribute, (CFTypeRef*) &value);
-        AXValueGetValue(value, kAXValueCGPointType, (void *) &rect.origin);
+        AXValueGetValue(value, kAXValueCGPointType, (void*) &rect.origin);
 
         // Get the title of the element
-        AXUIElementCopyAttributeValue(element, kAXTitleAttribute, (CFTypeRef*)&output.AXTitle);
+        AXUIElementCopyAttributeValue(element, kAXTitleAttribute, (CFTypeRef*) &output.AXTitle);
 
         // Get the running status of the element
-        AXUIElementCopyAttributeValue(element, kAXIsApplicationRunningAttribute, (CFTypeRef*)&output.AXIsApplicationRunning);
+        AXUIElementCopyAttributeValue(element, kAXIsApplicationRunningAttribute, (CFTypeRef*) &output.AXIsApplicationRunning);
 
         output.Rect = rect;
 
