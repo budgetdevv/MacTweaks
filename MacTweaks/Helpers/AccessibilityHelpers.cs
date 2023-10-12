@@ -45,6 +45,8 @@ namespace MacTweaks.Helpers
         [DllImport(MacTweaksAXUIStubLibrary)]
         private static extern bool AXGetElementAtPosition(IntPtr sysWide, float x, float y, out AXUIElementMarshaller output);
 
+        private static readonly IntPtr SysWide = AXUIElementCreateSystemWide();
+        
         public struct AXUIElement
         {
             public NSString AXTitle;
@@ -70,9 +72,9 @@ namespace MacTweaks.Helpers
             }
         }
         
-        public static bool AXGetElementAtPosition(IntPtr sysWide, float x, float y, out AXUIElement output)
+        public static bool AXGetElementAtPosition(float x, float y, out AXUIElement output)
         {
-            var success = AXGetElementAtPosition(sysWide, x, y, out AXUIElementMarshaller marshaller);
+            var success = AXGetElementAtPosition(SysWide, x, y, out AXUIElementMarshaller marshaller);
 
             if (success)
             {
