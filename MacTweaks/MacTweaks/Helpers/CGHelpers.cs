@@ -10,6 +10,8 @@ namespace MacTweaks.Helpers
         
         public static CGPoint ToMacOSCoordinates(this CGPoint point)
         {
+            //https://sl.bing.net/cQoOrHsLws0
+            
             var screenHeight = ScreenHeight;
             
             // Adjust for MacOS's coordinate system

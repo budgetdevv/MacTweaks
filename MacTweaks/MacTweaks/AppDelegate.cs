@@ -11,16 +11,25 @@ namespace MacTweaks
     public class AppDelegate : NSApplicationDelegate
     {
         private ServiceProvider Services;
+
+        private static ServiceCollection GetServiceCollection()
+        {
+            var collection = new ServiceCollection();
+            
+            // #if DEBUG
+            // collection.AddSingleton<IModule, DockDebugModule>();
+            // #endif
+            
+            collection.AddSingleton<IModule, DockModule>();
+
+            return collection;
+        }
         
         public override void DidFinishLaunching(NSNotification notification)
         {
             AccessibilityHelpers.RequestForAccessibilityIfNotGranted();
-
-            var collection = new ServiceCollection();
-
-            collection.AddSingleton<IModule, DockModule>();
-
-            var services = Services = collection.BuildServiceProvider();
+            
+            var services = Services = GetServiceCollection().BuildServiceProvider();
 
             foreach (var service in services.GetServices<IModule>())
             {
