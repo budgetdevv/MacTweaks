@@ -42,17 +42,18 @@ namespace MacTweaks.Helpers
             public IntPtr AXIsApplicationRunning;
         }
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        //TODO: Improve this
+        [DllImport("/Users/trumpmcdonaldz/Desktop/Code/MacTweaks/MacTweaks/MacTweaks/bin/Debug/MacTweaksAXUIStub.dylib")]
         private static extern bool AXGetElementAtPosition(IntPtr sysWide, float x, float y, out AXUIElementMarshaller output);
 
         private static readonly IntPtr SysWide = AXUIElementCreateSystemWide();
         
         public struct AXUIElement
         {
-            public NSString AXTitle;
-            public NSString AXSubrole;
+            public string AXTitle;
+            public string AXSubrole;
             public CGRect Rect;
-            public NSNumber AXIsApplicationRunning;
+            public int AXIsApplicationRunning;
 
             public AXUIElement(AXUIElementMarshaller marshaller)
             {
@@ -88,7 +89,7 @@ namespace MacTweaks.Helpers
                 
                 if (mAXIsApplicationRunning != IntPtr.Zero)
                 {
-                    AXIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning);
+                    AXIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning).Int32Value;
                     CFRelease(mAXIsApplicationRunning);
                 }
                 

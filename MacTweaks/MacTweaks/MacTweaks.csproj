@@ -47,6 +47,12 @@
         <XamMacArch>ARM64</XamMacArch>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="Microsoft.Extensions.DependencyInjection, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+          <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.8.0.0-rc.2.23479.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+          <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.8.0.0-rc.2.23479.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="Xamarin.Mac"/>
@@ -60,12 +66,15 @@
     <ItemGroup>
         <None Include="Info.plist"/>
         <None Include="Entitlements.plist"/>
+        <None Include="packages.config" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Helpers\AccessibilityHelpers.cs" />
         <Compile Include="Helpers\CGHelpers.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="AppDelegate.cs"/>
+        <Compile Include="Modules\DockModule.cs" />
+        <Compile Include="Modules\IModule.cs" />
         <Compile Include="ViewController.cs"/>
         <Compile Include="ViewController.designer.cs">
             <DependentUpon>ViewController.cs</DependentUpon>

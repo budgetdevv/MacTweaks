@@ -2,32 +2,30 @@
 using AppKit;
 using Foundation;
 using MacTweaks.Helpers;
+using MacTweaks.Modules;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MacTweaks
 {
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate
     {
-        public AppDelegate()
-        {
-            /*caret*/
-        }
+        private ServiceProvider Services;
         
         public override void DidFinishLaunching(NSNotification notification)
         {
-            Console.WriteLine(AccessibilityHelpers.RequestForAccessibilityIfNotGranted());
-            
-            NSEvent.AddGlobalMonitorForEventsMatchingMask(
-                NSEventMask.RightMouseDown, @event =>
-                {
-                    var mouseLocation = @event.LocationInWindow.ToMacOSCoordinates();
+            AccessibilityHelpers.RequestForAccessibilityIfNotGranted();
 
-                    AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var data);
+            var collection = new ServiceCollection();
 
-                    var location = data.Rect.Location;
-                    
-                    Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {location.X} | {location.Y}");
-                });
+            collection.AddSingleton<IModule, DockModule>();
+
+            var services = Services = collection.BuildServiceProvider();
+
+            foreach (var service in services.GetServices<IModule>())
+            {
+                service.Start();
+            }
         }
 
         public override void WillTerminate(NSNotification notification)
