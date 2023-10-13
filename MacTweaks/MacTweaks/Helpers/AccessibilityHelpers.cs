@@ -31,7 +31,7 @@ namespace MacTweaks.Helpers
         [DllImport(ApplicationServicesLibrary)]
         public static extern IntPtr AXUIElementCreateSystemWide();
         
-        private const string MacTweaksAXUIStubLibrary = "/Users/trumpmcdonaldz/Desktop/Code/MacTweaks/MacTweaks/MacTweaksAXUIStub.dylib";
+        private const string MacTweaksAXUIStubLibrary = "MacTweaksAXUIStub.dylib";
 
         [StructLayout(LayoutKind.Sequential)]
         public struct AXUIElementMarshaller

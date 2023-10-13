@@ -22,8 +22,6 @@ namespace MacTweaks
                 NSEventMask.RightMouseDown,
                 (NSEvent e) =>
                 {
-                    Console.WriteLine("Yees");
-                    
                     var mouseLocation = e.LocationInWindow.ToMacOSCoordinates();
 
                     AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var data);

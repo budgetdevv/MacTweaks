@@ -74,8 +74,5 @@
     <ItemGroup>
         <InterfaceDefinition Include="Main.storyboard"/>
     </ItemGroup>
-    <ItemGroup>
-      <Content Include="MacTweaksAXUIStub.dylib" />
-    </ItemGroup>
     <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets"/>
 </Project>
