@@ -12,17 +12,15 @@ namespace MacTweaks
         {
             /*caret*/
         }
-
         
         public override void DidFinishLaunching(NSNotification notification)
         {
             Console.WriteLine(AccessibilityHelpers.RequestForAccessibilityIfNotGranted());
             
             NSEvent.AddGlobalMonitorForEventsMatchingMask(
-                NSEventMask.RightMouseDown,
-                (NSEvent e) =>
+                NSEventMask.RightMouseDown, @event =>
                 {
-                    var mouseLocation = e.LocationInWindow.ToMacOSCoordinates();
+                    var mouseLocation = @event.LocationInWindow.ToMacOSCoordinates();
 
                     AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var data);
 

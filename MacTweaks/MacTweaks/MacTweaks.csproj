@@ -28,7 +28,7 @@
         <UseSGen>true</UseSGen>
         <UseRefCounting>true</UseRefCounting>
         <PlatformTarget>ARM64</PlatformTarget>
-        <XamMacArch>x86_64,ARM64</XamMacArch>
+        <XamMacArch>ARM64</XamMacArch>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
         <DebugType>pdbonly</DebugType>
@@ -44,7 +44,7 @@
         <UseRefCounting>true</UseRefCounting>
         <LinkMode>SdkOnly</LinkMode>
         <PlatformTarget>ARM64</PlatformTarget>
-        <XamMacArch>x86_64,ARM64</XamMacArch>
+        <XamMacArch>ARM64</XamMacArch>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System"/>
