@@ -9,4 +9,4 @@ typedef struct {
     NSNumber *AXIsApplicationRunning;
 } AXUIElement;
 
-bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElement *output);
+bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElement* output);

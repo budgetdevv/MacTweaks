@@ -10,8 +10,10 @@ typedef struct
     NSNumber* AXIsApplicationRunning;
 } AXUIElement;
 
-bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElement output)
+bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElement* outputPtr)
 {
+    AXUIElement output;
+
     // This element will contain whatever we are hovering over.
     AXUIElementRef element = NULL;
 
@@ -41,6 +43,8 @@ bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElemen
         output.Rect = rect;
 
         CFRelease(value);
+
+        *outputPtr = output;
 
         return true;
     }
