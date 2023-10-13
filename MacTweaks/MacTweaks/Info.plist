@@ -28,11 +28,12 @@
 	<string>Main</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
-	    <!-- Add the NSAccessibility key here -->
-    	<key>NSAccessibility</key>
-    	<dict>
-        	<key>Enabled</key>
-        	<true/>
-    	</dict>
+	<key>NSAccessibility</key>
+	<dict>
+		<key>Enabled</key>
+		<true/>
+	</dict>
+	<key>LSUIElement</key>
+	<true/>
 </dict>
 </plist>
