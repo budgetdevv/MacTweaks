@@ -81,10 +81,6 @@ namespace MacTweaks.Modules
                 
                 var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
-                // var location = data.Rect.Location;
-                //     
-                // Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {location.X} | {location.Y}");
-
                 var title = clickedElement.AXTitle;
                 
                 if (exists || clickedElement.ApplicationIsRunning || clickedElement.AXSubrole == "AXApplicationDockItem")
@@ -110,11 +106,6 @@ namespace MacTweaks.Modules
                         
                         // Clicking on dock icon re-activates app anyway
                         
-                        // else
-                        // {
-                        //     app.Activate(default);
-                        // }
-
                         break;
                     }
                 }
