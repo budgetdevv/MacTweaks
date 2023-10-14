@@ -96,7 +96,7 @@ namespace MacTweaks.Modules
                             continue;
                         }
 
-                        if (!app.Hidden) // TODO: Replace this weird hack with new mouse detection mechanism
+                        if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
                         {
                             Task.Delay(100).ContinueWith(x =>
                             {
