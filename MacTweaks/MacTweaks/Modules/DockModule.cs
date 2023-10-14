@@ -87,7 +87,7 @@ namespace MacTweaks.Modules
 
                 var title = clickedElement.AXTitle;
                 
-                if (exists || clickedElement.AXSubrole == "AXApplicationDockItem")
+                if (exists || clickedElement.ApplicationIsRunning || clickedElement.AXSubrole == "AXApplicationDockItem")
                 {
                     var sharedWorkspace = NSWorkspace.SharedWorkspace;
                     

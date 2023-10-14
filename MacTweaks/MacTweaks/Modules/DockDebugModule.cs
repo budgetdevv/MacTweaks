@@ -2,6 +2,7 @@ using System;
 using Foundation;
 using MacTweaks.Helpers;
 using AppKit;
+using CoreGraphics;
 
 namespace MacTweaks.Modules
 {
@@ -24,7 +25,7 @@ namespace MacTweaks.Modules
                     
             Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {location.X} | {location.Y}");
         }
-
+        
         public void Stop()
         {
             OnRightMouseDownHandle.Dispose();

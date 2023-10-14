@@ -16,9 +16,9 @@ namespace MacTweaks
         {
             var collection = new ServiceCollection();
             
-            // #if DEBUG
-            // collection.AddSingleton<IModule, DockDebugModule>();
-            // #endif
+            #if DEBUG
+            collection.AddSingleton<IModule, DockDebugModule>();
+            #endif
             
             collection.AddSingleton<IModule, DockModule>();
 

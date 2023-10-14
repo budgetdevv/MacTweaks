@@ -55,6 +55,8 @@ namespace MacTweaks.Helpers
             public CGRect Rect;
             public int AXIsApplicationRunning;
 
+            public bool ApplicationIsRunning => AXIsApplicationRunning != 0;
+            
             public AXUIElement(AXUIElementMarshaller marshaller)
             {
                 var mTitle = marshaller.AXTitle;
