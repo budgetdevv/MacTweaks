@@ -106,7 +106,7 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app)
     {
         CFBooleanRef value;
 
-        bool isMinimized;
+        bool areMinimized;
 
         for (int i = 0; i < CFArrayGetCount(windowsList); i++)
         {
@@ -123,9 +123,9 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app)
             {
                 CFRelease(title);
 
-                isMinimized = CFBooleanGetValue(value);
+                areMinimized = CFBooleanGetValue(value);
 
-                if (isMinimized)
+                if (areMinimized)
                 {
                     continue;
                 }
@@ -134,9 +134,10 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app)
             }
         }
 
+        CFRelease(value);
         CFRelease(windowsList);
 
-        return isMinimized;
+        return areMinimized;
     }
 
     return false;
@@ -146,9 +147,56 @@ bool ApplicationAllWindowsAreMinimized(int pid)
 {
     AXUIElementRef app = AXUIElementCreateApplication(pid);
 
-    bool success = ApplicationAllWindowsAreMinimizedDirect(app);
+    bool areMinimized = ApplicationAllWindowsAreMinimizedDirect(app);
 
     CFRelease(app);
 
-    return success;
+    return areMinimized;
+}
+
+#define kAXFullScreenAttribute CFSTR("AXFullScreen")
+
+bool ApplicationFocusedWindowIsFullScreenDirect(AXUIElementRef app)
+{
+    AXUIElementRef window;
+
+    bool success = AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, (CFTypeRef*) &window) == 0;
+
+    if (success)
+    {
+        CFBooleanRef value;
+
+        bool isFullScreen;
+
+        success = AXUIElementCopyAttributeValue(window, kAXFullScreenAttribute, (CFTypeRef*) &value) == 0;
+
+        if (success)
+        {
+            isFullScreen = CFBooleanGetValue(value);
+
+            CFRelease(value);
+        }
+
+        else
+        {
+            isFullScreen = false;
+        }
+
+        CFRelease(window);
+
+        return isFullScreen;
+    }
+
+    return false;
+}
+
+bool ApplicationFocusedWindowIsFullScreen(int pid)
+{
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+
+    bool isFullScreen = ApplicationFocusedWindowIsFullScreenDirect(app);
+
+    CFRelease(app);
+
+    return isFullScreen;
 }

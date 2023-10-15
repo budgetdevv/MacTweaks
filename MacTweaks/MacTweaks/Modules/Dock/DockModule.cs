@@ -155,16 +155,15 @@ namespace MacTweaks.Modules.Dock
             
             var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
+            var sharedWorkspace = NSWorkspace.SharedWorkspace;
+                    
+            var activeApp = sharedWorkspace.FrontmostApplication;
+            
             if (exists)
             {
-                
-                if (clickedElement.ApplicationIsRunning || clickedElement.AXSubrole == "AXApplicationDockItem")
+                if (clickedElement.ApplicationIsRunning && clickedElement.AXSubrole == "AXApplicationDockItem")
                 {
                     var title = clickedElement.AXTitle;
-                    
-                    var sharedWorkspace = NSWorkspace.SharedWorkspace;
-                    
-                    var activeApp = sharedWorkspace.FrontmostApplication;
 
                     var titleSpan = title.AsSpan();
                     
@@ -213,19 +212,24 @@ namespace MacTweaks.Modules.Dock
 
             else
             {
-                // Hot corners
-                
-                var centerX = CenterX;
-                
-                if (mouseLocation.X > centerX)
+                if (!AccessibilityHelpers.ApplicationFocusedWindowIsFullScreen(activeApp.ProcessIdentifier))
                 {
-                    OnBottomRightHotCornerLeftClick?.Invoke(@event);
+                    // Hot corners
+                
+                    var centerX = CenterX;
+                
+                    if (mouseLocation.X > centerX)
+                    {
+                        OnBottomRightHotCornerLeftClick?.Invoke(@event);
+                    }
+                
+                    else
+                    {
+                        OnBottomLeftHotCornerLeftClick?.Invoke(@event);
+                    }
                 }
                 
-                else
-                {
-                    OnBottomLeftHotCornerLeftClick?.Invoke(@event);
-                }
+                // Don't do anything in fullscreen mode
             }
 
             return handle;

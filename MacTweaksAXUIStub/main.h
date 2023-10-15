@@ -22,3 +22,7 @@ bool MinimizeAllWindowsForApplication(int pid);
 bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app);
 
 bool ApplicationAllWindowsAreMinimized(int pid);
+
+bool ApplicationFocusedWindowIsFullScreenDirect(AXUIElementRef app);
+
+bool ApplicationFocusedWindowIsFullScreen(int pid);
