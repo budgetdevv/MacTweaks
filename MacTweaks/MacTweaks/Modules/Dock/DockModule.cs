@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using AppKit;
@@ -92,18 +93,27 @@ namespace MacTweaks.Modules.Dock
                 //TODO: Make a dictionary cache for running applications
                 foreach (var app in sharedWorkspace.RunningApplications)
                 {
+                    //TODO: Figure out why old code doesn't work anymore. Breaks when focused window is not finder.
+                    // if (app.LocalizedName != "Finder")
+                    // {
+                    //     continue;
+                    // }
+                    //
+                    // app.Activate(default);
+                    //
+                    // sharedWorkspace.HideOtherApplications();
+                    //
+                    // AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                    //
+                    // break;
+                    
                     if (app.LocalizedName != "Finder")
                     {
+                        app.Hide();
                         continue;
                     }
-                    
-                    app.Activate(default);
-                
-                    sharedWorkspace.HideOtherApplications();
 
                     AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
-                    
-                    break;
                 }
             };
         }
