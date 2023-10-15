@@ -58,34 +58,22 @@ namespace MacTweaks.Modules.Dock
             OnBottomRightHotCornerLeftClick += (@event) =>
             {
                 var sharedWorkspace = SharedWorkspace;
-                
-                var runningApps = sharedWorkspace.RunningApplications;
 
-                if (false)
+                //TODO: Make a dictionary cache for running applications
+                foreach (var app in sharedWorkspace.RunningApplications)
                 {
-                    
-                    var finder = runningApps.First(x => x.LocalizedName == "Finder");
-
-                    
-                    foreach (var app in runningApps)
+                    if (app.LocalizedName != "Finder")
                     {
-                        AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                        continue;
                     }
                     
-                    finder.Hide();
-                }
-
-                else
-                {
-                    var finder = runningApps.First(x => x.LocalizedName == "Finder");
-                
-                    finder.Activate(default);
-
-                    Console.WriteLine();
+                    app.Activate(default);
                 
                     sharedWorkspace.HideOtherApplications();
 
-                    AccessibilityHelpers.MinimizeAllWindowsForApplication(finder.ProcessIdentifier);
+                    AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                    
+                    break;
                 }
             };
         }
@@ -181,7 +169,7 @@ namespace MacTweaks.Modules.Dock
             else
             {
                 // Hot corners
-
+                
                 var centerX = CenterX;
 
                 if (mouseLocation.X > centerX)
