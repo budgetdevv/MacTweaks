@@ -125,7 +125,9 @@ namespace MacTweaks.Modules.Dock
                     
                     var activeApp = sharedWorkspace.FrontmostApplication;
 
-                    if (!activeApp.GetDockName().SequenceEqual(title))
+                    var titleSpan = title.AsSpan();
+                    
+                    if (!activeApp.GetDockName().SequenceEqual(titleSpan))
                     {
                         goto HideApp;
                     }
@@ -140,7 +142,7 @@ namespace MacTweaks.Modules.Dock
                     HideApp:
                     foreach (var app in sharedWorkspace.RunningApplications)
                     {
-                        if (!app.GetDockName().SequenceEqual(title))
+                        if (!app.GetDockName().SequenceEqual(titleSpan))
                         {
                             continue;
                         }
@@ -151,7 +153,18 @@ namespace MacTweaks.Modules.Dock
                             {
                                 sharedWorkspace.InvokeOnMainThread(() =>
                                 {
-                                    app.Hide();
+                                    if (title != "Finder")
+                                    {
+                                        app.Hide();
+                                    }
+
+                                    else
+                                    {
+                                        // This is necessary. If we use hide for Finder, and all other apps are hidden,
+                                        // it will force another app to become active
+                                        // ( Thus they will appear, and it is weird )
+                                        AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                                    }
                                 });
                             });
                         }
