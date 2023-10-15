@@ -8,7 +8,7 @@ namespace MacTweaks.Helpers
     {
         private static readonly nfloat ScreenHeight = NSScreen.MainScreen.Frame.Height;
         
-        public static CGPoint ToMacOSCoordinates(this CGPoint point)
+        public static CGPoint InvertY(this CGPoint point)
         {
             //https://sl.bing.net/cQoOrHsLws0
             

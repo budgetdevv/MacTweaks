@@ -125,5 +125,29 @@ namespace MacTweaks.Helpers
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationAllWindowsAreMinimized(int pid);
+        
+        [DllImport("libc")]
+        public static extern uint getuid();
+
+        public static bool IsRoot()
+        {
+            return getuid() == 0;
+            
+            // if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            // {
+            //     bool isAdmin;
+            //     using (var identity = WindowsIdentity.GetCurrent())
+            //     {
+            //         var principal = new WindowsPrincipal(identity);
+            //         isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+            //     }
+            //
+            //     return isAdmin;
+            // }
+            // else
+            // {
+            //     return getuid() == 0;
+            // }
+        }
     }
 }

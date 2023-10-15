@@ -1,11 +1,15 @@
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Web;
 using AppKit;
+using CoreFoundation;
+using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
 using ObjCRuntime;
+using Security;
 
 namespace MacTweaks.Modules.Dock
 {
@@ -37,21 +41,43 @@ namespace MacTweaks.Modules.Dock
     {
         private NSObject OnRightMouseDownHandle;
         
-        private nfloat DockTileThreshold;
+        private nfloat DockHeight, DockHeightThreshold;
 
         private NSDockTile DockTile;
         
-        public delegate void MouseEvent(NSEvent @event);
+        public delegate void MouseEvent(CGEvent @event);
 
         public event MouseEvent OnBottomLeftHotCornerLeftClick, OnBottomRightHotCornerLeftClick;
 
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
+
+        private CFMachPort EventTap;
+
+        private static DockModule Yes;
         
         public void Start()
         {
-            OnRightMouseDownHandle = NSEvent.AddGlobalMonitorForEventsMatchingMask(NSEventMask.LeftMouseDown, OnDockLeftClick);
+            Yes = this;
+            
+            // OnRightMouseDownHandle = NSEvent.AddGlobalMonitorForEventsMatchingMask(NSEventMask.LeftMouseDown, OnDockLeftClick);
 
-            DockTileThreshold = CalculateDockHeight();
+            Console.WriteLine(AccessibilityHelpers.IsRoot());
+            
+            var eventTap = EventTap = CGEvent.CreateTap(
+                CGEventTapLocation.HID,
+                CGEventTapPlacement.HeadInsert,
+                CGEventTapOptions.Default,
+                CGEventMask.LeftMouseDown,
+                OnDockLeftClick,
+                IntPtr.Zero);
+            
+            CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeDefault);
+            
+            CGEvent.TapEnable(eventTap);
+            
+            var dockHeight = DockHeight = CalculateDockHeight();
+
+            DockHeightThreshold = MainScreen.Frame.Height - dockHeight;
             
             DockTile = NSApplication.SharedApplication.DockTile;
 
@@ -101,22 +127,39 @@ namespace MacTweaks.Modules.Dock
             
             return dockHeight;
         }
-        
-        private void OnDockLeftClick(NSEvent @event)
-        {
-            var mouseLocation = @event.LocationInWindow;
 
-            if (mouseLocation.Y > DockTileThreshold)
+        private static int Wtf = 1;
+        
+        // private void OnDockLeftClick(NSEvent @event)
+        [MethodImpl(512)]
+        private IntPtr OnDockLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
+        {
+            var @event = new CGEvent(handle);
+
+            var mouseLocation = @event.Location;
+
+            Console.WriteLine($"{Wtf++} | {mouseLocation}");
+
+            try // For some reason, "this" becomes null at 35+ clicks on dock icon
             {
-                return;
+                if (mouseLocation.Y <= DockHeightThreshold)
+                {
+                    return handle;
+                }
             }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return handle;
+            } 
             
-            var mouseLocationMacOS = mouseLocation.ToMacOSCoordinates();
-                
-            var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocationMacOS.X, (float) mouseLocationMacOS.Y, out var clickedElement);
+            var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
             if (exists)
             {
+                Console.WriteLine(clickedElement.AXTitle);
+                
                 if (clickedElement.ApplicationIsRunning || clickedElement.AXSubrole == "AXApplicationDockItem")
                 {
                     var title = clickedElement.AXTitle;
@@ -136,26 +179,48 @@ namespace MacTweaks.Modules.Dock
                     // If so, we shouldn't attempt to hide the application
                     if (AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier))
                     {
-                        return;
+                        return handle;
                     }
                     
                     HideApp:
-                    foreach (var app in sharedWorkspace.RunningApplications)
+                    if (false)
                     {
-                        if (!app.GetDockName().SequenceEqual(titleSpan))
+                        foreach (var app in sharedWorkspace.RunningApplications)
                         {
-                            continue;
-                        }
-
-                        if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
-                        {
-                            Task.Delay(100).ContinueWith(x =>
+                            if (!app.GetDockName().SequenceEqual(titleSpan))
                             {
-                                sharedWorkspace.InvokeOnMainThread(() =>
+                                continue;
+                            }
+
+                            if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
+                            {
+                                if (false)
+                                {
+                                    Task.Delay(0).ContinueWith(x =>
+                                    {
+                                        sharedWorkspace.InvokeOnMainThread(() =>
+                                        {
+                                            if (title != "Finder")
+                                            {
+                                                app.Hide();
+                                            }
+                                
+                                            else
+                                            {
+                                                // This is necessary. If we use hide for Finder, and all other apps are hidden,
+                                                // it will force another app to become active
+                                                // ( Thus they will appear, and it is weird )
+                                                AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                                            }
+                                        });
+                                    });
+                                }
+
+                                else
                                 {
                                     if (title != "Finder")
                                     {
-                                        app.Hide();
+                                        //app.Hide();
                                     }
 
                                     else
@@ -163,35 +228,53 @@ namespace MacTweaks.Modules.Dock
                                         // This is necessary. If we use hide for Finder, and all other apps are hidden,
                                         // it will force another app to become active
                                         // ( Thus they will appear, and it is weird )
-                                        AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                                        //AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
                                     }
-                                });
-                            });
+                                }
+
+                                return IntPtr.Zero;
+                            }
+                        
+                            // Clicking on dock icon re-activates app anyway
                         }
-                        
-                        // Clicking on dock icon re-activates app anyway
-                        
-                        break;
+                    }
+
+                    else
+                    {
+                        foreach (var app in sharedWorkspace.RunningApplications)
+                        {
+                            if (Wtf == 5)
+                            {
+                                GC.Collect();
+                            }
+                            
+                            if (!app.GetDockName().SequenceEqual(titleSpan))
+                            {
+                                continue;
+                            }
+                        }
                     }
                 }
             }
 
             else
             {
-                // Hot corners
-                
-                var centerX = CenterX;
-
-                if (mouseLocation.X > centerX)
-                {
-                    OnBottomRightHotCornerLeftClick?.Invoke(@event);
-                }
-
-                else
-                {
-                    OnBottomLeftHotCornerLeftClick?.Invoke(@event);
-                }
+                // // Hot corners
+                //
+                // var centerX = CenterX;
+                //
+                // if (mouseLocation.X > centerX)
+                // {
+                //     OnBottomRightHotCornerLeftClick?.Invoke(@event);
+                // }
+                //
+                // else
+                // {
+                //     OnBottomLeftHotCornerLeftClick?.Invoke(@event);
+                // }
             }
+
+            return handle;
         }
 
         public void Stop()

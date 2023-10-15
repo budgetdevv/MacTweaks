@@ -16,7 +16,7 @@ namespace MacTweaks.Modules.Dock
         
         private static void OnRightMouseDown(NSEvent @event)
         {
-            var mouseLocation = @event.LocationInWindow.ToMacOSCoordinates();
+            var mouseLocation = @event.LocationInWindow.InvertY();
 
             AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var data);
 
