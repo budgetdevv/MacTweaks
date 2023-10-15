@@ -125,9 +125,16 @@ namespace MacTweaks.Modules.Dock
                     
                     var activeApp = sharedWorkspace.FrontmostApplication;
 
-                    if (activeApp.GetDockName().SequenceEqual(title))
+                    if (!activeApp.GetDockName().SequenceEqual(title))
                     {
-                        goto CheckAllMinimized;
+                        goto HideApp;
+                    }
+                    
+                    // Check if the active application have all windows minimized.
+                    // If so, we shouldn't attempt to hide the application
+                    if (AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier))
+                    {
+                        return;
                     }
                     
                     HideApp:
@@ -152,16 +159,6 @@ namespace MacTweaks.Modules.Dock
                         // Clicking on dock icon re-activates app anyway
                         
                         break;
-                    }
-
-                    return;
-
-                    // Check if the active application have all windows minimized.
-                    // If so, we shouldn't attempt to hide the application
-                    CheckAllMinimized:
-                    if (!AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier))
-                    {
-                        goto HideApp;
                     }
                 }
             }
