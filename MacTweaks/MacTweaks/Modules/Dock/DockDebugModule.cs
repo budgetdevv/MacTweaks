@@ -1,10 +1,9 @@
 using System;
+using AppKit;
 using Foundation;
 using MacTweaks.Helpers;
-using AppKit;
-using CoreGraphics;
 
-namespace MacTweaks.Modules
+namespace MacTweaks.Modules.Dock
 {
     public class DockDebugModule: IModule
     {

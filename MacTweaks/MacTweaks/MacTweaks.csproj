@@ -74,8 +74,8 @@
         <Compile Include="Helpers\CGHelpers.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="AppDelegate.cs"/>
-        <Compile Include="Modules\DockDebugModule.cs" />
-        <Compile Include="Modules\DockModule.cs" />
+        <Compile Include="Modules\Dock\DockDebugModule.cs" />
+        <Compile Include="Modules\Dock\DockModule.cs" />
         <Compile Include="Modules\IModule.cs" />
         <Compile Include="ViewController.cs"/>
         <Compile Include="ViewController.designer.cs">

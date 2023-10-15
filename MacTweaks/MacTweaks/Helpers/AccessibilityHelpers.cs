@@ -31,7 +31,8 @@ namespace MacTweaks.Helpers
         [DllImport(ApplicationServicesLibrary)]
         public static extern IntPtr AXUIElementCreateSystemWide();
         
-        private const string MacTweaksAXUIStubLibrary = "MacTweaksAXUIStub.dylib";
+        //TODO: Improve this
+        private const string MacTweaksAXUIStubLibrary = "/Users/trumpmcdonaldz/Desktop/Code/MacTweaks/MacTweaksAXUIStub/MacTweaksAXUIStub.dylib";
 
         [StructLayout(LayoutKind.Sequential)]
         public struct AXUIElementMarshaller
@@ -42,10 +43,10 @@ namespace MacTweaks.Helpers
             public IntPtr AXIsApplicationRunning;
         }
         
-        //TODO: Improve this
-        [DllImport("/Users/trumpmcdonaldz/Desktop/Code/MacTweaks/MacTweaks/MacTweaks/bin/Debug/MacTweaksAXUIStub.dylib")]
+        
+        [DllImport(MacTweaksAXUIStubLibrary)]
         private static extern bool AXGetElementAtPosition(IntPtr sysWide, float x, float y, out AXUIElementMarshaller output);
-
+        
         private static readonly IntPtr SysWide = AXUIElementCreateSystemWide();
         
         public struct AXUIElement
@@ -118,5 +119,11 @@ namespace MacTweaks.Helpers
 
             return success;
         }
+
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        public static extern bool MinimizeAllWindowsForApplication(int pid);
+        
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        public static extern bool ApplicationAllWindowsAreMinimized(int pid);
     }
 }

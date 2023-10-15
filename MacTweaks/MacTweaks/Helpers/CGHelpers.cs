@@ -19,5 +19,20 @@ namespace MacTweaks.Helpers
 
             return new CGPoint(point.X, adjustedY);
         }
+
+        public static nfloat GetCenterX(this CGRect rect)
+        {
+            return rect.X + rect.Width / 2;
+        }
+        
+        public static nfloat GetCenterY(this CGRect rect)
+        {
+            return rect.Y + rect.Height / 2;
+        }
+        
+        public static CGPoint GetCentrePoint(this CGRect rect)
+        {
+            return new CGPoint(GetCenterX(rect), GetCenterY(rect));
+        }
     }
 }
