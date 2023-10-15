@@ -54,6 +54,8 @@ namespace MacTweaks.Modules.Dock
         private CFMachPort EventTap;
 
         private static DockModule Yes;
+
+        private CGEvent.CGEventTapCallback Callback;
         
         public void Start()
         {
@@ -62,13 +64,15 @@ namespace MacTweaks.Modules.Dock
             // OnRightMouseDownHandle = NSEvent.AddGlobalMonitorForEventsMatchingMask(NSEventMask.LeftMouseDown, OnDockLeftClick);
 
             Console.WriteLine(AccessibilityHelpers.IsRoot());
+
+            Callback = OnDockLeftClick;
             
             var eventTap = EventTap = CGEvent.CreateTap(
                 CGEventTapLocation.HID,
                 CGEventTapPlacement.HeadInsert,
                 CGEventTapOptions.Default,
                 CGEventMask.LeftMouseDown,
-                OnDockLeftClick,
+                Callback,
                 IntPtr.Zero);
             
             CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeDefault);
@@ -127,38 +131,22 @@ namespace MacTweaks.Modules.Dock
             
             return dockHeight;
         }
-
-        private static int Wtf = 1;
         
-        // private void OnDockLeftClick(NSEvent @event)
-        [MethodImpl(512)]
         private IntPtr OnDockLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
         {
             var @event = new CGEvent(handle);
 
             var mouseLocation = @event.Location;
 
-            Console.WriteLine($"{Wtf++} | {mouseLocation}");
-
-            try // For some reason, "this" becomes null at 35+ clicks on dock icon
+            if (mouseLocation.Y <= DockHeightThreshold)
             {
-                if (mouseLocation.Y <= DockHeightThreshold)
-                {
-                    return handle;
-                }
-            }
-
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
                 return handle;
-            } 
+            }
             
             var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
             if (exists)
             {
-                Console.WriteLine(clickedElement.AXTitle);
                 
                 if (clickedElement.ApplicationIsRunning || clickedElement.AXSubrole == "AXApplicationDockItem")
                 {
@@ -183,95 +171,51 @@ namespace MacTweaks.Modules.Dock
                     }
                     
                     HideApp:
-                    if (false)
+                    foreach (var app in sharedWorkspace.RunningApplications)
                     {
-                        foreach (var app in sharedWorkspace.RunningApplications)
+                        if (!app.GetDockName().SequenceEqual(titleSpan))
                         {
-                            if (!app.GetDockName().SequenceEqual(titleSpan))
-                            {
-                                continue;
-                            }
-
-                            if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
-                            {
-                                if (false)
-                                {
-                                    Task.Delay(0).ContinueWith(x =>
-                                    {
-                                        sharedWorkspace.InvokeOnMainThread(() =>
-                                        {
-                                            if (title != "Finder")
-                                            {
-                                                app.Hide();
-                                            }
-                                
-                                            else
-                                            {
-                                                // This is necessary. If we use hide for Finder, and all other apps are hidden,
-                                                // it will force another app to become active
-                                                // ( Thus they will appear, and it is weird )
-                                                AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
-                                            }
-                                        });
-                                    });
-                                }
-
-                                else
-                                {
-                                    if (title != "Finder")
-                                    {
-                                        //app.Hide();
-                                    }
-
-                                    else
-                                    {
-                                        // This is necessary. If we use hide for Finder, and all other apps are hidden,
-                                        // it will force another app to become active
-                                        // ( Thus they will appear, and it is weird )
-                                        //AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
-                                    }
-                                }
-
-                                return IntPtr.Zero;
-                            }
-                        
-                            // Clicking on dock icon re-activates app anyway
+                            continue;
                         }
-                    }
 
-                    else
-                    {
-                        foreach (var app in sharedWorkspace.RunningApplications)
+                        if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
                         {
-                            if (Wtf == 5)
+                            if (title != "Finder")
                             {
-                                GC.Collect();
+                                app.Hide();
                             }
-                            
-                            if (!app.GetDockName().SequenceEqual(titleSpan))
+
+                            else
                             {
-                                continue;
+                                // This is necessary. If we use hide for Finder, and all other apps are hidden,
+                                // it will force another app to become active
+                                // ( Thus they will appear, and it is weird )
+                                AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
                             }
+
+                            return IntPtr.Zero;
                         }
+
+                        // Clicking on dock icon re-activates app anyway
                     }
                 }
             }
 
             else
             {
-                // // Hot corners
-                //
-                // var centerX = CenterX;
-                //
-                // if (mouseLocation.X > centerX)
-                // {
-                //     OnBottomRightHotCornerLeftClick?.Invoke(@event);
-                // }
-                //
-                // else
-                // {
-                //     OnBottomLeftHotCornerLeftClick?.Invoke(@event);
-                // }
+                // Hot corners
+                
+                var centerX = CenterX;
+                
+                if (mouseLocation.X > centerX)
+                {
+                    OnBottomRightHotCornerLeftClick?.Invoke(@event);
+                }
+                
+                else
+                {
+                    OnBottomLeftHotCornerLeftClick?.Invoke(@event);
+                }
             }
 
             return handle;
