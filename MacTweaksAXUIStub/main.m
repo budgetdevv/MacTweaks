@@ -98,15 +98,15 @@ bool MinimizeAllWindowsForApplication(int pid)
     return success;
 }
 
-bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app)
+bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app, bool* areMinimized)
 {
     CFArrayRef windowsList;
+
+    bool areMinimizedLocal;
 
     if (app != NULL && GetWindowListForApplication(app, &windowsList))
     {
         CFBooleanRef value;
-
-        bool areMinimized;
 
         for (int i = 0; i < CFArrayGetCount(windowsList); i++)
         {
@@ -123,35 +123,37 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app)
             {
                 CFRelease(title);
 
-                areMinimized = CFBooleanGetValue(value);
+                areMinimizedLocal = CFBooleanGetValue(value);
 
-                if (areMinimized)
+                if (areMinimizedLocal)
                 {
                     continue;
                 }
 
                 break;
             }
+
+            *areMinimized = areMinimizedLocal;
         }
 
         CFRelease(value);
         CFRelease(windowsList);
 
-        return areMinimized;
+        return true;
     }
 
     return false;
 }
 
-bool ApplicationAllWindowsAreMinimized(int pid)
+bool ApplicationAllWindowsAreMinimized(int pid, bool* areMinimized)
 {
     AXUIElementRef app = AXUIElementCreateApplication(pid);
 
-    bool areMinimized = ApplicationAllWindowsAreMinimizedDirect(app);
+    bool success = ApplicationAllWindowsAreMinimizedDirect(app, areMinimized);
 
     CFRelease(app);
 
-    return areMinimized;
+    return success;
 }
 
 #define kAXFullScreenAttribute CFSTR("AXFullScreen")

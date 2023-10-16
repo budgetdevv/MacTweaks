@@ -19,9 +19,9 @@ bool MinimizeAllWindowsForApplicationDirect(AXUIElementRef app);
 
 bool MinimizeAllWindowsForApplication(int pid);
 
-bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app);
+bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app, bool* areMinimized)
 
-bool ApplicationAllWindowsAreMinimized(int pid);
+bool ApplicationAllWindowsAreMinimized(int pid, bool* areMinimized);
 
 bool ApplicationFocusedWindowIsFullScreenDirect(AXUIElementRef app);
 

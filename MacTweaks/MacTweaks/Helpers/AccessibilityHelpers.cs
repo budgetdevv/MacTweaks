@@ -124,7 +124,7 @@ namespace MacTweaks.Helpers
         public static extern bool MinimizeAllWindowsForApplication(int pid);
         
         [DllImport(MacTweaksAXUIStubLibrary)]
-        public static extern bool ApplicationAllWindowsAreMinimized(int pid);
+        public static extern bool ApplicationAllWindowsAreMinimized(int pid, out bool areMinimized);
         
         [DllImport("libc")]
         public static extern uint getuid();
