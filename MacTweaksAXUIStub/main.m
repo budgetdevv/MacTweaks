@@ -205,3 +205,72 @@ int64_t CGEventGetIntegerValueFieldWrapper(CGEventRef event, CGEventField field)
 {
     return CGEventGetIntegerValueField(event, field);
 }
+
+bool CloseWindowDirect(AXUIElementRef window)
+{
+    AXUIElementRef closeButton;
+
+    if (AXUIElementCopyAttributeValue(window, kAXCloseButtonAttribute, (CFTypeRef*) &closeButton) == 0)
+    {
+        bool success = AXUIElementPerformAction(closeButton, kAXPressAction) == 0;
+
+        CFRelease(closeButton);
+
+        return success;
+    }
+
+    return false;
+}
+
+bool ApplicationCloseFocusedWindowDirect(AXUIElementRef app)
+{
+    AXUIElementRef window;
+
+    bool success = AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, (CFTypeRef*) &window) == 0;
+
+    if (success)
+    {
+        success = CloseWindowDirect(window);
+
+        CFRelease(window);
+
+        return success;
+    }
+
+    return false;
+}
+
+bool ApplicationCloseFocusedWindow(int pid)
+{
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+
+    bool success = ApplicationCloseFocusedWindowDirect(app);
+
+    CFRelease(app);
+
+    return success;
+}
+
+// TODO: Make APIs for closing all windows of given application
+
+//bool ApplicationCloseAllWindowsDirect(AXUIElementRef app)
+//{
+//    AXUIElementRef app = AXUIElementCreateApplication(pid);
+//
+//    bool isFullScreen = ApplicationFocusedWindowIsFullScreenDirect(app);
+//
+//    CFRelease(app);
+//
+//    return isFullScreen;
+//}
+//
+//bool ApplicationCloseAllWindows(int pid)
+//{
+//    AXUIElementRef app = AXUIElementCreateApplication(pid);
+//
+//    bool isFullScreen = ApplicationFocusedWindowIsFullScreenDirect(app);
+//
+//    CFRelease(app);
+//
+//    return isFullScreen;
+//}

@@ -203,5 +203,8 @@ namespace MacTweaks.Helpers
 
         [DllImport(MacTweaksAXUIStubLibrary, EntryPoint = "CGEventGetIntegerValueFieldWrapper")]
         public static extern long CGEventGetIntegerValueField(IntPtr cgEvent, CGEventField field);
+        
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        public static extern bool ApplicationCloseFocusedWindow(int pid);
     }
 }

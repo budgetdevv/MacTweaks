@@ -28,9 +28,18 @@ namespace MacTweaks.Modules.Keystrokes
             
             CGEvent.TapEnable(onCommandQHandle);
         }
+
+        private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
         
         private static IntPtr OnCommandQ(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
         {
+            var activeApp = SharedWorkspace.FrontmostApplication;
+
+            if (activeApp.LocalizedName != "Finder")
+            {
+                return handle;
+            }
+            
             var @event = new CGEvent(handle);
 
             if (@event.Flags.HasFlag(CGEventFlags.Command))
@@ -39,7 +48,7 @@ namespace MacTweaks.Modules.Keystrokes
 
                 if (keyCode == NSKey.Q)
                 {
-                    Console.WriteLine("Command Q is pressed!");
+                    AccessibilityHelpers.ApplicationCloseFocusedWindow(activeApp.ProcessIdentifier);
                     
                     return IntPtr.Zero;
                 }

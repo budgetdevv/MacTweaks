@@ -28,3 +28,9 @@ bool ApplicationFocusedWindowIsFullScreenDirect(AXUIElementRef app);
 bool ApplicationFocusedWindowIsFullScreen(int pid);
 
 bool CGEventGetIntegerValueFieldWrapper(CGEventRef event, CGEventField field);
+
+bool CloseWindowDirect(AXUIElementRef window);
+
+bool ApplicationCloseFocusedWindowDirect(AXUIElementRef app);
+
+bool ApplicationCloseFocusedWindow(int pid);
