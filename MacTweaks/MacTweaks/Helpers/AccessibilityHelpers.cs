@@ -136,5 +136,72 @@ namespace MacTweaks.Helpers
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationFocusedWindowIsFullScreen(int pid);
+
+        public enum CGEventField
+        {
+            MouseEventNumber = 0,
+            MouseEventClickState = 1,
+            MouseEventPressure = 2,
+            MouseEventButtonNumber = 3,
+            MouseEventDeltaX = 4,
+            MouseEventDeltaY = 5,
+            MouseEventInstantMouser = 6,
+            MouseEventSubtype = 7,
+            KeyboardEventAutorepeat = 8,
+            KeyboardEventKeycode = 9,
+            KeyboardEventKeyboardType = 10, // 0x0000000A
+            ScrollWheelEventDeltaAxis1 = 11, // 0x0000000B
+            ScrollWheelEventDeltaAxis2 = 12, // 0x0000000C
+            ScrollWheelEventDeltaAxis3 = 13, // 0x0000000D
+            ScrollWheelEventInstantMouser = 14, // 0x0000000E
+            TabletEventPointX = 15, // 0x0000000F
+            TabletEventPointY = 16, // 0x00000010
+            TabletEventPointZ = 17, // 0x00000011
+            TabletEventPointButtons = 18, // 0x00000012
+            TabletEventPointPressure = 19, // 0x00000013
+            TabletEventTiltX = 20, // 0x00000014
+            TabletEventTiltY = 21, // 0x00000015
+            TabletEventRotation = 22, // 0x00000016
+            TabletEventTangentialPressure = 23, // 0x00000017
+            TabletEventDeviceID = 24, // 0x00000018
+            TabletEventVendor1 = 25, // 0x00000019
+            TabletEventVendor2 = 26, // 0x0000001A
+            TabletEventVendor3 = 27, // 0x0000001B
+            TabletProximityEventVendorID = 28, // 0x0000001C
+            TabletProximityEventTabletID = 29, // 0x0000001D
+            TabletProximityEventPointerID = 30, // 0x0000001E
+            TabletProximityEventDeviceID = 31, // 0x0000001F
+            TabletProximityEventSystemTabletID = 32, // 0x00000020
+            TabletProximityEventVendorPointerType = 33, // 0x00000021
+            TabletProximityEventVendorPointerSerialNumber = 34, // 0x00000022
+            TabletProximityEventVendorUniqueID = 35, // 0x00000023
+            TabletProximityEventCapabilityMask = 36, // 0x00000024
+            TabletProximityEventPointerType = 37, // 0x00000025
+            TabletProximityEventEnterProximity = 38, // 0x00000026
+            EventTargetProcessSerialNumber = 39, // 0x00000027
+            EventTargetUnixProcessID = 40, // 0x00000028
+            EventSourceUnixProcessID = 41, // 0x00000029
+            EventSourceUserData = 42, // 0x0000002A
+            EventSourceUserID = 43, // 0x0000002B
+            EventSourceGroupID = 44, // 0x0000002C
+            EventSourceStateID = 45, // 0x0000002D
+            ScrollWheelEventIsContinuous = 88, // 0x00000058
+            EventWindowUnderMousePointer = 91, // 0x0000005B
+            EventWindowUnderMousePointerThatCanHandleThisEvent = 92, // 0x0000005C
+            ScrollWheelEventFixedPtDeltaAxis1 = 93, // 0x0000005D
+            ScrollWheelEventFixedPtDeltaAxis2 = 94, // 0x0000005E
+            ScrollWheelEventFixedPtDeltaAxis3 = 95, // 0x0000005F
+            ScrollWheelEventPointDeltaAxis1 = 96, // 0x00000060
+            ScrollWheelEventPointDeltaAxis2 = 97, // 0x00000061
+            ScrollWheelEventPointDeltaAxis3 = 98, // 0x00000062
+            ScrollWheelEventScrollPhase = 99, // 0x00000063
+            ScrollWheelEventScrollCount = 100, // 0x00000064
+            ScrollWheelEventMomentumPhase = 123, // 0x0000007B
+            EventUnacceleratedPointerMovementX = 170, // 0x000000AA
+            EventUnacceleratedPointerMovementY = 171, // 0x000000AB
+        }
+
+        [DllImport(MacTweaksAXUIStubLibrary, EntryPoint = "CGEventGetIntegerValueFieldWrapper")]
+        public static extern long CGEventGetIntegerValueField(IntPtr cgEvent, CGEventField field);
     }
 }

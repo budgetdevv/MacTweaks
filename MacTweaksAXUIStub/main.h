@@ -26,3 +26,5 @@ bool ApplicationAllWindowsAreMinimized(int pid);
 bool ApplicationFocusedWindowIsFullScreenDirect(AXUIElementRef app);
 
 bool ApplicationFocusedWindowIsFullScreen(int pid);
+
+bool CGEventGetIntegerValueFieldWrapper(CGEventRef event, CGEventField field);

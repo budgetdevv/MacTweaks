@@ -81,6 +81,7 @@
         <Compile Include="Modules\Dock\DockDebugModule.cs" />
         <Compile Include="Modules\Dock\DockModule.cs" />
         <Compile Include="Modules\IModule.cs" />
+        <Compile Include="Modules\Keystrokes\CommandQModule.cs" />
         <Compile Include="ViewController.cs"/>
         <Compile Include="ViewController.designer.cs">
             <DependentUpon>ViewController.cs</DependentUpon>

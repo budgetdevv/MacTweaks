@@ -6,6 +6,7 @@ using Foundation;
 using MacTweaks.Helpers;
 using MacTweaks.Modules;
 using MacTweaks.Modules.Dock;
+using MacTweaks.Modules.Keystrokes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MacTweaks
@@ -25,11 +26,15 @@ namespace MacTweaks
             
             collection.AddSingleton<IModule, DockModule>();
 
+            collection.AddSingleton<IModule, CommandQModule>();
+
             return collection;
         }
 
         private static void ConstructMenuBarIcon()
         {
+            // TODO: Improve this mess
+            
             // Construct menu that will be displayed when tray icon is clicked
             var notifyMenu = new NSMenu();
             var exitMenuItem = new NSMenuItem("Quit My Application", 
@@ -44,8 +49,7 @@ namespace MacTweaks
 
             // Remove the system tray icon from upper-right hand corner of the screen
             // (works without adjusting the LSUIElement setting in Info.plist)
-            NSApplication.SharedApplication.ActivationPolicy = 
-                NSApplicationActivationPolicy.Accessory;
+            NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
         }
 
         public void ConstructMenu()

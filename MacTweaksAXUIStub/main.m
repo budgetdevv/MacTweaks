@@ -200,3 +200,8 @@ bool ApplicationFocusedWindowIsFullScreen(int pid)
 
     return isFullScreen;
 }
+
+int64_t CGEventGetIntegerValueFieldWrapper(CGEventRef event, CGEventField field)
+{
+    return CGEventGetIntegerValueField(event, field);
+}
