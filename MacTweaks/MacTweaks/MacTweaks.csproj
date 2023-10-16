@@ -67,6 +67,7 @@
         <ImageAsset Include="Assets.xcassets\Contents.json"/>
     </ItemGroup>
     <ItemGroup>
+        <Folder Include="Modules\Window\" />
         <Folder Include="Resources\"/>
     </ItemGroup>
     <ItemGroup>

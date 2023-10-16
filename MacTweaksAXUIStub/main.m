@@ -102,7 +102,7 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app, bool* areMinimi
 {
     CFArrayRef windowsList;
 
-    bool areMinimizedLocal =  true;
+    bool areMinimizedLocal = true;
 
     if (app != NULL && GetWindowListForApplication(app, &windowsList))
     {
