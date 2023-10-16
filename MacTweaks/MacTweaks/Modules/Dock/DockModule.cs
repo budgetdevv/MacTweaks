@@ -1,16 +1,9 @@
 using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using AppKit;
 using CoreFoundation;
 using CoreGraphics;
-using Foundation;
 using MacTweaks.Helpers;
-using ObjCRuntime;
-using Security;
 
 namespace MacTweaks.Modules.Dock
 {
@@ -40,8 +33,6 @@ namespace MacTweaks.Modules.Dock
     
     public class DockModule: IModule
     {
-        private NSObject OnRightMouseDownHandle;
-        
         private nfloat DockHeight, DockHeightThreshold;
 
         private NSDockTile DockTile;
@@ -52,23 +43,17 @@ namespace MacTweaks.Modules.Dock
 
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
 
-        private CFMachPort EventTap;
-
-        private static DockModule Yes;
+        private CFMachPort OnRightMouseDownHandle;
 
         private CGEvent.CGEventTapCallback Callback;
         
         public void Start()
         {
-            Yes = this;
-            
-            // OnRightMouseDownHandle = NSEvent.AddGlobalMonitorForEventsMatchingMask(NSEventMask.LeftMouseDown, OnDockLeftClick);
-
-            Console.WriteLine(AccessibilityHelpers.IsRoot());
+            AccessibilityHelpers.IsRoot();
 
             Callback = OnDockLeftClick;
             
-            var eventTap = EventTap = CGEvent.CreateTap(
+            var eventTap = OnRightMouseDownHandle = CGEvent.CreateTap(
                 CGEventTapLocation.HID,
                 CGEventTapPlacement.HeadInsert,
                 CGEventTapOptions.Default,
