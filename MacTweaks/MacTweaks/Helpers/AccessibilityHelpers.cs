@@ -43,7 +43,6 @@ namespace MacTweaks.Helpers
             public IntPtr AXIsApplicationRunning;
         }
         
-        
         [DllImport(MacTweaksAXUIStubLibrary)]
         private static extern bool AXGetElementAtPosition(IntPtr sysWide, float x, float y, out AXUIElementMarshaller output);
         
@@ -206,5 +205,97 @@ namespace MacTweaks.Helpers
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationCloseFocusedWindow(int pid);
+        
+        [StructLayout(LayoutKind.Sequential)]
+        public struct AXUIElementRawMarshaller
+        {
+            public AXUIElementMarshaller Data;
+
+            public IntPtr Handle;
+        }
+        
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        private static extern bool AXGetElementAtPositionRaw(IntPtr sysWide, float x, float y, out AXUIElementRawMarshaller output);
+        
+        public struct AXUIElementRaw: IDisposable
+        {
+            public string AXTitle;
+            public string AXSubrole;
+            public CGRect Rect;
+            public int AXIsApplicationRunning;
+            public IntPtr Handle;
+
+            public bool ApplicationIsRunning => AXIsApplicationRunning != 0;
+            
+            public AXUIElementRaw(AXUIElementRawMarshaller marshaller)
+            {
+                var dataMarshaller = marshaller.Data;
+                
+                var mTitle = dataMarshaller.AXTitle;
+
+                if (mTitle != IntPtr.Zero)
+                {
+                    AXTitle = Runtime.GetNSObject<NSString>(mTitle);
+                    CFRelease(mTitle);
+                }
+
+                else
+                {
+                    AXTitle = default;
+                }
+
+                var mSubrole = dataMarshaller.AXSubrole;
+
+                if (mSubrole != IntPtr.Zero)
+                {
+                    AXSubrole = Runtime.GetNSObject<NSString>(mSubrole);
+                    CFRelease(mSubrole);
+                }
+
+                else
+                {
+                    AXSubrole = default;
+                }
+                
+                Rect = dataMarshaller.Rect;
+
+                var mAXIsApplicationRunning = dataMarshaller.AXIsApplicationRunning;
+                
+                if (mAXIsApplicationRunning != IntPtr.Zero)
+                {
+                    AXIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning).Int32Value;
+                    CFRelease(mAXIsApplicationRunning);
+                }
+                
+                else
+                {
+                    AXIsApplicationRunning = default;
+                }
+
+                Handle = marshaller.Handle;
+            }
+            
+            public void Dispose()
+            {
+                CFRelease(Handle);
+            }
+        }
+        
+        public static bool AXGetElementAtPositionRaw(float x, float y, out AXUIElementRaw output)
+        {
+            var success = AXGetElementAtPositionRaw(SysWide, x, y, out var marshaller);
+
+            if (success)
+            {
+                output = new AXUIElementRaw(marshaller);
+            }
+
+            else
+            {
+                output = default;
+            }
+
+            return success;
+        }
     }
 }

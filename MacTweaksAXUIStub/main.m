@@ -102,7 +102,7 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app, bool* areMinimi
 {
     CFArrayRef windowsList;
 
-    bool areMinimizedLocal;
+    bool areMinimizedLocal =  true;
 
     if (app != NULL && GetWindowListForApplication(app, &windowsList))
     {
@@ -132,9 +132,9 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app, bool* areMinimi
 
                 break;
             }
-
-            *areMinimized = areMinimizedLocal;
         }
+
+        *areMinimized = areMinimizedLocal;
 
         CFRelease(value);
         CFRelease(windowsList);
@@ -251,6 +251,59 @@ bool ApplicationCloseFocusedWindow(int pid)
     CFRelease(app);
 
     return success;
+}
+
+typedef struct
+{
+    AXUIElement Base;
+    AXUIElementRef Handle;
+} AXUIElementRaw;
+
+bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIElementRaw* outputPtr)
+{
+    AXUIElementRaw output;
+    AXUIElement base;
+
+    // This handle will contain whatever we are hovering over.
+    AXUIElementRef handle;
+
+    // Check to see what it is
+    bool success = AXUIElementCopyElementAtPosition(sysWide, x, y, &handle) == 0;
+
+    AXValueRef value;
+    NSRect rect;
+
+    // Check to see if this found something, if not, return undefined.
+    if (success)
+    {
+        output.Handle = handle;
+
+        success = AXUIElementCopyAttributeValue(handle, kAXSubroleAttribute, (CFTypeRef*) &base.AXSubrole) == 0;
+
+        // Get the size of the handle
+        success = AXUIElementCopyAttributeValue(handle, kAXSizeAttribute, (CFTypeRef*) &value) == 0;
+        AXValueGetValue(value, kAXValueCGSizeType, (void*) &rect.size);
+
+        // Get the position of the handle
+        success = AXUIElementCopyAttributeValue(handle, kAXPositionAttribute, (CFTypeRef*) &value) == 0;
+        AXValueGetValue(value, kAXValueCGPointType, (void*) &rect.origin);
+
+        // Get the title of the handle
+        success = AXUIElementCopyAttributeValue(handle, kAXTitleAttribute, (CFTypeRef*) &base.AXTitle) == 0;
+
+        // Get the running status of the handle
+        success = AXUIElementCopyAttributeValue(handle, kAXIsApplicationRunningAttribute, (CFTypeRef*) &base.AXIsApplicationRunning) == 0;
+
+        base.Rect = rect;
+
+        output.Base = base;
+
+        *outputPtr = output;
+
+        return success;
+    }
+
+    return false;
 }
 
 // TODO: Make APIs for closing all windows of given application

@@ -34,3 +34,11 @@ bool CloseWindowDirect(AXUIElementRef window);
 bool ApplicationCloseFocusedWindowDirect(AXUIElementRef app);
 
 bool ApplicationCloseFocusedWindow(int pid);
+
+typedef struct
+{
+    AXUIElement Base;
+    AXUIElementRef Handle;
+} AXUIElementRaw;
+
+bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIElementRaw* outputPtr);

@@ -150,6 +150,7 @@ namespace MacTweaks.Modules.Dock
                     // If so, we shouldn't attempt to hide the application
                     // AccessibilityHelpers.ApplicationAllWindowsAreMinimized will return false if there are no active
                     // windows. This resolves the bug of finder not launching when there are no active windows.
+                    
                     if (!AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier, out var areMinimized) || areMinimized)
                     {
                         return handle;
