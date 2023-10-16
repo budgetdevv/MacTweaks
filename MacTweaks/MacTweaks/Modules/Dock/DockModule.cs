@@ -49,8 +49,6 @@ namespace MacTweaks.Modules.Dock
         
         public void Start()
         {
-            AccessibilityHelpers.IsRoot();
-
             Callback = OnDockLeftClick;
             
             var eventTap = OnRightMouseDownHandle = CGEvent.CreateTap(
