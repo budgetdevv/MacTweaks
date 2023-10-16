@@ -1,7 +1,0 @@
----
-triple:          'arm64-apple-darwin'
-binary-path:     MacTweaksAXUIStub.dylib
-relocations:
-  - { offsetInCU: 0x27, offset: 0x27, size: 0x8, addend: 0x0, symName: _AXGetElementAtPosition, symObjAddr: 0x0, symBinAddr: 0x3DEC, symSize: 0x150 }
-  - { offsetInCU: 0x6A, offset: 0x6A, size: 0x8, addend: 0x0, symName: _AXGetElementAtPosition, symObjAddr: 0x0, symBinAddr: 0x3DEC, symSize: 0x150 }
-...
