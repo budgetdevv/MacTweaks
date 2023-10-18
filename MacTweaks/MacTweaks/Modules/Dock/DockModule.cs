@@ -135,9 +135,9 @@ namespace MacTweaks.Modules.Dock
                     
                 var activeApp = sharedWorkspace.FrontmostApplication;
             
-                if (exists)
+                if (exists && clickedElement.AXSubrole == "AXApplicationDockItem")
                 {
-                    if (clickedElement.ApplicationIsRunning && clickedElement.AXSubrole == "AXApplicationDockItem")
+                    if (clickedElement.ApplicationIsRunning)
                     {
                         var title = clickedElement.AXTitle;
 
