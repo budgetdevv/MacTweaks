@@ -8,45 +8,50 @@ typedef struct
     NSString* AXSubrole;
     NSRect Rect;
     NSNumber* AXIsApplicationRunning;
+    pid_t PID;
+
 } AXUIElement;
 
 bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElement* outputPtr)
 {
     AXUIElement output;
 
-    // This element will contain whatever we are hovering over.
-    AXUIElementRef element = NULL;
+    // This handle will contain whatever we are hovering over.
+    AXUIElementRef handle;
 
     // Check to see what it is
-    int err = AXUIElementCopyElementAtPosition(sysWide, x, y, &element);
+    bool success = AXUIElementCopyElementAtPosition(sysWide, x, y, &handle) == 0;
 
     AXValueRef value;
     NSRect rect;
 
     // Check to see if this found something, if not, return undefined.
-    if (err == kAXErrorSuccess && AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*) &output.AXSubrole) == 0)
+    if (success)
     {
-        // Get the size of the element
-        AXUIElementCopyAttributeValue(element, kAXSizeAttribute, (CFTypeRef*) &value);
+        AXUIElementCopyAttributeValue(handle, kAXSubroleAttribute, (CFTypeRef*) &output.AXSubrole);
+
+        // Get the size of the handle
+        AXUIElementCopyAttributeValue(handle, kAXSizeAttribute, (CFTypeRef*) &value);
         AXValueGetValue(value, kAXValueCGSizeType, (void*) &rect.size);
 
-        // Get the position of the element
-        AXUIElementCopyAttributeValue(element, kAXPositionAttribute, (CFTypeRef*) &value);
+        // Get the position of the handle
+        AXUIElementCopyAttributeValue(handle, kAXPositionAttribute, (CFTypeRef*) &value);
         AXValueGetValue(value, kAXValueCGPointType, (void*) &rect.origin);
 
-        // Get the title of the element
-        AXUIElementCopyAttributeValue(element, kAXTitleAttribute, (CFTypeRef*) &output.AXTitle);
+        // Get the title of the handle
+        AXUIElementCopyAttributeValue(handle, kAXTitleAttribute, (CFTypeRef*) &output.AXTitle);
 
-        // Get the running status of the element
-        AXUIElementCopyAttributeValue(element, kAXIsApplicationRunningAttribute, (CFTypeRef*) &output.AXIsApplicationRunning);
+        // Get the running status of the handle
+        AXUIElementCopyAttributeValue(handle, kAXIsApplicationRunningAttribute, (CFTypeRef*) &output.AXIsApplicationRunning);
+
+        // Get PID of the handle
+        AXUIElementGetPid(handle, &output.PID);
 
         output.Rect = rect;
 
-        CFRelease(value);
-
         *outputPtr = output;
 
-        return true;
+        return success;
     }
 
     return false;
@@ -278,21 +283,24 @@ bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIEle
     {
         output.Handle = handle;
 
-        success = AXUIElementCopyAttributeValue(handle, kAXSubroleAttribute, (CFTypeRef*) &base.AXSubrole) == 0;
+        AXUIElementCopyAttributeValue(handle, kAXSubroleAttribute, (CFTypeRef*) &base.AXSubrole);
 
         // Get the size of the handle
-        success = AXUIElementCopyAttributeValue(handle, kAXSizeAttribute, (CFTypeRef*) &value) == 0;
+        AXUIElementCopyAttributeValue(handle, kAXSizeAttribute, (CFTypeRef*) &value);
         AXValueGetValue(value, kAXValueCGSizeType, (void*) &rect.size);
 
         // Get the position of the handle
-        success = AXUIElementCopyAttributeValue(handle, kAXPositionAttribute, (CFTypeRef*) &value) == 0;
+        AXUIElementCopyAttributeValue(handle, kAXPositionAttribute, (CFTypeRef*) &value);
         AXValueGetValue(value, kAXValueCGPointType, (void*) &rect.origin);
 
         // Get the title of the handle
-        success = AXUIElementCopyAttributeValue(handle, kAXTitleAttribute, (CFTypeRef*) &base.AXTitle) == 0;
+        AXUIElementCopyAttributeValue(handle, kAXTitleAttribute, (CFTypeRef*) &base.AXTitle);
 
         // Get the running status of the handle
-        success = AXUIElementCopyAttributeValue(handle, kAXIsApplicationRunningAttribute, (CFTypeRef*) &base.AXIsApplicationRunning) == 0;
+        AXUIElementCopyAttributeValue(handle, kAXIsApplicationRunningAttribute, (CFTypeRef*) &base.AXIsApplicationRunning);
+
+        // Get PID of the handle
+        AXUIElementGetPid(handle, &base.PID);
 
         base.Rect = rect;
 

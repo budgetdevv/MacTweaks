@@ -41,6 +41,7 @@ namespace MacTweaks.Helpers
             public IntPtr AXSubrole;
             public CGRect Rect;
             public IntPtr AXIsApplicationRunning;
+            public int PID;
         }
         
         [DllImport(MacTweaksAXUIStubLibrary)]
@@ -54,6 +55,7 @@ namespace MacTweaks.Helpers
             public string AXSubrole;
             public CGRect Rect;
             public int AXIsApplicationRunning;
+            public int PID;
 
             public bool ApplicationIsRunning => AXIsApplicationRunning != 0;
             
@@ -99,6 +101,8 @@ namespace MacTweaks.Helpers
                 {
                     AXIsApplicationRunning = default;
                 }
+
+                PID = marshaller.PID;
             }
         }
         
@@ -223,7 +227,8 @@ namespace MacTweaks.Helpers
             public string AXSubrole;
             public CGRect Rect;
             public int AXIsApplicationRunning;
-            public IntPtr Handle;
+            public int PID;
+            public IntPtr Handle; // This should be at the bottom
 
             public bool ApplicationIsRunning => AXIsApplicationRunning != 0;
             
@@ -273,6 +278,8 @@ namespace MacTweaks.Helpers
                 }
 
                 Handle = marshaller.Handle;
+
+                PID = dataMarshaller.PID;
             }
             
             public void Dispose()

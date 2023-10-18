@@ -31,27 +31,35 @@ namespace MacTweaks.Modules.Keystrokes
 
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
         
-        private static IntPtr OnCommandQ(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
+        private IntPtr OnCommandQ(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
         {
-            var activeApp = SharedWorkspace.FrontmostApplication;
-
-            if (activeApp.LocalizedName != "Finder")
+            if (!type.CGEventTapIsDisabled())
             {
-                return handle;
-            }
-            
-            var @event = new CGEvent(handle);
+                var activeApp = SharedWorkspace.FrontmostApplication;
 
-            if (@event.Flags.HasFlag(CGEventFlags.Command))
-            {
-                var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
-
-                if (keyCode == NSKey.Q)
+                if (activeApp.LocalizedName != "Finder")
                 {
-                    AccessibilityHelpers.ApplicationCloseFocusedWindow(activeApp.ProcessIdentifier);
-                    
-                    return IntPtr.Zero;
+                    return handle;
                 }
+            
+                var @event = new CGEvent(handle);
+
+                if (@event.Flags.HasFlag(CGEventFlags.Command))
+                {
+                    var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
+
+                    if (keyCode == NSKey.Q)
+                    {
+                        AccessibilityHelpers.ApplicationCloseFocusedWindow(activeApp.ProcessIdentifier);
+                    
+                        return IntPtr.Zero;
+                    }
+                }
+            }
+
+            else
+            {
+                CGEvent.TapEnable(OnCommandQHandle);
             }
             
             return handle;

@@ -36,7 +36,7 @@ namespace MacTweaks.Modules.Dock
 
             var location = data.Rect.Location;
                     
-            Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {location.X} | {location.Y}");
+            Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {location.X} | {location.Y} | {data.PID}");
         }
         
         public void Stop()

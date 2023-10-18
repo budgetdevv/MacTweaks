@@ -2,14 +2,17 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 
-typedef struct {
-    NSString *AXTitle;
-    NSString *AXSubrole;
+typedef struct
+{
+    NSString* AXTitle;
+    NSString* AXSubrole;
     NSRect Rect;
-    NSNumber *AXIsApplicationRunning;
+    NSNumber* AXIsApplicationRunning;
+    pid_t PID;
+
 } AXUIElement;
 
-bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElement* output);
+bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElement* outputPtr);
 
 AXUIElementRef AXUIGetApplicationAccessibilityElement(int pid);
 
