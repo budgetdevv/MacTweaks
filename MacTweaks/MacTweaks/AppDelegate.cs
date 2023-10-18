@@ -14,11 +14,18 @@ namespace MacTweaks
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate
     {
-        private ServiceProvider Services;
+        public readonly ServiceProvider Services;
 
-        private static ServiceCollection GetServiceCollection()
+        public AppDelegate()
+        {
+            Services = GetServiceCollection().BuildServiceProvider();
+        }
+        
+        private ServiceCollection GetServiceCollection()
         {
             var collection = new ServiceCollection();
+            
+            collection.AddSingleton<AppDelegate>(this);
             
             #if DEBUG
             collection.AddSingleton<IModule, DockDebugModule>();
@@ -70,10 +77,8 @@ namespace MacTweaks
             NSWorkspace.SharedWorkspace.RunningApplications.First(x => x.LocalizedName == "MacTweaks").Activate(default);
             
             AccessibilityHelpers.RequestForAccessibilityIfNotGranted();
-            
-            var services = Services = GetServiceCollection().BuildServiceProvider();
 
-            foreach (var service in services.GetServices<IModule>())
+            foreach (var service in Services.GetServices<IModule>())
             {
                 service.Start();
             }

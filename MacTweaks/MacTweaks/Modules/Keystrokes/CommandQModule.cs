@@ -24,7 +24,7 @@ namespace MacTweaks.Modules.Keystrokes
                 onCommandQCallback,
                 IntPtr.Zero);
             
-            CFRunLoop.Main.AddSource(onCommandQHandle.CreateRunLoopSource(), CFRunLoop.ModeDefault);
+            CFRunLoop.Main.AddSource(onCommandQHandle.CreateRunLoopSource(), CFRunLoop.ModeCommon);
             
             CGEvent.TapEnable(onCommandQHandle);
         }

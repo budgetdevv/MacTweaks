@@ -59,7 +59,7 @@ namespace MacTweaks.Modules.Dock
                 Callback,
                 IntPtr.Zero);
             
-            CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeDefault);
+            CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeCommon);
             
             CGEvent.TapEnable(eventTap);
             
