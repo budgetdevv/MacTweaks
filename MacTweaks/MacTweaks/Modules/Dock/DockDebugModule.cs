@@ -26,7 +26,7 @@ namespace MacTweaks.Modules.Dock
         
         private void OnRightMouseDown(NSEvent @event)
         {
-            var dm = AppDelegate.Services.GetServices<IModule>().First(x => x.GetType() == typeof(DockModule));
+            // var dm = AppDelegate.Services.GetServices<IModule>().First(x => x.GetType() == typeof(DockModule));
 
             // CFRunLoop.Main.ContainsSource();
             

@@ -34,5 +34,10 @@ namespace MacTweaks.Helpers
         {
             return new CGPoint(GetCenterX(rect), GetCenterY(rect));
         }
+        
+        public static bool CGEventTapIsDisabled(this CGEventType type)
+        {
+            return type == CGEventType.TapDisabledByTimeout || type == CGEventType.TapDisabledByUserInput;
+        }
     }
 }

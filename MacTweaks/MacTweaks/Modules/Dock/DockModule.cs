@@ -118,95 +118,103 @@ namespace MacTweaks.Modules.Dock
         
         private IntPtr OnDockLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
         {
-            var @event = new CGEvent(handle);
-
-            var mouseLocation = @event.Location;
-
-            if (mouseLocation.Y <= DockHeightThreshold)
+            if (!type.CGEventTapIsDisabled())
             {
-                return handle;
-            }
-            
-            var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
+                var @event = new CGEvent(handle);
 
-            var sharedWorkspace = NSWorkspace.SharedWorkspace;
-                    
-            var activeApp = sharedWorkspace.FrontmostApplication;
-            
-            if (exists)
-            {
-                if (clickedElement.ApplicationIsRunning && clickedElement.AXSubrole == "AXApplicationDockItem")
+                var mouseLocation = @event.Location;
+
+                if (mouseLocation.Y <= DockHeightThreshold)
                 {
-                    var title = clickedElement.AXTitle;
+                    return handle;
+                }
+            
+                var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
-                    var titleSpan = title.AsSpan();
+                var sharedWorkspace = NSWorkspace.SharedWorkspace;
                     
-                    if (!activeApp.GetDockName().SequenceEqual(titleSpan))
+                var activeApp = sharedWorkspace.FrontmostApplication;
+            
+                if (exists)
+                {
+                    if (clickedElement.ApplicationIsRunning && clickedElement.AXSubrole == "AXApplicationDockItem")
                     {
-                        goto HideApp;
-                    }
+                        var title = clickedElement.AXTitle;
+
+                        var titleSpan = title.AsSpan();
                     
-                    // Check if the active application have all windows minimized.
-                    // If so, we shouldn't attempt to hide the application
-                    // AccessibilityHelpers.ApplicationAllWindowsAreMinimized will return false if there are no active
-                    // windows. This resolves the bug of finder not launching when there are no active windows.
-                    
-                    if (!AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier, out var areMinimized) || areMinimized)
-                    {
-                        return handle;
-                    }
-                    
-                    HideApp:
-                    foreach (var app in sharedWorkspace.RunningApplications)
-                    {
-                        if (!app.GetDockName().SequenceEqual(titleSpan))
+                        if (!activeApp.GetDockName().SequenceEqual(titleSpan))
                         {
-                            continue;
+                            goto HideApp;
                         }
-
-                        if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
+                    
+                        // Check if the active application have all windows minimized.
+                        // If so, we shouldn't attempt to hide the application
+                        // AccessibilityHelpers.ApplicationAllWindowsAreMinimized will return false if there are no active
+                        // windows. This resolves the bug of finder not launching when there are no active windows.
+                    
+                        if (!AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier, out var areMinimized) || areMinimized)
                         {
-                            if (title != "Finder")
+                            return handle;
+                        }
+                    
+                        HideApp:
+                        foreach (var app in sharedWorkspace.RunningApplications)
+                        {
+                            if (!app.GetDockName().SequenceEqual(titleSpan))
                             {
-                                app.Hide();
+                                continue;
                             }
 
-                            else
+                            if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
                             {
-                                // This is necessary. If we use hide for Finder, and all other apps are hidden,
-                                // it will force another app to become active
-                                // ( Thus they will appear, and it is weird )
-                                AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                                if (title != "Finder")
+                                {
+                                    app.Hide();
+                                }
+
+                                else
+                                {
+                                    // This is necessary. If we use hide for Finder, and all other apps are hidden,
+                                    // it will force another app to become active
+                                    // ( Thus they will appear, and it is weird )
+                                    AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                                }
+
+                                return IntPtr.Zero;
                             }
 
-                            return IntPtr.Zero;
+                            // Clicking on dock icon re-activates app anyway
                         }
-
-                        // Clicking on dock icon re-activates app anyway
                     }
+                }
+
+                else
+                {
+                    if (!AccessibilityHelpers.ApplicationFocusedWindowIsFullScreen(activeApp.ProcessIdentifier))
+                    {
+                        // Hot corners
+                
+                        var centerX = CenterX;
+                
+                        if (mouseLocation.X > centerX)
+                        {
+                            OnBottomRightHotCornerLeftClick?.Invoke(@event);
+                        }
+                
+                        else
+                        {
+                            OnBottomLeftHotCornerLeftClick?.Invoke(@event);
+                        }
+                    }
+                
+                    // Don't do anything in fullscreen mode
                 }
             }
 
             else
             {
-                if (!AccessibilityHelpers.ApplicationFocusedWindowIsFullScreen(activeApp.ProcessIdentifier))
-                {
-                    // Hot corners
-                
-                    var centerX = CenterX;
-                
-                    if (mouseLocation.X > centerX)
-                    {
-                        OnBottomRightHotCornerLeftClick?.Invoke(@event);
-                    }
-                
-                    else
-                    {
-                        OnBottomLeftHotCornerLeftClick?.Invoke(@event);
-                    }
-                }
-                
-                // Don't do anything in fullscreen mode
+                CGEvent.TapEnable(OnRightMouseDownHandle);
             }
 
             return handle;
