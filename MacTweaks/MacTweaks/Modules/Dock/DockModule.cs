@@ -76,7 +76,7 @@ namespace MacTweaks.Modules.Dock
                 //TODO: Make a dictionary cache for running applications
                 foreach (var app in sharedWorkspace.RunningApplications)
                 { 
-                    if (app.LocalizedName != "Finder")
+                    if (app.LocalizedName != ConstantHelpers.FINDER_APP_NAME)
                     {
                         continue;
                     }
@@ -168,7 +168,7 @@ namespace MacTweaks.Modules.Dock
 
                             if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
                             {
-                                if (title != "Finder")
+                                if (title != ConstantHelpers.FINDER_APP_NAME)
                                 {
                                     app.Hide();
                                 }

@@ -67,7 +67,6 @@
         <ImageAsset Include="Assets.xcassets\Contents.json"/>
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Modules\Window\" />
         <Folder Include="Resources\"/>
     </ItemGroup>
     <ItemGroup>
@@ -85,6 +84,7 @@
         <Compile Include="Modules\Dock\DockModule.cs" />
         <Compile Include="Modules\IModule.cs" />
         <Compile Include="Modules\Keystrokes\CommandQModule.cs" />
+        <Compile Include="Modules\Window\RedQuitModule.cs" />
         <Compile Include="ViewController.cs"/>
         <Compile Include="ViewController.designer.cs">
             <DependentUpon>ViewController.cs</DependentUpon>

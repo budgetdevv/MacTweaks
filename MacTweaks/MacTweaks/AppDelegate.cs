@@ -7,6 +7,7 @@ using MacTweaks.Helpers;
 using MacTweaks.Modules;
 using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Keystrokes;
+using MacTweaks.Modules.Window;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MacTweaks
@@ -34,6 +35,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, DockModule>();
 
             collection.AddSingleton<IModule, CommandQModule>();
+            
+            collection.AddSingleton<IModule, RedQuitModule>();
 
             return collection;
         }

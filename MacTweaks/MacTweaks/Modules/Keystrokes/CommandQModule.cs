@@ -37,7 +37,7 @@ namespace MacTweaks.Modules.Keystrokes
             {
                 var activeApp = SharedWorkspace.FrontmostApplication;
 
-                if (activeApp.LocalizedName != "Finder")
+                if (activeApp.LocalizedName != ConstantHelpers.FINDER_APP_NAME)
                 {
                     return handle;
                 }
