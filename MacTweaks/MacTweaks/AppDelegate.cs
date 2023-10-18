@@ -44,18 +44,20 @@ namespace MacTweaks
             
             // Construct menu that will be displayed when tray icon is clicked
             var notifyMenu = new NSMenu();
-            var exitMenuItem = new NSMenuItem("Quit My Application", 
-                (a,b) => { System.Environment.Exit(0); }); // Just add 'Quit' command
+            var exitMenuItem = new NSMenuItem($"Quit {ConstantHelpers.APP_NAME}",
+                (handler, args) =>
+                {
+                    Environment.Exit(0);
+                });
             notifyMenu.AddItem(exitMenuItem);
 
             // Display tray icon in upper-right-hand corner of the screen
-            var sItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
-            sItem.Menu = notifyMenu;
-            sItem.Image = NSImage.FromStream(System.IO.File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
-            sItem.HighlightMode = true;
+            var statusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
+            statusItem.Menu = notifyMenu;
+            statusItem.Image = NSImage.FromStream(System.IO.File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
+            statusItem.HighlightMode = true;
 
-            // Remove the system tray icon from upper-right hand corner of the screen
-            // (works without adjusting the LSUIElement setting in Info.plist)
+            // Remove from dock
             NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
         }
 
@@ -122,7 +124,7 @@ namespace MacTweaks
             }
         }
 
-        private void Start()
+        private void Start() 
         {
             ConstructMenuBarIcon();
             
