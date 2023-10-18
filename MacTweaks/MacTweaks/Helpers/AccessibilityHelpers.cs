@@ -297,5 +297,8 @@ namespace MacTweaks.Helpers
 
             return success;
         }
+        
+        // [DllImport("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices")]
+        // public static extern bool AXMakeProcessTrusted(IntPtr pid);
     }
 }

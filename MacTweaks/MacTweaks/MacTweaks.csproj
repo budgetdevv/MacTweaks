@@ -78,6 +78,7 @@
     <ItemGroup>
         <Compile Include="Helpers\AccessibilityHelpers.cs" />
         <Compile Include="Helpers\CGHelpers.cs" />
+        <Compile Include="Helpers\ConstantHelpers.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="AppDelegate.cs"/>
         <Compile Include="Modules\Dock\DockDebugModule.cs" />

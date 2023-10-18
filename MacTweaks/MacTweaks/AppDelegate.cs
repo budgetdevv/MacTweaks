@@ -69,15 +69,63 @@ namespace MacTweaks
             var optionsSubMenu = optionsMenu.Submenu = new NSMenu("Options");
             optionsSubMenu.AddItem(new NSMenuItem("Quit", "q", (sender, e) => NSApplication.SharedApplication.Terminate(this)));
         }
+
+        private void MakeAccessibilityCheckerWindow()
+        {
+            // Create the window
+            var window = new NSWindow(new CoreGraphics.CGRect(200, 200, 400, 200), NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Miniaturizable, NSBackingStore.Buffered, false);
+            window.Title = ConstantHelpers.APP_NAME;
+
+            // Create the label
+            var label = new NSTextField(new CoreGraphics.CGRect(50, 100, 300, 50));
+            label.StringValue = "Click on the button when you've granted the app accessibility access";
+            label.Alignment = NSTextAlignment.Center;
+            label.Editable = false;
+            label.Bordered = false;
+            label.DrawsBackground = false;
+
+            // Create the button
+            var button = new NSButton(new CoreGraphics.CGRect(100, 50, 200, 30));
+            button.Title = "Check for accessibility access";
+            button.BezelStyle = NSBezelStyle.Rounded;
+            
+            button.Activated += (sender, args) =>
+            {
+                if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
+                {
+                    window.Close();
+                    Start();
+                }
+            };
+
+            var contentView = window.ContentView;
+            
+            // Add the label and the button to the window's content view
+            contentView.AddSubview(label);
+            contentView.AddSubview(button);
+            
+            window.MakeKeyAndOrderFront(this);
+
+            NSRunningApplication.CurrentApplication.Activate(default);
+        }
         
         public override void DidFinishLaunching(NSNotification notification)
         {
+            if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
+            {
+                Start();
+            }
+
+            else
+            {
+                MakeAccessibilityCheckerWindow();
+            }
+        }
+
+        private void Start()
+        {
             ConstructMenuBarIcon();
             
-            NSWorkspace.SharedWorkspace.RunningApplications.First(x => x.LocalizedName == "MacTweaks").Activate(default);
-            
-            AccessibilityHelpers.RequestForAccessibilityIfNotGranted();
-
             foreach (var service in Services.GetServices<IModule>())
             {
                 service.Start();
