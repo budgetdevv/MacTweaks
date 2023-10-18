@@ -134,13 +134,13 @@ namespace MacTweaks.Modules.Dock
                 var sharedWorkspace = NSWorkspace.SharedWorkspace;
                     
                 var activeApp = sharedWorkspace.FrontmostApplication;
-            
-                if (exists && clickedElement.AXSubrole == "AXApplicationDockItem")
-                {
-                    if (clickedElement.ApplicationIsRunning)
-                    {
-                        var title = clickedElement.AXTitle;
 
+                string title;
+                
+                if (exists && (title = clickedElement.AXTitle) != null)
+                {
+                    if (clickedElement.ApplicationIsRunning && clickedElement.AXSubrole == "AXApplicationDockItem")
+                    {
                         var titleSpan = title.AsSpan();
                     
                         if (!activeApp.GetDockName().SequenceEqual(titleSpan))
