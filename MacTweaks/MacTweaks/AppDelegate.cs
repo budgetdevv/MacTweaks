@@ -39,6 +39,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, CommandQModule>();
             
             collection.AddSingleton<IModule, RedQuitModule>();
+            
+            collection.AddSingleton<IModule, CommandDeleteModule>();
 
             return collection;
         }

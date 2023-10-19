@@ -83,6 +83,7 @@
         <Compile Include="Modules\Dock\DockDebugModule.cs" />
         <Compile Include="Modules\Dock\DockModule.cs" />
         <Compile Include="Modules\IModule.cs" />
+        <Compile Include="Modules\Keystrokes\CommandDeleteModule.cs" />
         <Compile Include="Modules\Keystrokes\CommandQModule.cs" />
         <Compile Include="Modules\Window\RedQuitModule.cs" />
         <Compile Include="ViewController.cs"/>

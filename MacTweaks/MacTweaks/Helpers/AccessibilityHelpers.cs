@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using CoreFoundation;
 using CoreGraphics;
@@ -325,6 +327,91 @@ namespace MacTweaks.Helpers
             windows = null;
             
             return false;
+        }
+        
+        private const string FinderGetSelectedItemsScriptText = "tell application \"Finder\"\n" +
+                                                            "    set selectedItems to selection\n" +
+                                                            "    set posixPaths to {}\n" +
+                                                            "    repeat with selectedItem in selectedItems\n" +
+                                                            "        set selectedItemAlias to selectedItem as alias\n" +
+                                                            "        set end of posixPaths to POSIX path of selectedItemAlias\n" +
+                                                            "    end repeat\n" +
+                                                            "    return posixPaths\n" +
+                                                            "end tell";
+
+        private static readonly NSAppleScript FinderGetSelectedItemsScript = new NSAppleScript(FinderGetSelectedItemsScriptText);
+
+        public static List<string> FinderGetSelectedFilePaths()
+        {
+            var appleScript = FinderGetSelectedItemsScript;
+
+            var descriptor = appleScript.ExecuteAndReturnError(out var errorInfo);
+            
+            if (descriptor != null)
+            {
+                // Get the array of string paths from the result descriptor
+                var paths = new List<string>();
+                for (int i = 1; i <= descriptor.NumberOfItems; i++)
+                {
+                    // Get the ith descriptor from the result descriptor
+                    var itemDescriptor = descriptor.DescriptorAtIndex(i);
+                    // Get the string value from the item descriptor
+                    var itemPath = itemDescriptor.StringValue;
+                    // Add the item path to the list of paths
+                    paths.Add(itemPath);
+                }
+
+                return paths;
+            }
+
+            return null;
+        }
+        
+        public static bool IsVolumeInUse(string volumePath)
+        {
+            var process = new Process();
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "lsof",
+                Arguments = "-n | grep \"" + volumePath + "\"",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            process.StartInfo = startInfo;
+            process.Start();
+
+            var output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            return !string.IsNullOrWhiteSpace(output);
+        }
+        
+        public static bool UnmountVolume(string volumePath, bool force = false)
+        {
+            if (!force && IsVolumeInUse(volumePath))
+            {
+                return false;
+            }
+            
+            var process = new Process();
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "umount",
+                // Account for volumes with whitespace
+                Arguments = $"\"{volumePath}\"",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            process.StartInfo = startInfo;
+            
+            process.Start();
+            process.WaitForExit();
+
+            return process.ExitCode == 0;
         }
     }
 }
