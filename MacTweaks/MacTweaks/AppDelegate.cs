@@ -17,6 +17,8 @@ namespace MacTweaks
     {
         public readonly ServiceProvider Services;
 
+        private NSMenu MenuBarIconMenu; // Prevent the menu from being GC-ed
+
         public AppDelegate()
         {
             Services = GetServiceCollection().BuildServiceProvider();
@@ -41,27 +43,24 @@ namespace MacTweaks
             return collection;
         }
 
-        private static void ConstructMenuBarIcon()
+        private void ConstructMenuBarIcon()
         {
             // TODO: Improve this mess
             
             // Construct menu that will be displayed when tray icon is clicked
-            var notifyMenu = new NSMenu();
+            var menuBarIconMenu = MenuBarIconMenu = new NSMenu();
             var exitMenuItem = new NSMenuItem($"Quit {ConstantHelpers.APP_NAME}",
                 (handler, args) =>
                 {
                     Environment.Exit(0);
                 });
-            notifyMenu.AddItem(exitMenuItem);
+            menuBarIconMenu.AddItem(exitMenuItem);
 
             // Display tray icon in upper-right-hand corner of the screen
             var statusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
-            statusItem.Menu = notifyMenu;
+            statusItem.Menu = menuBarIconMenu;
             statusItem.Image = NSImage.FromStream(System.IO.File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
             statusItem.HighlightMode = true;
-
-            // Remove from dock
-            NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
         }
 
         public void ConstructMenu()
@@ -129,6 +128,9 @@ namespace MacTweaks
 
         private void Start() 
         {
+            // Remove from dock
+            NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
+            
             ConstructMenuBarIcon();
             
             foreach (var service in Services.GetServices<IModule>())
