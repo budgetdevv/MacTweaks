@@ -17,7 +17,7 @@ namespace MacTweaks
     {
         public readonly ServiceProvider Services;
 
-        private NSMenu MenuBarIconMenu; // Prevent the menu from being GC-ed
+        private NSStatusItem MenuBarStatusItem; // Prevent the menubar icon from being GC-ed
 
         public AppDelegate()
         {
@@ -48,7 +48,7 @@ namespace MacTweaks
             // TODO: Improve this mess
             
             // Construct menu that will be displayed when tray icon is clicked
-            var menuBarIconMenu = MenuBarIconMenu = new NSMenu();
+            var menuBarIconMenu = new NSMenu();
             var exitMenuItem = new NSMenuItem($"Quit {ConstantHelpers.APP_NAME}",
                 (handler, args) =>
                 {
@@ -57,7 +57,7 @@ namespace MacTweaks
             menuBarIconMenu.AddItem(exitMenuItem);
 
             // Display tray icon in upper-right-hand corner of the screen
-            var statusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
+            var statusItem = MenuBarStatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
             statusItem.Menu = menuBarIconMenu;
             statusItem.Image = NSImage.FromStream(System.IO.File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
             statusItem.HighlightMode = true;
