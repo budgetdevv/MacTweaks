@@ -62,9 +62,20 @@ AXUIElementRef AXUIGetApplicationAccessibilityElement(int pid)
     return AXUIElementCreateApplication(pid);
 }
 
-bool GetWindowListForApplication(AXUIElementRef app, CFArrayRef* windowsList)
+bool GetWindowListForApplicationDirect(AXUIElementRef app, CFArrayRef* windowsList)
 {
     return AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef*) windowsList) == 0;
+}
+
+bool GetWindowListForApplication(pid_t pid, CFArrayRef* windowsList)
+{
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+
+    bool success = GetWindowListForApplicationDirect(app, windowsList);
+
+    CFRelease(app);
+
+    return success;
 }
 
 bool MinimizeAllWindowsForApplicationDirect(AXUIElementRef app)
@@ -73,7 +84,7 @@ bool MinimizeAllWindowsForApplicationDirect(AXUIElementRef app)
 
     CFArrayRef windowsList;
 
-    if (app != NULL && GetWindowListForApplication(app, &windowsList))
+    if (app != NULL && GetWindowListForApplicationDirect(app, &windowsList))
     {
         CFBooleanRef value = kCFBooleanTrue;
 
@@ -109,7 +120,7 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app, bool* areMinimi
 
     bool areMinimizedLocal = true;
 
-    if (app != NULL && GetWindowListForApplication(app, &windowsList))
+    if (app != NULL && GetWindowListForApplicationDirect(app, &windowsList))
     {
         CFBooleanRef value;
 

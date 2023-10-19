@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using ObjCRuntime;
@@ -307,5 +308,23 @@ namespace MacTweaks.Helpers
         
         // [DllImport("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices")]
         // public static extern bool AXMakeProcessTrusted(IntPtr pid);
+        
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        private static extern bool GetWindowListForApplication(int pid, out IntPtr windowsHandle);
+
+        public static bool GetWindowListForApplication(int pid, out NSValue[] windows)
+        {
+            if (GetWindowListForApplication(pid, out IntPtr windowsHandle))
+            {
+                windows = NSArray.ArrayFromHandle<NSValue>(windowsHandle);
+                CFRelease(windowsHandle);
+                
+                return true;
+            }
+
+            windows = null;
+            
+            return false;
+        }
     }
 }

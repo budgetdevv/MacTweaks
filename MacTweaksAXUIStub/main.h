@@ -16,7 +16,9 @@ bool AXGetElementAtPosition(AXUIElementRef sysWide, float x, float y, AXUIElemen
 
 AXUIElementRef AXUIGetApplicationAccessibilityElement(int pid);
 
-bool GetWindowListForApplication(AXUIElementRef app, CFArrayRef* windowsList);
+bool GetWindowListForApplicationDirect(AXUIElementRef app, CFArrayRef* windowsList);
+
+bool GetWindowListForApplication(pid_t pid, CFArrayRef* windowsList);
 
 bool MinimizeAllWindowsForApplicationDirect(AXUIElementRef app);
 
