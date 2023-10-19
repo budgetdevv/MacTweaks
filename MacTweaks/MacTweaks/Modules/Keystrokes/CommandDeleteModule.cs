@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using CoreGraphics;
 using AppKit;
 using CoreFoundation;
-using Foundation;
 using MacTweaks.Helpers;
 
 namespace MacTweaks.Modules.Keystrokes
@@ -33,31 +31,6 @@ namespace MacTweaks.Modules.Keystrokes
         }
 
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
-
-        // private class MountedVolumesEqualityComparer: IEqualityComparer<string>
-        // {
-        //     public bool Equals(string x, string y)
-        //     {
-        //         // This is mostly to handle MountedLocalVolumePaths comparisons against AccessibilityHelpers.FinderGetSelectedFilePaths(),
-        //         // since the latter includes a trailing slash
-        //         
-        //         if (x != y)
-        //         {
-        //             var length = Math.Min(x.Length, y.Length);
-        //
-        //             return x.AsSpan(0, length).SequenceEqual(y.AsSpan(0, length));
-        //         }
-        //
-        //         return true;
-        //     }
-        //
-        //     public int GetHashCode(string obj)
-        //     {
-        //         
-        //     }
-        // }
-        //
-        // private static readonly MountedVolumesEqualityComparer MountedVolumesStringEqualityComparer = new MountedVolumesEqualityComparer();
         
         private IntPtr OnCommandDelete(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
         {
