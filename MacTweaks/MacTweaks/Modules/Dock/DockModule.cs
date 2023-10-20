@@ -187,6 +187,7 @@ namespace MacTweaks.Modules.Dock
                             }
 
                             // Clicking on dock icon re-activates app anyway
+                            break;
                         }
                     }
 
