@@ -453,5 +453,35 @@ namespace MacTweaks.Helpers
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool WindowToggleMinimize(IntPtr window);
+
+        private const string FinderSelectedElementsEjectOrMoveToTrashScriptText = @"on run
+                                                                                    	run script o
+                                                                                    end run
+                                                                                    
+                                                                                    script o
+                                                                                    	tell application ""Finder""
+                                                                                    		set selectedItems to selection
+                                                                                    		repeat with anItem in selectedItems
+                                                                                    			try
+                                                                                    				if class of anItem is disk then
+                                                                                    					eject anItem
+                                                                                    				else if class of anItem is document file then
+                                                                                    					delete anItem
+                                                                                    				else if class of anItem is folder then
+                                                                                    					delete anItem
+                                                                                    				end if
+                                                                                    			on error errMsg number errNum
+                                                                                    				-- Ignore the error and continue
+                                                                                    			end try
+                                                                                    		end repeat
+                                                                                    	end tell
+                                                                                    end script";
+
+        private static readonly NSAppleScript FinderSelectedElementsEjectOrMoveToTrashScript = new NSAppleScript(FinderSelectedElementsEjectOrMoveToTrashScriptText);
+        
+        public static bool SelectedElementsEjectOrMoveToTrash()
+        {
+            return FinderSelectedElementsEjectOrMoveToTrashScript.ExecuteAndReturnError(out _) != null;
+        }
     }
 }

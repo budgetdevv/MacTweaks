@@ -45,53 +45,9 @@ namespace MacTweaks.Modules.Keystrokes
 
                     if (keyCode == NSKey.Delete)
                     {
-                        var workspace = SharedWorkspace;
+                        AccessibilityHelpers.SelectedElementsEjectOrMoveToTrash();
 
-                        var selectedPaths = AccessibilityHelpers.FinderGetSelectedFilePaths();
-
-                        if (selectedPaths != null)
-                        {
-                            var mountedVolumes = workspace.MountedLocalVolumePaths.ToHashSet();
-                        
-                            foreach (var path in selectedPaths)
-                            {
-                                var span = path.AsSpan();
-
-                                if (span.Length > 1)
-                                {
-                                    // Get rid of trailing slash
-                                    span = span.Slice(0, span.Length - 1);
-                                }
-
-                                var actualPath = span.ToString();
-                            
-                                if (mountedVolumes.Contains(actualPath))
-                                {
-                                    // NSWorkspace.UnmountAndEjectDevice() doesn't support network volumes
-                                
-                                    if (AccessibilityHelpers.UnmountVolume(actualPath))
-                                    {
-                                        continue;
-                                    }
-                                
-                                    // Volume is in use. Display a warning dialog.
-                                    var alert = new NSAlert
-                                    {
-                                        AlertStyle = NSAlertStyle.Warning,
-                                        InformativeText = $"The volume {actualPath} is in use and cannot be ejected.",
-                                        MessageText = "Warning"
-                                    };
-                                    alert.RunSheetModal(null);
-                                }
-
-                                else
-                                {
-                                    NSFileManager.DefaultManager.TrashItem(new NSUrl(path, true), out _, out _);
-                                }
-                            }
-                    
-                            return IntPtr.Zero;
-                        }
+                        return IntPtr.Zero;
                     }
                 }
             }
