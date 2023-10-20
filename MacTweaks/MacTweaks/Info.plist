@@ -35,5 +35,6 @@
 	</dict>
 	<key>LSUIElement</key>
 	<false/>
+	<key>NSAppleEventsUsageDescription</key> <string>My app needs access to Finder to manage your files and folders</string>
 </dict>
 </plist>

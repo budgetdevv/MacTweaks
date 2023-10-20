@@ -11,7 +11,6 @@
         <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
         <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
         <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-        
     </PropertyGroup>
     <PropertyGroup>
         <TieredCompilation>false</TieredCompilation>
@@ -33,6 +32,8 @@
         <UseRefCounting>true</UseRefCounting>
         <PlatformTarget>ARM64</PlatformTarget>
         <XamMacArch>ARM64</XamMacArch>
+        <Entitlements>entitlements.plist</Entitlements>
+        <UseHardenedRuntime>true</UseHardenedRuntime>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
         <DebugType>pdbonly</DebugType>
@@ -50,6 +51,8 @@
         <LinkMode>SdkOnly</LinkMode>
         <PlatformTarget>ARM64</PlatformTarget>
         <XamMacArch>ARM64</XamMacArch>
+        <Entitlements>entitlements.plist</Entitlements>
+        <UseHardenedRuntime>true</UseHardenedRuntime>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="Microsoft.Extensions.DependencyInjection, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">

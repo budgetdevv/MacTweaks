@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using CoreFoundation;
+using AppKit;
 using CoreGraphics;
 using Foundation;
 using ObjCRuntime;
@@ -363,6 +363,15 @@ namespace MacTweaks.Helpers
 
                 return paths;
             }
+            
+            // Volume is in use. Display a warning dialog.
+            var alert = new NSAlert
+            {
+                AlertStyle = NSAlertStyle.Warning,
+                InformativeText = errorInfo.ToString(),
+                MessageText = "Warning"
+            };
+            alert.RunSheetModal(null);
 
             return null;
         }

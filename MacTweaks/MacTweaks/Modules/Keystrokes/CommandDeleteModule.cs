@@ -48,41 +48,44 @@ namespace MacTweaks.Modules.Keystrokes
 
                         var selectedPaths = AccessibilityHelpers.FinderGetSelectedFilePaths();
 
-                        var mountedVolumes = workspace.MountedLocalVolumePaths.ToHashSet();
-                        
-                        foreach (var path in selectedPaths)
+                        if (selectedPaths != null)
                         {
-                            var span = path.AsSpan();
-
-                            if (span.Length > 1)
+                            var mountedVolumes = workspace.MountedLocalVolumePaths.ToHashSet();
+                        
+                            foreach (var path in selectedPaths)
                             {
-                                // Get rid of trailing slash
-                                span = span.Slice(0, span.Length - 1);
-                            }
+                                var span = path.AsSpan();
 
-                            var actualPath = span.ToString();
-                            
-                            if (mountedVolumes.Contains(actualPath))
-                            {
-                                // NSWorkspace.UnmountAndEjectDevice() doesn't support network volumes
-                                
-                                if (AccessibilityHelpers.UnmountVolume(actualPath))
+                                if (span.Length > 1)
                                 {
-                                    continue;
+                                    // Get rid of trailing slash
+                                    span = span.Slice(0, span.Length - 1);
                                 }
-                                
-                                // Volume is in use. Display a warning dialog.
-                                var alert = new NSAlert
+
+                                var actualPath = span.ToString();
+                            
+                                if (mountedVolumes.Contains(actualPath))
                                 {
-                                    AlertStyle = NSAlertStyle.Warning,
-                                    InformativeText = $"The volume {actualPath} is in use and cannot be ejected.",
-                                    MessageText = "Warning"
-                                };
-                                alert.RunSheetModal(null);
+                                    // NSWorkspace.UnmountAndEjectDevice() doesn't support network volumes
+                                
+                                    if (AccessibilityHelpers.UnmountVolume(actualPath))
+                                    {
+                                        continue;
+                                    }
+                                
+                                    // Volume is in use. Display a warning dialog.
+                                    var alert = new NSAlert
+                                    {
+                                        AlertStyle = NSAlertStyle.Warning,
+                                        InformativeText = $"The volume {actualPath} is in use and cannot be ejected.",
+                                        MessageText = "Warning"
+                                    };
+                                    alert.RunSheetModal(null);
+                                }
                             }
-                        }
                     
-                        return IntPtr.Zero;
+                            return IntPtr.Zero;
+                        }
                     }
                 }
             }
