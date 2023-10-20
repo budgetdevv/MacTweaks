@@ -3,6 +3,7 @@ using System.Linq;
 using CoreGraphics;
 using AppKit;
 using CoreFoundation;
+using Foundation;
 using MacTweaks.Helpers;
 
 namespace MacTweaks.Modules.Keystrokes
@@ -81,6 +82,11 @@ namespace MacTweaks.Modules.Keystrokes
                                         MessageText = "Warning"
                                     };
                                     alert.RunSheetModal(null);
+                                }
+
+                                else
+                                {
+                                    NSFileManager.DefaultManager.TrashItem(new NSUrl(path, true), out _, out _);
                                 }
                             }
                     
