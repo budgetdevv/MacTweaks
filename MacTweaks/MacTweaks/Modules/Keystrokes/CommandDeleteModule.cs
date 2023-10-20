@@ -45,7 +45,25 @@ namespace MacTweaks.Modules.Keystrokes
 
                     if (keyCode == NSKey.Delete)
                     {
-                        AccessibilityHelpers.SelectedElementsEjectOrMoveToTrash();
+                        if (AccessibilityHelpers.SelectedElementsEjectOrMoveToTrash(out var diskPaths))
+                        {
+                            foreach (var diskPath in diskPaths)
+                            {
+                                if (AccessibilityHelpers.UnmountVolume(diskPath))
+                                {
+                                    continue;
+                                }
+                                
+                                // Volume is in use. Display a warning dialog.
+                                var alert = new NSAlert
+                                {
+                                    AlertStyle = NSAlertStyle.Warning,
+                                    InformativeText = $"The volume {diskPath} is in use and cannot be ejected.",
+                                    MessageText = "Warning"
+                                };
+                                alert.RunSheetModal(null);
+                            }
+                        }
 
                         return IntPtr.Zero;
                     }

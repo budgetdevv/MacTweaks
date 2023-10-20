@@ -454,34 +454,56 @@ namespace MacTweaks.Helpers
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool WindowToggleMinimize(IntPtr window);
 
-        private const string FinderSelectedElementsEjectOrMoveToTrashScriptText = @"on run
-                                                                                    	run script o
-                                                                                    end run
-                                                                                    
-                                                                                    script o
-                                                                                    	tell application ""Finder""
-                                                                                    		set selectedItems to selection
-                                                                                    		repeat with anItem in selectedItems
-                                                                                    			try
-                                                                                    				if class of anItem is disk then
-                                                                                    					eject anItem
-                                                                                    				else if class of anItem is document file then
-                                                                                    					delete anItem
-                                                                                    				else if class of anItem is folder then
-                                                                                    					delete anItem
-                                                                                    				end if
-                                                                                    			on error errMsg number errNum
-                                                                                    				-- Ignore the error and continue
-                                                                                    			end try
-                                                                                    		end repeat
-                                                                                    	end tell
-                                                                                    end script";
+        private const string FinderSelectedElementsEjectOrMoveToTrashScriptText = @"tell application ""Finder""
+                                                                                    	set selectedItems to selection
+                                                                                    	set ejectables to {}
+                                                                                    	
+                                                                                    	repeat with anItem in selectedItems
+                                                                                    		try
+                                                                                    			if class of anItem is disk then
+                                                                                    				set ejectables to ejectables & (POSIX path of (anItem as text))
+                                                                                    			else if (class of anItem is document file) or (class of anItem is folder) then
+                                                                                    				delete anItem
+                                                                                    			end if
+                                                                                    		on error errMsg number errNum
+                                                                                    			-- Ignore the error and continue
+                                                                                    		end try
+                                                                                    	end repeat
+                                                                                    	
+                                                                                    	return ejectables
+                                                                                    end tell
+";
 
         private static readonly NSAppleScript FinderSelectedElementsEjectOrMoveToTrashScript = new NSAppleScript(FinderSelectedElementsEjectOrMoveToTrashScriptText);
         
-        public static bool SelectedElementsEjectOrMoveToTrash()
+        public static bool SelectedElementsEjectOrMoveToTrash(out List<string> diskPaths)
         {
-            return FinderSelectedElementsEjectOrMoveToTrashScript.ExecuteAndReturnError(out _) != null;
+            var descriptor = FinderSelectedElementsEjectOrMoveToTrashScript.ExecuteAndReturnError(out _);
+            
+            var success = descriptor != null;
+
+            if (success)
+            {
+                var count = descriptor.NumberOfItems;
+
+                diskPaths = new List<string>((int) count);
+                
+                for (nint I = 1; I <= count; I++)
+                {
+                    var y = descriptor.DescriptorAtIndex(I);
+                    
+                    var x = y.StringValue;
+                    
+                    diskPaths.Add(x);
+                }
+            }
+
+            else
+            {
+                diskPaths = null;
+            }
+            
+            return success;
         }
     }
 }
