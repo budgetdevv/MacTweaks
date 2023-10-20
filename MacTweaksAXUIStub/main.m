@@ -152,7 +152,6 @@ bool ApplicationAllWindowsAreMinimizedDirect(AXUIElementRef app, bool* areMinimi
 
         *areMinimized = areMinimizedLocal;
 
-        CFRelease(value);
         CFRelease(windowsList);
 
         return true;
