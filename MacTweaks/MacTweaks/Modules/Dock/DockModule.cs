@@ -139,7 +139,9 @@ namespace MacTweaks.Modules.Dock
                 
                 if (exists && (title = clickedElement.AXTitle) != null)
                 {
-                    if (clickedElement.ApplicationIsRunning && clickedElement.AXSubrole == "AXApplicationDockItem")
+                    var subrole = clickedElement.AXSubrole;
+                    
+                    if (clickedElement.ApplicationIsRunning && subrole == "AXApplicationDockItem")
                     {
                         var titleSpan = title.AsSpan();
                     
@@ -186,6 +188,11 @@ namespace MacTweaks.Modules.Dock
 
                             // Clicking on dock icon re-activates app anyway
                         }
+                    }
+
+                    else if (subrole == "AXTrashDockItem" && AccessibilityHelpers.TryToggleTrashWindow())
+                    {
+                        return IntPtr.Zero;
                     }
                 }
 

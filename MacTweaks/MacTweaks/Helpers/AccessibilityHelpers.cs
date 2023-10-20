@@ -343,9 +343,7 @@ namespace MacTweaks.Helpers
 
         public static List<string> FinderGetSelectedFilePaths()
         {
-            var appleScript = FinderGetSelectedItemsScript;
-
-            var descriptor = appleScript.ExecuteAndReturnError(out var errorInfo);
+            var descriptor = FinderGetSelectedItemsScript.ExecuteAndReturnError(out var errorInfo);
             
             if (descriptor != null)
             {
@@ -422,5 +420,38 @@ namespace MacTweaks.Helpers
 
             return process.ExitCode == 0;
         }
+        
+        private const string FinderToggleTrashWindowScriptText = @"tell application ""Finder""
+                                                                    set trashTarget to trash
+                                                                    set trashWindows to windows whose name is ""Trash""
+
+                                                                    repeat with trashWindow in trashWindows
+                                                                        if (target of trashWindow) is trashTarget then
+                                                                            set isMinimized to collapsed of trashWindow
+                                                                            
+                                                                            if isMinimized is false then
+				                                                                set collapsed of trashWindow to true
+			                                                                else
+				                                                                set collapsed of trashWindow to false
+			                                                                end if
+
+                                                                            return true
+                                                                        end if
+                                                                    end repeat
+
+                                                                    return false
+                                                                end tell";
+        
+        private static readonly NSAppleScript FinderToggleTrashWindowScript = new NSAppleScript(FinderToggleTrashWindowScriptText);
+        
+        public static bool TryToggleTrashWindow()
+        {
+            var descriptor = FinderToggleTrashWindowScript.ExecuteAndReturnError(out var errorInfo);
+
+            return descriptor.BooleanValue;
+        }
+        
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        public static extern bool WindowToggleMinimize(IntPtr window);
     }
 }

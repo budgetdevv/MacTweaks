@@ -47,3 +47,5 @@ typedef struct
 } AXUIElementRaw;
 
 bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIElementRaw* outputPtr);
+
+bool WindowToggleMinimize(AXUIElementRef window);

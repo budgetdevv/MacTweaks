@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
-#import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 typedef struct
 {
@@ -348,3 +348,18 @@ bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIEle
 //
 //    return isFullScreen;
 //}
+
+bool WindowToggleMinimize(AXUIElementRef window)
+{
+    CFBooleanRef value;
+
+    AXUIElementCopyAttributeValue(window, kAXMinimizedAttribute, (CFTypeRef*) &value);
+
+    bool isMinimized = !CFBooleanGetValue(value);
+
+    value = isMinimized ? kCFBooleanTrue : kCFBooleanFalse;
+
+    AXUIElementSetAttributeValue(window, kAXMinimizedAttribute, value);
+
+    return isMinimized;
+}
