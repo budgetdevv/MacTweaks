@@ -490,11 +490,9 @@ namespace MacTweaks.Helpers
                 
                 for (nint I = 1; I <= count; I++)
                 {
-                    var y = descriptor.DescriptorAtIndex(I);
+                    var diskPath = descriptor.DescriptorAtIndex(I).StringValue;
                     
-                    var x = y.StringValue;
-                    
-                    diskPaths.Add(x);
+                    diskPaths.Add(diskPath);
                 }
             }
 
