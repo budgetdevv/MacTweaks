@@ -391,23 +391,23 @@ namespace MacTweaks.Helpers
                 {
                     var i = 1;
                 
-                    while (true)
+                while (true)
+                {
+                    var itemDescriptor = descriptor.DescriptorAtIndex(i);
+
+                    var itemPath = itemDescriptor.StringValue;
+
+                    paths.Append(itemPath);
+
+                    if (i != itemsCount)
                     {
-                        var itemDescriptor = descriptor.DescriptorAtIndex(i);
-
-                        var itemPath = itemDescriptor.StringValue;
-
-                        paths.Append(itemPath);
-
-                        if (i != itemsCount)
-                        {
-                            paths.Append('\n');
-                            i++;
-                            continue;
-                        }
-
-                        break;
+                        paths.Append('\n');
+                        i++;
+                        continue;
                     }
+
+                    break;
+                }
                 }
 
                 return true;
@@ -603,15 +603,29 @@ namespace MacTweaks.Helpers
                                                                                 			-- Split the text by line breaks to get an array of paths
                                                                                 			set file_paths to paragraphs of clipboard_text
                                                                                 			
+                                                                                			set actual_files to {}
+                                                                                			
                                                                                 			repeat with sourcePath in file_paths
                                                                                 				set file_to_move to file (sourcePath as POSIX file)
-                                                                                				move file_to_move to destination_folder
+                                                                                				
+                                                                                				set end of actual_files to file_to_move
                                                                                 			end repeat
+                                                                                			
+                                                                                			set actual_files_alias to (actual_files as alias list)
+                                                                                			
+                                                                                			move actual_files_alias to destination_folder
+                                                                                			
+                                                                                			try
+                                                                                				delete actual_files_alias
+                                                                                			on error
+                                                                                				
+                                                                                			end try
                                                                                 		end tell
                                                                                 		
                                                                                 		return true -- Return true on success
                                                                                 		
                                                                                 	on error errMsg
+                                                                                		return errMsg
                                                                                 		return false -- Return false if any errors are caught
                                                                                 	end try
                                                                                 end run";
