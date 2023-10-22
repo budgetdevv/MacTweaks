@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 using AppKit;
 using CoreGraphics;
 using Foundation;
@@ -343,12 +346,23 @@ namespace MacTweaks.Helpers
 
         public static List<string> FinderGetSelectedFilePaths()
         {
-            var descriptor = FinderGetSelectedItemsScript.ExecuteAndReturnError(out var errorInfo);
+            var paths = new List<string>();
+
+            if (FinderGetSelectedFilePaths(paths, out _))
+            {
+                return paths;
+            }
+
+            return null;
+        }
+        
+        public static bool FinderGetSelectedFilePaths(List<string> paths, out NSDictionary errorInfo)
+        {
+            var descriptor = FinderGetSelectedItemsScript.ExecuteAndReturnError(out errorInfo);
             
             if (descriptor != null)
             {
                 // Get the array of string paths from the result descriptor
-                var paths = new List<string>();
                 for (int i = 1; i <= descriptor.NumberOfItems; i++)
                 {
                     // Get the ith descriptor from the result descriptor
@@ -359,19 +373,47 @@ namespace MacTweaks.Helpers
                     paths.Add(itemPath);
                 }
 
-                return paths;
+                return true;
             }
-            
-            // Volume is in use. Display a warning dialog.
-            var alert = new NSAlert
-            {
-                AlertStyle = NSAlertStyle.Warning,
-                InformativeText = errorInfo.ToString(),
-                MessageText = "Warning"
-            };
-            alert.RunSheetModal(null);
 
-            return null;
+            return false;
+        }
+        
+        public static bool FinderGetSelectedFilePaths(StringBuilder paths, out NSDictionary errorInfo)
+        {
+            var descriptor = FinderGetSelectedItemsScript.ExecuteAndReturnError(out errorInfo);
+            
+            if (descriptor != null)
+            {
+                var itemsCount = descriptor.NumberOfItems;
+
+                if (itemsCount != 0)
+                {
+                    var i = 1;
+                
+                    while (true)
+                    {
+                        var itemDescriptor = descriptor.DescriptorAtIndex(i);
+
+                        var itemPath = itemDescriptor.StringValue;
+
+                        paths.Append(itemPath);
+
+                        if (i != itemsCount)
+                        {
+                            paths.Append('\n');
+                            i++;
+                            continue;
+                        }
+
+                        break;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
         }
         
         public static bool IsVolumeInUse(string volumePath)
@@ -502,6 +544,87 @@ namespace MacTweaks.Helpers
             }
             
             return success;
+        }
+
+        private const string MoveItemsToDestinationPathScriptText = @"on run {sourcePaths, destinationPath}
+                                                                      	try
+                                                                      		tell application ""Finder""
+                                                                      			set destination_folder to folder (destinationPath as POSIX file)
+                                                                      			repeat with sourcePath in sourcePaths -- loop through each source path
+                                                                      				set file_to_move to file (sourcePath as POSIX file)
+                                                                      				move file_to_move to destination_folder
+                                                                      			end repeat
+                                                                      		end tell
+                                                                      		return true -- return true if no errors occurred
+                                                                      	on error
+                                                                      		return false -- return false if there's an error
+                                                                      	end try
+                                                                      end run
+";
+        
+        private static readonly NSAppleScript MoveItemsToDestinationPathScript = new NSAppleScript(MoveItemsToDestinationPathScriptText);
+        
+        public static async Task<bool> MoveItemsToDestinationPath(List<string> sourceFilePaths, string destinationPath)
+        {
+            var parameters = NSAppleEventDescriptor.ListDescriptor;
+            
+            var sourcePaths = NSAppleEventDescriptor.ListDescriptor;
+
+            nint index = 1;
+
+            foreach (var sourcePath in sourceFilePaths)
+            {
+                sourcePaths.InsertDescriptoratIndex(NSAppleEventDescriptor.FromFileURL(new NSUrl(sourcePath)), index++);
+            }
+            
+            parameters.InsertDescriptoratIndex(sourcePaths, 1);
+            
+            parameters.InsertDescriptoratIndex(NSAppleEventDescriptor.FromFileURL(new NSUrl(destinationPath)), 2);
+
+            await Task.Yield();
+
+            var descriptor = MoveItemsToDestinationPathScript.ExecuteAppleEvent(parameters, out _);
+
+            return descriptor != null;
+        }
+
+        private const string MoveClipboardItemsToActiveFinderPathScriptText = @"on run
+                                                                                	try
+                                                                                		tell application ""Finder""
+                                                                                			if exists window 1 then
+                                                                                				set destination_folder to folder (POSIX path of ((target of front window) as alias) as POSIX file)
+                                                                                			else
+                                                                                				set destination_folder to folder (POSIX path of (path to desktop folder) as POSIX file)
+                                                                                			end if
+                                                                                			
+                                                                                			-- Get the clipboard contents as text
+                                                                                			set clipboard_text to (do shell script ""pbpaste"")
+                                                                                			
+                                                                                			-- Split the text by line breaks to get an array of paths
+                                                                                			set file_paths to paragraphs of clipboard_text
+                                                                                			
+                                                                                			repeat with sourcePath in file_paths
+                                                                                				set file_to_move to file (sourcePath as POSIX file)
+                                                                                				move file_to_move to destination_folder
+                                                                                			end repeat
+                                                                                		end tell
+                                                                                		
+                                                                                		return true -- Return true on success
+                                                                                		
+                                                                                	on error errMsg
+                                                                                		return false -- Return false if any errors are caught
+                                                                                	end try
+                                                                                end run";
+        
+        private static readonly NSAppleScript MoveClipboardItemsToActiveFinderPathScript = new NSAppleScript(MoveClipboardItemsToActiveFinderPathScriptText);
+        
+        public static async Task<bool> MoveClipboardItemsToActiveFinderPath()
+        {
+            await Task.Yield();
+            
+            var descriptor = MoveClipboardItemsToActiveFinderPathScript.ExecuteAndReturnError(out var error);
+
+            return descriptor != null && descriptor.BooleanValue;
         }
     }
 }

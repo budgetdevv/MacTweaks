@@ -61,9 +61,14 @@
         <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
           <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.8.0.0-rc.2.23479.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
         </Reference>
+        <Reference Include="OpenTK" />
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
+        <Reference Include="System.Numerics.Vectors" />
         <Reference Include="System.Web.Services" />
+        <Reference Include="Xamarin.Essentials, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+          <HintPath>..\packages\Xamarin.Essentials.1.8.0\lib\xamarinmac20\Xamarin.Essentials.dll</HintPath>
+        </Reference>
         <Reference Include="Xamarin.Mac"/>
     </ItemGroup>
     <ItemGroup>
@@ -83,6 +88,7 @@
         <Compile Include="Helpers\ConstantHelpers.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="AppDelegate.cs"/>
+        <Compile Include="Modules\Clipboarding\CutModule.cs" />
         <Compile Include="Modules\Dock\DockDebugModule.cs" />
         <Compile Include="Modules\Dock\DockModule.cs" />
         <Compile Include="Modules\IModule.cs" />

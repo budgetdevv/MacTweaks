@@ -5,6 +5,7 @@ using AppKit;
 using Foundation;
 using MacTweaks.Helpers;
 using MacTweaks.Modules;
+using MacTweaks.Modules.Clipboarding;
 using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Keystrokes;
 using MacTweaks.Modules.Window;
@@ -41,6 +42,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, RedQuitModule>();
             
             collection.AddSingleton<IModule, CommandDeleteModule>();
+            
+            collection.AddSingleton<IModule, CutModule>();
 
             return collection;
         }
