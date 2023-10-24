@@ -39,5 +39,18 @@ namespace MacTweaks.Helpers
         {
             return type == CGEventType.TapDisabledByTimeout || type == CGEventType.TapDisabledByUserInput;
         }
+
+        public static CGEventFlags GetKeyModifiersOnly(this CGEventFlags flags)
+        {
+            // Mask off anything 255 and below ( Apparently some bits are set 255 and below )
+            
+            const CGEventFlags IGNORE_255_AND_BELOW_MASK = (CGEventFlags) ~((ulong) 255);
+            
+            const CGEventFlags IGNORE_NON_COALESCED_MASK = ~CGEventFlags.NonCoalesced;
+
+            const CGEventFlags IGN0RE_MASK = IGNORE_255_AND_BELOW_MASK & IGNORE_NON_COALESCED_MASK;
+
+            return flags & IGN0RE_MASK;
+        }
     }
 }

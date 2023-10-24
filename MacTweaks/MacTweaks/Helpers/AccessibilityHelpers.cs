@@ -213,6 +213,9 @@ namespace MacTweaks.Helpers
         [DllImport(MacTweaksAXUIStubLibrary, EntryPoint = "CGEventGetIntegerValueFieldWrapper")]
         public static extern long CGEventGetIntegerValueField(IntPtr cgEvent, CGEventField field);
         
+        [DllImport(MacTweaksAXUIStubLibrary, EntryPoint = "CGEventSetIntegerValueFieldWrapper")]
+        public static extern void CGEventSetIntegerValueField(IntPtr cgEvent, CGEventField field, long value);
+        
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationCloseFocusedWindow(int pid);
         
@@ -332,15 +335,15 @@ namespace MacTweaks.Helpers
             return false;
         }
         
-        private const string FinderGetSelectedItemsScriptText = "tell application \"Finder\"\n" +
-                                                            "    set selectedItems to selection\n" +
-                                                            "    set posixPaths to {}\n" +
-                                                            "    repeat with selectedItem in selectedItems\n" +
-                                                            "        set selectedItemAlias to selectedItem as alias\n" +
-                                                            "        set end of posixPaths to POSIX path of selectedItemAlias\n" +
-                                                            "    end repeat\n" +
-                                                            "    return posixPaths\n" +
-                                                            "end tell";
+        private const string FinderGetSelectedItemsScriptText = @"tell application ""Finder""
+                                                                  	set selectedItems to selection
+                                                                  	set posixPaths to {}
+                                                                  	repeat with selectedItem in selectedItems
+                                                                  		set selectedItemAlias to selectedItem as alias
+                                                                  		set end of posixPaths to POSIX path of selectedItemAlias
+                                                                  	end repeat
+                                                                  	return posixPaths
+                                                                  end tell";
 
         private static readonly NSAppleScript FinderGetSelectedItemsScript = new NSAppleScript(FinderGetSelectedItemsScriptText);
 
@@ -639,6 +642,19 @@ namespace MacTweaks.Helpers
             var descriptor = MoveClipboardItemsToActiveFinderPathScript.ExecuteAndReturnError(out var error);
 
             return descriptor != null && descriptor.BooleanValue;
+        }
+
+        private const string FinderGetSelectedItemsCountScriptText = @"tell application ""Finder""
+                                                                       	set selectedItems to selection
+                                                                       	-- For some reason, count of selection always return zero
+                                                                       	return count of selectedItems
+                                                                       end tell";
+        
+        private static readonly NSAppleScript FinderGetSelectedItemsCountScript = new NSAppleScript(FinderGetSelectedItemsCountScriptText);
+
+        public static int FinderGetSelectedItemsCount()
+        {
+            return FinderGetSelectedItemsCountScript.ExecuteAndReturnError(out _).Int32Value;
         }
     }
 }

@@ -34,6 +34,8 @@ bool ApplicationFocusedWindowIsFullScreen(int pid);
 
 bool CGEventGetIntegerValueFieldWrapper(CGEventRef event, CGEventField field);
 
+void CGEventSetIntegerValueFieldWrapper(CGEventRef event, CGEventField field, int64_t value);
+
 bool CloseWindowDirect(AXUIElementRef window);
 
 bool ApplicationCloseFocusedWindowDirect(AXUIElementRef app);

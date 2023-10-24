@@ -11,6 +11,7 @@
         <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
         <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
         <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup>
         <TieredCompilation>false</TieredCompilation>
@@ -86,6 +87,7 @@
         <Compile Include="Helpers\AccessibilityHelpers.cs" />
         <Compile Include="Helpers\CGHelpers.cs" />
         <Compile Include="Helpers\ConstantHelpers.cs" />
+        <Compile Include="Helpers\BinaryHelpers.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="AppDelegate.cs"/>
         <Compile Include="Modules\Clipboarding\CutModule.cs" />

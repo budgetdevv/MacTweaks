@@ -223,6 +223,11 @@ int64_t CGEventGetIntegerValueFieldWrapper(CGEventRef event, CGEventField field)
     return CGEventGetIntegerValueField(event, field);
 }
 
+void CGEventSetIntegerValueFieldWrapper(CGEventRef event, CGEventField field, int64_t value)
+{
+    CGEventSetIntegerValueField(event, field, value);
+}
+
 bool CloseWindowDirect(AXUIElementRef window)
 {
     AXUIElementRef closeButton;
