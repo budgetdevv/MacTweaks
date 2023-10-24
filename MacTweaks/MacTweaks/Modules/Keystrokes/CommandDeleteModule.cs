@@ -39,7 +39,7 @@ namespace MacTweaks.Modules.Keystrokes
             {
                 var @event = new CGEvent(handle);
 
-                if (@event.Flags.HasFlag(CGEventFlags.Command))
+                if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
                 {
                     var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
 
