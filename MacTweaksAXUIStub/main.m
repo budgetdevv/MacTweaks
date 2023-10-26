@@ -329,30 +329,6 @@ bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIEle
     return false;
 }
 
-// TODO: Make APIs for closing all windows of given application
-
-//bool ApplicationCloseAllWindowsDirect(AXUIElementRef app)
-//{
-//    AXUIElementRef app = AXUIElementCreateApplication(pid);
-//
-//    bool isFullScreen = ApplicationFocusedWindowIsFullScreenDirect(app);
-//
-//    CFRelease(app);
-//
-//    return isFullScreen;
-//}
-//
-//bool ApplicationCloseAllWindows(int pid)
-//{
-//    AXUIElementRef app = AXUIElementCreateApplication(pid);
-//
-//    bool isFullScreen = ApplicationFocusedWindowIsFullScreenDirect(app);
-//
-//    CFRelease(app);
-//
-//    return isFullScreen;
-//}
-
 bool WindowToggleMinimize(AXUIElementRef window)
 {
     CFBooleanRef value;
@@ -367,3 +343,4 @@ bool WindowToggleMinimize(AXUIElementRef window)
 
     return isMinimized;
 }
+

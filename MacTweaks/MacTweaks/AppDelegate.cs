@@ -7,6 +7,7 @@ using MacTweaks.Helpers;
 using MacTweaks.Modules;
 using MacTweaks.Modules.Clipboarding;
 using MacTweaks.Modules.Dock;
+using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
 using MacTweaks.Modules.Window;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +45,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, CommandDeleteModule>();
             
             collection.AddSingleton<IModule, CutModule>();
+            
+            collection.AddSingleton<IModule, LowPowerMode>();
 
             return collection;
         }

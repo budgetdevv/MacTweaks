@@ -76,9 +76,6 @@
         <ImageAsset Include="Assets.xcassets\Contents.json"/>
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Resources\"/>
-    </ItemGroup>
-    <ItemGroup>
         <None Include="Info.plist"/>
         <None Include="Entitlements.plist"/>
         <None Include="packages.config" />
@@ -93,6 +90,7 @@
         <Compile Include="Modules\Clipboarding\CutModule.cs" />
         <Compile Include="Modules\Dock\DockDebugModule.cs" />
         <Compile Include="Modules\Dock\DockModule.cs" />
+        <Compile Include="Modules\Energy\LowPowerMode.cs" />
         <Compile Include="Modules\IModule.cs" />
         <Compile Include="Modules\Keystrokes\CommandDeleteModule.cs" />
         <Compile Include="Modules\Keystrokes\CommandQModule.cs" />
