@@ -656,5 +656,11 @@ namespace MacTweaks.Helpers
         {
             return FinderGetSelectedItemsCountScript.ExecuteAndReturnError(out _).Int32Value;
         }
+
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        public static extern bool GetMainDisplayBrightness(out float brightnessLevel);
+        
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        public static extern bool SetMainDisplayBrightness(float brightnessLevel);
     }
 }

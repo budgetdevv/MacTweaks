@@ -1,6 +1,9 @@
 #import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/graphics/IOGraphicsLib.h>
+#include "brightness.h"
 
 typedef struct
 {
@@ -343,4 +346,159 @@ bool WindowToggleMinimize(AXUIElementRef window)
 
     return isMinimized;
 }
+
+bool GetAllDisplaysBrightness(float* result, int* count)
+{
+    CGDirectDisplayID display[kMaxDisplays];
+
+    CGDisplayCount numDisplays;
+
+    CGDisplayErr error = CGGetOnlineDisplayList(kMaxDisplays, display, &numDisplays);
+
+    if (error == kCGErrorSuccess)
+    {
+        int successCount = 0;
+
+        for (CGDisplayCount i = 0; i < numDisplays; ++i)
+        {
+            CGDirectDisplayID currentDisplay = display[i];
+            CGDisplayModeRef mode = CGDisplayCopyDisplayMode(currentDisplay);
+
+            if (mode == NULL)
+            {
+                continue;
+            }
+
+            successCount++;
+
+            CGDisplayModeRelease(mode);
+
+            io_service_t service = CGDisplayGetIOServicePort(currentDisplay);
+
+            GetBrightness(currentDisplay, service, result);
+
+            result++;
+        }
+
+        if (successCount != 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool SetAllDisplaysBrightness(float brightnessLevel, int* count)
+{
+    CGDirectDisplayID display[kMaxDisplays];
+
+    CGDisplayCount numDisplays;
+
+    CGDisplayErr error = CGGetOnlineDisplayList(kMaxDisplays, display, &numDisplays);
+
+    if (error == kCGErrorSuccess)
+    {
+        int successCount = 0;
+
+        for (CGDisplayCount i = 0; i < numDisplays; ++i)
+        {
+            CGDirectDisplayID currentDisplay = display[i];
+            CGDisplayModeRef mode = CGDisplayCopyDisplayMode(currentDisplay);
+
+            if (mode == NULL)
+            {
+                continue;
+            }
+
+            successCount++;
+
+            CGDisplayModeRelease(mode);
+
+            io_service_t service = CGDisplayGetIOServicePort(currentDisplay);
+
+            SetBrightness(currentDisplay, service, brightnessLevel);
+        }
+
+        if (successCount != 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool GetDisplayBrightness(uint32_t display_id, float* result)
+{
+    CGDirectDisplayID display[kMaxDisplays];
+
+    CGDisplayCount numDisplays;
+
+    CGDisplayErr error = CGGetOnlineDisplayList(kMaxDisplays, display, &numDisplays);
+
+    if (error == kCGErrorSuccess)
+    {
+        CGDisplayModeRef mode = CGDisplayCopyDisplayMode(display_id);
+
+        if (mode == NULL)
+        {
+            printf("Fuck");
+            goto Fail;
+        }
+
+        CGDisplayModeRelease(mode);
+
+        io_service_t service = CGDisplayGetIOServicePort(display_id);
+
+        GetBrightness(display_id, service, result);
+
+        return true;
+    }
+
+    Fail:
+    return false;
+}
+
+bool GetMainDisplayBrightness(float* result)
+{
+    return GetDisplayBrightness(CGMainDisplayID(), result);
+}
+
+bool SetDisplayBrightness(uint32_t display_id, float brightnessLevel)
+{
+    CGDirectDisplayID display[kMaxDisplays];
+
+    CGDisplayCount numDisplays;
+
+    CGDisplayErr error = CGGetOnlineDisplayList(kMaxDisplays, display, &numDisplays);
+
+    if (error == kCGErrorSuccess)
+    {
+        CGDisplayModeRef mode = CGDisplayCopyDisplayMode(display_id);
+
+        if (mode == NULL)
+        {
+            goto Fail;
+        }
+
+        CGDisplayModeRelease(mode);
+
+        io_service_t service = CGDisplayGetIOServicePort(display_id);
+
+        SetBrightness(display_id, service, brightnessLevel);
+
+        return true;
+    }
+
+    Fail:
+    return false;
+}
+
+bool SetMainDisplayBrightness(float brightnessLevel)
+{
+    return SetDisplayBrightness(CGMainDisplayID(), brightnessLevel);
+}
+
+
 
