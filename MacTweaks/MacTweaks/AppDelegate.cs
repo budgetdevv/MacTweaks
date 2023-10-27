@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using AppKit;
+using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
 using MacTweaks.Modules;
@@ -10,6 +11,7 @@ using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
 using MacTweaks.Modules.Window;
+using MacTweaks.Views;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MacTweaks
@@ -85,7 +87,7 @@ namespace MacTweaks
         private void MakeAccessibilityCheckerWindow()
         {
             // Create the window
-            var window = new NSWindow(new CoreGraphics.CGRect(200, 200, 400, 200), NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Miniaturizable, NSBackingStore.Buffered, false);
+            var window = new NSWindow(new CGRect(200, 200, 400, 200), NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Miniaturizable, NSBackingStore.Buffered, false);
             window.Title = ConstantHelpers.APP_NAME;
 
             // Create the label
@@ -134,7 +136,7 @@ namespace MacTweaks
             }
         }
 
-        private void Start() 
+        private void Start()
         {
             // Remove from dock
             NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
@@ -146,7 +148,6 @@ namespace MacTweaks
                 service.Start();
             }
         }
-
         public override void WillTerminate(NSNotification notification)
         {
             // Insert code here to tear down your application

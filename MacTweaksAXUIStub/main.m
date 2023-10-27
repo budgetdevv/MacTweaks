@@ -500,5 +500,63 @@ bool SetMainDisplayBrightness(float brightnessLevel)
     return SetDisplayBrightness(CGMainDisplayID(), brightnessLevel);
 }
 
+bool GetMenuBarSize(pid_t pid, CGSize* size)
+{
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+
+    bool success = app != NULL;
+
+    if (success)
+    {
+        CFArrayRef children;
+        // Get the children of the application element
+        success = AXUIElementCopyAttributeValues(app, kAXChildrenAttribute, 0, 100, &children) == kAXErrorSuccess;
+
+        if (success)
+        {
+            // Loop through the children elements
+            for (CFIndex i = 0; i < CFArrayGetCount(children); i++)
+            {
+                AXUIElementRef child = CFArrayGetValueAtIndex(children, i);
+                CFTypeRef role;
+
+                // Get the role of the child element
+                success = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role) == kAXErrorSuccess;
+
+                if (success)
+                {
+                    bool isMenuBar = CFEqual(role, kAXMenuBarRole);
+
+                    CFRelease(role);
+
+                    // Check if the role is menu bar
+                    if (isMenuBar)
+                    {
+                        CFTypeRef sizeRef;
+
+                        success = AXUIElementCopyAttributeValue(child, kAXSizeAttribute, &sizeRef) == kAXErrorSuccess;
+
+                        if (success)
+                        {
+                            AXValueGetValue(sizeRef, kAXValueCGSizeType, size);
+
+                            CFRelease(sizeRef);
+
+                            break;
+                        }
+
+                    }
+                }
+            }
+            // Release the children array
+            CFRelease(children);
+        }
+        // Release the application element
+        CFRelease(app);
+
+        return success;
+    }
+}
+
 
 

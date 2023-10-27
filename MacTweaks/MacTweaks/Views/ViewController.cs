@@ -2,11 +2,11 @@
 using AppKit;
 using Foundation;
 
-namespace MacTweaks
+namespace MacTweaks.Views
 {
     public partial class ViewController : NSViewController
     {
-        public ViewController(IntPtr handle) : base(handle)
+        public ViewController()
         {
         }
 

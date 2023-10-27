@@ -7,7 +7,7 @@
 
 using Foundation;
 
-namespace MacTweaks
+namespace MacTweaks.Views
 {
     [Register("ViewController")]
     partial class ViewController

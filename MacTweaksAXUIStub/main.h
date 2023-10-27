@@ -51,3 +51,5 @@ typedef struct
 bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIElementRaw* outputPtr);
 
 bool WindowToggleMinimize(AXUIElementRef window);
+
+bool GetMenuBarSize(pid_t pid, CGSize* size);

@@ -95,9 +95,10 @@
         <Compile Include="Modules\Keystrokes\CommandDeleteModule.cs" />
         <Compile Include="Modules\Keystrokes\CommandQModule.cs" />
         <Compile Include="Modules\Window\RedQuitModule.cs" />
-        <Compile Include="ViewController.cs"/>
-        <Compile Include="ViewController.designer.cs">
-            <DependentUpon>ViewController.cs</DependentUpon>
+        <Compile Include="Views\RectDrawView.cs" />
+        <Compile Include="Views\ViewController.cs" />
+        <Compile Include="Views\ViewController.designer.cs">
+          <DependentUpon>ViewController.cs</DependentUpon>
         </Compile>
     </ItemGroup>
     <ItemGroup>

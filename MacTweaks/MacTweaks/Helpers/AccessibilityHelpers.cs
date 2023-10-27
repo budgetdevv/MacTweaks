@@ -662,5 +662,8 @@ namespace MacTweaks.Helpers
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool SetMainDisplayBrightness(float brightnessLevel);
+
+        [DllImport(MacTweaksAXUIStubLibrary)]
+        public static extern bool GetMenuBarSize(int pid, out CGSize size);
     }
 }

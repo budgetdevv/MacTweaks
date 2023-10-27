@@ -3,6 +3,7 @@ using System.Web;
 using AppKit;
 using CoreFoundation;
 using CoreGraphics;
+using Foundation;
 using MacTweaks.Helpers;
 
 namespace MacTweaks.Modules.Dock
@@ -33,9 +34,13 @@ namespace MacTweaks.Modules.Dock
     
     public class DockModule: IModule
     {
-        private nfloat DockHeight, DockHeightThreshold;
+        //Do NOT cache NSScreen.MainScreen or NSStatusBar.SystemStatusBar, since data might become stale
+        
+        private nfloat DockHeight, DockHeightThreshold, MenuBarHeight;
 
         private NSDockTile DockTile;
+
+        private nfloat CenterX;
         
         public delegate void MouseEvent(CGEvent @event);
 
@@ -46,9 +51,37 @@ namespace MacTweaks.Modules.Dock
         private CFMachPort OnRightMouseDownHandle;
 
         private CGEvent.CGEventTapCallback Callback;
+
+        private void CalculateScreenMetadata(NSScreen mainScreen)
+        {
+            // Unfortunately, NSStatusBar.SystemStatusBar.Thickness is unreliable. See: https://github.com/feedback-assistant/reports/issues/140
+            AccessibilityHelpers.GetMenuBarSize(NSRunningApplication.CurrentApplication.ProcessIdentifier, out var menuBarSize);
+
+            var menuBarHeight = MenuBarHeight = menuBarSize.Height;
+            
+            // Calculate dock height
+            // https://stackoverflow.com/questions/35826550/how-to-get-position-width-and-height-of-mac-os-x-dock-cocoa-carbon-c-qt
+            // We use this info to avoid pinvoke calls when the coordinate is outside of dock's range.
+
+            var totalHeight = mainScreen.Frame.Height;
+
+            var visibleHeight = mainScreen.VisibleFrame.Height;
+
+            var dockHeightThreshold = DockHeightThreshold = visibleHeight + menuBarHeight;
+            
+            DockHeight = totalHeight - dockHeightThreshold;
+            
+            CenterX = NSScreen.MainScreen.Frame.GetCenterX();
+        }
         
         public void Start()
         {
+            var mainScreen = NSScreen.MainScreen;
+            
+            CalculateScreenMetadata(mainScreen);
+            
+            DockTile = NSApplication.SharedApplication.DockTile;
+            
             Callback = OnDockLeftClick;
             
             var eventTap = OnRightMouseDownHandle = CGEvent.CreateTap(
@@ -62,13 +95,9 @@ namespace MacTweaks.Modules.Dock
             CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeCommon);
             
             CGEvent.TapEnable(eventTap);
-            
-            var dockHeight = DockHeight = CalculateDockHeight();
 
-            DockHeightThreshold = MainScreen.Frame.Height - dockHeight;
+            NSNotificationCenter.DefaultCenter.AddObserver(NSApplication.DidChangeScreenParametersNotification, DidChangeScreenParameters);
             
-            DockTile = NSApplication.SharedApplication.DockTile;
-
             OnBottomRightHotCornerLeftClick += (@event) =>
             {
                 var sharedWorkspace = SharedWorkspace;
@@ -92,28 +121,19 @@ namespace MacTweaks.Modules.Dock
             };
         }
 
-        private static readonly NSScreen MainScreen = NSScreen.MainScreen;
-
-        private static readonly nfloat CenterX = MainScreen.Frame.GetCenterX();
-
-        private static readonly NSStatusBar SystemStatusBar = NSStatusBar.SystemStatusBar;
-        
-        public static nfloat CalculateDockHeight()
+        private void DidChangeScreenParameters(NSNotification notification)
         {
-            // TODO: Implement dock resize detection logic.
-            // Probably could store last update timestamp, and update every few seconds
-            // https://stackoverflow.com/questions/35826550/how-to-get-position-width-and-height-of-mac-os-x-dock-cocoa-carbon-c-qt
-            // We use this info to avoid pinvoke calls when the coordinate is outside of dock's range.
+            var mainScreen = NSScreen.MainScreen;
             
-            var mainScreen = MainScreen;
+            CalculateScreenMetadata(mainScreen);
 
-            var totalHeight = mainScreen.Frame.Height;
-
-            var visibleHeight = mainScreen.VisibleFrame.Height;
-
-            var dockHeight = totalHeight - (visibleHeight + SystemStatusBar.Thickness);
-            
-            return dockHeight;
+            // var x = mainScreen.Frame;
+            // x.Height = DockHeight;
+            // x.Location = new CGPoint(0, 0);
+            //
+            // var window = new NSWindow(x, NSWindowStyle.Closable, NSBackingStore.Buffered, false);
+            //
+            // window.MakeKeyAndOrderFront(default);
         }
         
         private IntPtr OnDockLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)

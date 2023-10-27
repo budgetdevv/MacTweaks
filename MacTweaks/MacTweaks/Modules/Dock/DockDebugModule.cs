@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using AppKit;
 using CoreFoundation;
+using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,9 +11,12 @@ namespace MacTweaks.Modules.Dock
 {
     public class DockDebugModule: IModule
     {
-        private NSObject OnRightMouseDownHandle;
 
         private readonly AppDelegate AppDelegate;
+        
+        private CFMachPort OnRightMouseDownHandle;
+
+        private CGEvent.CGEventTapCallback Callback;
 
         public DockDebugModule(AppDelegate appDelegate)
         {
@@ -21,24 +25,32 @@ namespace MacTweaks.Modules.Dock
         
         public void Start()
         {
-            OnRightMouseDownHandle = NSEvent.AddGlobalMonitorForEventsMatchingMask(NSEventMask.RightMouseDown, OnRightMouseDown);
+            Callback = OnRightMouseDown;
+            
+            var eventTap = OnRightMouseDownHandle = CGEvent.CreateTap(
+                CGEventTapLocation.HID,
+                CGEventTapPlacement.HeadInsert,
+                CGEventTapOptions.Default,
+                CGEventMask.RightMouseDown,
+                Callback,
+                IntPtr.Zero);
+            
+            CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeCommon);
+            
+            CGEvent.TapEnable(eventTap);
         }
         
-        private void OnRightMouseDown(NSEvent @event)
+        private IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr eventRef, IntPtr userInfo)
         {
-            var ws = NSWorkspace.SharedWorkspace;
-            
-            // var dm = AppDelegate.Services.GetServices<IModule>().First(x => x.GetType() == typeof(DockModule));
+            var @event = new CGEvent(eventRef);
 
-            // CFRunLoop.Main.ContainsSource();
+            var mouseLocation = @event.Location;
             
-            var mouseLocation = @event.LocationInWindow.InvertY();
-
             AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var data);
-
-            var location = data.Rect.Location;
                     
-            Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {location.X} [ {mouseLocation.X} ] | {location.Y} [ {mouseLocation.Y} ] | {data.PID}");
+            Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {data.PID} | {data.Rect} [ x:{mouseLocation.X} y:{mouseLocation.Y} ]");
+
+            return eventRef;
         }
         
         public void Stop()
