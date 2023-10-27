@@ -10,3 +10,5 @@ This project is not really ready for public consumption atm, as there are loads 
 - CommandQ to close Finder window
 - CommandDelete to eject volumes
 - CommandX to cut files and folders
+- Retain brightness when toggling low power mode ( ON / OFF ). Only works for low power mode caused by plugging / unpluggin AC atm.
+  Note that there isn't really a way to know if brightness value changed, unless via polling. Polling may cause this app to be less power efficient
