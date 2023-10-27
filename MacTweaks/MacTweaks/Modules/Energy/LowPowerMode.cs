@@ -22,7 +22,6 @@ namespace MacTweaks.Modules.Energy
             var brightnessPoller = BrightnessPoller = NSTimer.CreateRepeatingTimer(TimeSpan.FromSeconds(1), timer =>
             {
                 AccessibilityHelpers.GetMainDisplayBrightness(out PreviousBrightnessLevel);
-                Console.WriteLine($"LLLLLL {PreviousBrightnessLevel}");
             });
 
             NSRunLoop.Main.AddTimer(brightnessPoller, NSRunLoopMode.Common);
