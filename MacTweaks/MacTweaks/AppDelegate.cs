@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Threading;
 using AppKit;
 using CoreGraphics;
 using Foundation;
@@ -11,7 +9,6 @@ using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
 using MacTweaks.Modules.Window;
-using MacTweaks.Views;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MacTweaks
