@@ -43,6 +43,7 @@ namespace MacTweaks
 
         private void Start()
         {
+            #if RELEASE
             if (!AccessibilityHelpers.IsRoot())
             {
                 var macTweaks = NSRunningApplication.CurrentApplication;
@@ -78,6 +79,7 @@ namespace MacTweaks
     
                 return;
             }
+            #endif
             
             // Remove from dock
             NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;

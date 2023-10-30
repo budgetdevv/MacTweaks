@@ -73,20 +73,38 @@ namespace MacTweaks.Modules.Energy
 
                 async Task RevertBrightness()
                 {
+                    // ((1f / 16) * 2) + 0.0099200f is how much brightness goes up by
+                    // when we transition from low power mode ( ON -> OFF ).
+                    // Got the value by measuring with AccessibilityHelpers.GetBrightness().
+                    // Basically, it goes up by around 2 bars, but 0.0099200f more.
+                        
+                    // We really really don't want to poll in low power mode, so we just
+                    // modify brightness manually instead.
+                    const float LOW_POWER_TRASITION_END_BRIGHTNESS_OFFSET = ((1f / 16) * 2) + 0.0099200f;
+                    
+                    if (!lowPowerModeEnabled)
+                    {
+                        AccessibilityHelpers.GetMainDisplayBrightness(out previousBrightnessLevel);
+                    }
+                    
                     // This delay is paramount for BOTH branches.
                     await Task.Delay(300);
 
                     if (!lowPowerModeEnabled)
                     {
-                        AccessibilityHelpers.GetMainDisplayBrightness(out previousBrightnessLevel);
-                        // ((1f / 16) * 2) + 0.0099200f is how much brightness goes up by
-                        // when we transition from low power mode ( ON -> OFF ).
-                        // Got the value by measuring with AccessibilityHelpers.GetBrightness().
-                        // Basically, it goes up by around 2 bars, but 0.0099200f more.
-                        
-                        // We really really don't want to poll in low power mode, so we just
-                        // modify brightness manually instead.
-                        previousBrightnessLevel -= ((1f / 16) * 2) + 0.0099200f;
+                        if (previousBrightnessLevel + LOW_POWER_TRASITION_END_BRIGHTNESS_OFFSET <= 1)
+                        {
+                            // Get latest brightness level
+                            AccessibilityHelpers.GetMainDisplayBrightness(out previousBrightnessLevel);
+                            previousBrightnessLevel -= LOW_POWER_TRASITION_END_BRIGHTNESS_OFFSET;
+                        }
+
+                        else
+                        {
+                            // Unfortunately, brightness is capped at 1, so the increment by the system
+                            // got truncated. We use previousBrightnessLevel from 300 ms ago as a rough
+                            // estimate to restore to. Not perfect, but unnoticeable.
+                        }
                     }
                 
                     // Unfortunately, await continuations might run on TPL thread
@@ -104,10 +122,12 @@ namespace MacTweaks.Modules.Energy
         
         private void BatteryInfoChanged(object sender, BatteryInfoChangedEventArgs batteryInfoChangedEventArgs)
         {
+            #if RELEASE
             if (batteryInfoChangedEventArgs.PowerSource != BatteryPowerSource.Battery)
             {
                 EnableLowPowerModeOnBatteryScript.ExecuteAndReturnError(out _);
             }
+            #endif
         }
 
         public void Stop()
