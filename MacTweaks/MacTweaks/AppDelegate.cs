@@ -46,21 +46,8 @@ namespace MacTweaks
             if (!AccessibilityHelpers.IsRoot())
             {
                 var macTweaks = NSRunningApplication.CurrentApplication;
-    
-                // var script = $@"do shell script ""sudo '{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}' & disown"" with administrator privileges";
-                //
-                // Console.WriteLine(script);
-                //
-                // new NSAppleScript(script).ExecuteAndReturnError(out var x);
-                //
-                // Console.WriteLine(x);
-
-                //var command = $"sudo nohup '{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}' &";
-                //var command = $"sudo echo && sudo nohup '{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}' &";
                 
-                //var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\"'";
                 var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > /dev/null 2>&1 &'";
-                
                 
                 var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
                 {
@@ -77,10 +64,6 @@ namespace MacTweaks
                 process.Start();
 
                 process.WaitForExit();
-
-                Console.WriteLine(process.StandardError.ReadToEnd());
-                
-                Console.WriteLine();
 
                 if (process.ExitCode == 0)
                 {

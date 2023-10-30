@@ -1,17 +1,11 @@
-﻿using System;
-using System.Diagnostics;
-using AppKit;
-using Foundation;
-using MacTweaks.Helpers;
-using MacTweaks.Modules.Dock;
+﻿using AppKit;
 
 namespace MacTweaks
 {
     static class MainClass
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            
             #if RELEASE
             if (Debugger.IsAttached)
             {
