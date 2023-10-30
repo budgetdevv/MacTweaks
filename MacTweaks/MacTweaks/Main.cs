@@ -7,11 +7,11 @@ namespace MacTweaks
         private static void Main(string[] args)
         {
             #if RELEASE
-            if (Debugger.IsAttached)
+            if (System.Diagnostics.Debugger.IsAttached)
             {
                 // This is required, as Rider somehow ignore changes made to code
                 // when ran with release build.
-                throw new Exception("Don't debug in release mode!");
+                throw new System.Exception("Don't debug in release mode!");
             }
             #endif
             
