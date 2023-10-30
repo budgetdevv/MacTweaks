@@ -97,8 +97,48 @@ namespace MacTweaks
 
                 else
                 {
-                    //TODO: Handle authentication failure
-                    Environment.Exit(0);
+                    // Create the window
+                    var window = new NSWindow(new CGRect(200, 200, 400, 200), NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Miniaturizable, NSBackingStore.Buffered, false);
+                    window.Title = ConstantHelpers.APP_NAME;
+
+                    // Create the label
+                    var label = new NSTextField(new CGRect(50, 100, 300, 50));
+                    label.StringValue = "Sudo elevation failure. Try again?";
+                    label.Alignment = NSTextAlignment.Center;
+                    label.Editable = false;
+                    label.Bordered = false;
+                    label.DrawsBackground = false;
+                    
+                    var contentView = window.ContentView;
+
+                    contentView.AddSubview(label);
+
+                    // Create the button
+                    var button = new NSButton(new CGRect(75, 50, 125, 30));
+                    button.Title = "Yes";
+                    button.BezelStyle = NSBezelStyle.Rounded;
+            
+                    button.Activated += (sender, args) =>
+                    {
+                        Start();
+                    };
+                    
+                    contentView.AddSubview(button);
+                    
+                    button = new NSButton(new CGRect(200, 50, 125, 30));
+                    button.Title = "No";
+                    button.BezelStyle = NSBezelStyle.Rounded;
+            
+                    button.Activated += (sender, args) =>
+                    {
+                        Environment.Exit(0);
+                    };
+                    
+                    contentView.AddSubview(button);
+            
+                    window.MakeKeyAndOrderFront(this);
+
+                    NSRunningApplication.CurrentApplication.Activate(default);
                 }
     
                 return;
@@ -179,7 +219,7 @@ namespace MacTweaks
             window.Title = ConstantHelpers.APP_NAME;
 
             // Create the label
-            var label = new NSTextField(new CoreGraphics.CGRect(50, 100, 300, 50));
+            var label = new NSTextField(new CGRect(50, 100, 300, 50));
             label.StringValue = "Click on the button when you've granted the app accessibility access";
             label.Alignment = NSTextAlignment.Center;
             label.Editable = false;
@@ -187,7 +227,7 @@ namespace MacTweaks
             label.DrawsBackground = false;
 
             // Create the button
-            var button = new NSButton(new CoreGraphics.CGRect(100, 50, 200, 30));
+            var button = new NSButton(new CGRect(100, 50, 200, 30));
             button.Title = "Check for accessibility access";
             button.BezelStyle = NSBezelStyle.Rounded;
             
