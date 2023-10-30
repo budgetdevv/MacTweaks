@@ -27,10 +27,34 @@ namespace MacTweaks
         {
             Services = GetServiceCollection().BuildServiceProvider();
         }
+
+        private const string RequestForPermissionsScriptText = @"tell application ""System Events""
+                                                                 	-- Request for System Events access is implicit in this script because we're using 'System Events'
+                                                                 	
+                                                                 	-- Request for Desktop access
+                                                                 	set desktopPath to path to desktop as string
+                                                                 	get alias desktopPath
+                                                                 	
+                                                                 	-- Request for Finder access
+                                                                 	tell application ""Finder""
+                                                                 		get home
+                                                                 	end tell
+                                                                 	
+                                                                 	-- Request for Volumes access
+                                                                 	set volumesPath to ""/Volumes/"" as POSIX file as alias
+                                                                 	get volumesPath
+                                                                 end tell";
+
+        private static readonly NSAppleScript RequestForPermissionsScript = new NSAppleScript(RequestForPermissionsScriptText);
+        
+        private static bool RequestForPermissions()
+        {
+            return RequestForPermissionsScript.ExecuteAndReturnError(out _) != null && AccessibilityHelpers.RequestForAccessibilityIfNotGranted();
+        }
         
         public override void DidFinishLaunching(NSNotification notification)
         {
-            if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
+            if (RequestForPermissions())
             {
                 Start();
             }
@@ -169,7 +193,7 @@ namespace MacTweaks
             
             button.Activated += (sender, args) =>
             {
-                if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
+                if (RequestForPermissions())
                 {
                     window.Close();
                     Start();
