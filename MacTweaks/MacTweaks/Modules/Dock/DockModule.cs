@@ -148,12 +148,24 @@ namespace MacTweaks.Modules.Dock
                 {
                     return handle;
                 }
-            
-                var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
-                var sharedWorkspace = NSWorkspace.SharedWorkspace;
-                    
+                var sharedWorkspace = SharedWorkspace;
+            
                 var activeApp = sharedWorkspace.FrontmostApplication;
+                
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (activeApp == null)
+                {
+                    // Let's just put it this way...It is never supposed to be null,
+                    // but it is right after you enter password for admin dialog ( For sudo or system changes etc )
+                    // Just let the mouse event flow through...
+                    
+                    //TODO: FIND OUT WHY!!!
+
+                    goto FlowThrough;
+                }
+                
+                var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
                 string title;
                 
@@ -245,6 +257,7 @@ namespace MacTweaks.Modules.Dock
                 CGEvent.TapEnable(OnRightMouseDownHandle);
             }
 
+            FlowThrough:
             return handle;
         }
 

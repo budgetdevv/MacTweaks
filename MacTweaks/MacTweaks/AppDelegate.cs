@@ -8,6 +8,7 @@ using Foundation;
 using MacTweaks.Helpers;
 using MacTweaks.Modules;
 using MacTweaks.Modules.Clipboarding;
+using MacTweaks.Modules.Credentials;
 using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
@@ -177,6 +178,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, CutModule>();
             
             collection.AddSingleton<IModule, LowPowerMode>();
+            
+            collection.AddSingleton<IModule, BypassAskForPasswordModule>();
 
             return collection;
         }

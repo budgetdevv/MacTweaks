@@ -88,6 +88,7 @@
         <Compile Include="Main.cs"/>
         <Compile Include="AppDelegate.cs"/>
         <Compile Include="Modules\Clipboarding\CutModule.cs" />
+        <Compile Include="Modules\Credentials\BypassAskForPasswordModule.cs" />
         <Compile Include="Modules\Dock\DockDebugModule.cs" />
         <Compile Include="Modules\Dock\DockModule.cs" />
         <Compile Include="Modules\Energy\LowPowerMode.cs" />
