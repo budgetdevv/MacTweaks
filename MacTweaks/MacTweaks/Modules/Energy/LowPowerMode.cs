@@ -120,6 +120,7 @@ namespace MacTweaks.Modules.Energy
         
         private static readonly NSAppleScript EnableLowPowerModeOnBatteryScript = new NSAppleScript(EnableLowPowerModeOnBatteryScriptText);
         
+        // ReSharper disable once MemberCanBeMadeStatic.Local
         private void BatteryInfoChanged(object sender, BatteryInfoChangedEventArgs batteryInfoChangedEventArgs)
         {
             #if RELEASE
