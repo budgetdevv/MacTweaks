@@ -98,9 +98,9 @@ namespace MacTweaks.Modules.Energy
             });
         }
         
-        private const string EnableLowPowerModeOnBatteryScriptText = @"do shell script ""sudo pmset -a lowpowermode 0; sudo pmset -b lowpowermode 1"" with administrator privileges";
-        
-        private static readonly NSAppleScript EnableLowPowerModeOnBatteryScript = new NSAppleScript(EnableLowPowerModeOnBatteryScriptText);
+        // private const string EnableLowPowerModeOnBatteryScriptText = @"do shell script ""sudo pmset -a lowpowermode 0; sudo pmset -b lowpowermode 1"" with administrator privileges";
+        //
+        // private static readonly NSAppleScript EnableLowPowerModeOnBatteryScript = new NSAppleScript(EnableLowPowerModeOnBatteryScriptText);
         
         // private void BatteryInfoChanged(object sender, BatteryInfoChangedEventArgs batteryInfoChangedEventArgs)
         // {

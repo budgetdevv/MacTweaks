@@ -85,6 +85,7 @@
         <Compile Include="Helpers\CGHelpers.cs" />
         <Compile Include="Helpers\ConstantHelpers.cs" />
         <Compile Include="Helpers\BinaryHelpers.cs" />
+        <Compile Include="Helpers\RootTerminal.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="AppDelegate.cs"/>
         <Compile Include="Modules\Clipboarding\CutModule.cs" />

@@ -19,10 +19,42 @@ namespace MacTweaks
         public readonly ServiceProvider Services;
 
         private NSStatusItem MenuBarStatusItem; // Prevent the menubar icon from being GC-ed
-
+        
         public AppDelegate()
         {
             Services = GetServiceCollection().BuildServiceProvider();
+        }
+        
+        public override void DidFinishLaunching(NSNotification notification)
+        {
+            // RootTerminal.SendInput("ls -l /root");
+            //
+            // Console.WriteLine(RootTerminal.ReadOutput());
+            
+            RootTerminal RootTerminal = new RootTerminal(true);
+            
+            if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
+            {
+                Start();
+            }
+
+            else
+            {
+                MakeAccessibilityCheckerWindow();
+            }
+        }
+
+        private void Start()
+        {
+            // Remove from dock
+            NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
+            
+            ConstructMenuBarIcon();
+            
+            foreach (var service in Services.GetServices<IModule>())
+            {
+                service.Start();
+            }
         }
         
         private ServiceCollection GetServiceCollection()
@@ -120,31 +152,6 @@ namespace MacTweaks
             NSRunningApplication.CurrentApplication.Activate(default);
         }
         
-        public override void DidFinishLaunching(NSNotification notification)
-        {
-            if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
-            {
-                Start();
-            }
-
-            else
-            {
-                MakeAccessibilityCheckerWindow();
-            }
-        }
-
-        private void Start()
-        {
-            // Remove from dock
-            NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
-            
-            ConstructMenuBarIcon();
-            
-            foreach (var service in Services.GetServices<IModule>())
-            {
-                service.Start();
-            }
-        }
         public override void WillTerminate(NSNotification notification)
         {
             // Insert code here to tear down your application

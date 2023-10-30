@@ -8,6 +8,13 @@ namespace MacTweaks
     {
         static void Main(string[] args)
         {
+            if (args.Length != 0 && args[0] == "headless")
+            {
+                RunHeadless();
+                
+                return;
+            }
+            
             #if RELEASE
             if (Debugger.IsAttached)
             {
@@ -19,6 +26,11 @@ namespace MacTweaks
             
             NSApplication.Init();
             NSApplication.Main(args);
+        }
+
+        private static void RunHeadless()
+        {
+            
         }
     }
 }
