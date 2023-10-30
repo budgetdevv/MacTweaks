@@ -36,7 +36,7 @@ namespace MacTweaks.Modules.Energy
         
         public void Start()
         {
-            // Battery.BatteryInfoChanged += BatteryInfoChanged;
+            Battery.BatteryInfoChanged += BatteryInfoChanged;
             
             PowerStateDidChangeObserver = NSNotificationCenter.DefaultCenter.AddObserver(NSProcessInfo.PowerStateDidChangeNotification, PowerStateDidChange);
             
@@ -98,17 +98,17 @@ namespace MacTweaks.Modules.Energy
             });
         }
         
-        // private const string EnableLowPowerModeOnBatteryScriptText = @"do shell script ""sudo pmset -a lowpowermode 0; sudo pmset -b lowpowermode 1"" with administrator privileges";
-        //
-        // private static readonly NSAppleScript EnableLowPowerModeOnBatteryScript = new NSAppleScript(EnableLowPowerModeOnBatteryScriptText);
+        private const string EnableLowPowerModeOnBatteryScriptText = @"do shell script ""sudo pmset -a lowpowermode 0; sudo pmset -b lowpowermode 1"" with administrator privileges";
         
-        // private void BatteryInfoChanged(object sender, BatteryInfoChangedEventArgs batteryInfoChangedEventArgs)
-        // {
-        //     if (batteryInfoChangedEventArgs.PowerSource != BatteryPowerSource.Battery)
-        //     {
-        //         EnableLowPowerModeOnBatteryScript.ExecuteAndReturnError(out _);
-        //     }
-        // }
+        private static readonly NSAppleScript EnableLowPowerModeOnBatteryScript = new NSAppleScript(EnableLowPowerModeOnBatteryScriptText);
+        
+        private void BatteryInfoChanged(object sender, BatteryInfoChangedEventArgs batteryInfoChangedEventArgs)
+        {
+            if (batteryInfoChangedEventArgs.PowerSource != BatteryPowerSource.Battery)
+            {
+                EnableLowPowerModeOnBatteryScript.ExecuteAndReturnError(out _);
+            }
+        }
 
         public void Stop()
         {
