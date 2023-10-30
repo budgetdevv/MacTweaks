@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using AppKit;
 using CoreGraphics;
 using Foundation;
@@ -27,12 +30,6 @@ namespace MacTweaks
         
         public override void DidFinishLaunching(NSNotification notification)
         {
-            // RootTerminal.SendInput("ls -l /root");
-            //
-            // Console.WriteLine(RootTerminal.ReadOutput());
-            
-            RootTerminal RootTerminal = new RootTerminal(true);
-            
             if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
             {
                 Start();
@@ -46,6 +43,59 @@ namespace MacTweaks
 
         private void Start()
         {
+            if (!AccessibilityHelpers.IsRoot())
+            {
+                var macTweaks = NSRunningApplication.CurrentApplication;
+    
+                // var script = $@"do shell script ""sudo '{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}' & disown"" with administrator privileges";
+                //
+                // Console.WriteLine(script);
+                //
+                // new NSAppleScript(script).ExecuteAndReturnError(out var x);
+                //
+                // Console.WriteLine(x);
+
+                //var command = $"sudo nohup '{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}' &";
+                //var command = $"sudo echo && sudo nohup '{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}' &";
+                
+                //var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\"'";
+                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > /dev/null 2>&1 &'";
+                
+                
+                var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
+                {
+                    // To hide the window, set UseShellExecute to false and RedirectStandardOutput to true
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true, 
+                    RedirectStandardInput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+            
+                var process = new Process();
+                process.StartInfo = psi;
+                process.Start();
+
+                process.WaitForExit();
+
+                Console.WriteLine(process.StandardError.ReadToEnd());
+                
+                Console.WriteLine();
+
+                if (process.ExitCode == 0)
+                {
+                    Environment.Exit(0);
+                }
+
+                else
+                {
+                    //TODO: Handle authentication failure
+                    Environment.Exit(0);
+                }
+    
+                return;
+            }
+            
             // Remove from dock
             NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
             

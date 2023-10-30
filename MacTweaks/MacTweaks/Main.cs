@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using AppKit;
+using Foundation;
+using MacTweaks.Helpers;
+using MacTweaks.Modules.Dock;
 
 namespace MacTweaks
 {
@@ -8,12 +11,6 @@ namespace MacTweaks
     {
         static void Main(string[] args)
         {
-            if (args.Length != 0 && args[0] == "headless")
-            {
-                RunHeadless();
-                
-                return;
-            }
             
             #if RELEASE
             if (Debugger.IsAttached)
@@ -26,11 +23,6 @@ namespace MacTweaks
             
             NSApplication.Init();
             NSApplication.Main(args);
-        }
-
-        private static void RunHeadless()
-        {
-            
         }
     }
 }
