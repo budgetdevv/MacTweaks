@@ -9,8 +9,6 @@ namespace MacTweaks.Modules.Credentials
 {
 	public class BypassAskForPasswordModule : IModule
     {
-        private const string AdminUsername = "MacTweaks";
-
         private static readonly string GetAdminPasswordScriptText = $@"-- Function to generate a random password
                                                                        on generateRandomPassword()
                                                                        	set possibleCharacters to ""abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ""
@@ -23,53 +21,19 @@ namespace MacTweaks.Modules.Credentials
                                                                        	return generatedPassword
                                                                        end generateRandomPassword
                                                                        
-                                                                       -- Function to generate a random UniqueID
-                                                                       on generateUniqueID()
-                                                                       	set isUnique to false
-                                                                       	repeat until isUnique
-                                                                       		set potentialID to (random number from 501 to 1000)
-                                                                       		try
-                                                                       			do shell script ""dscl . -read /Users/uid_"" & potentialID
-                                                                       		on error
-                                                                       			-- If an error occurs (i.e., the user does not exist), the ID is unique
-                                                                       			set isUnique to true
-                                                                       		end try
-                                                                       	end repeat
-                                                                       	return potentialID
-                                                                       end generateUniqueID
-                                                                       
-                                                                       -- Check if the MacTweaks account already exists
-                                                                       set userExists to false
-                                                                       try
-                                                                       	do shell script ""id -u {AdminUsername}""
-                                                                       	set userExists to true
-                                                                       on error
-                                                                       	-- Do nothing if an error occurs, which likely means the user does not exist
-                                                                       end try
-                                                                       
-                                                                       -- Create the hidden user account if it doesn't exist
-                                                                       if userExists is false then
-                                                                       	do shell script ""sudo dscl . -create /Users/{AdminUsername} IsHidden 1""
-                                                                       	do shell script ""sudo dscl . -create /Users/{AdminUsername} UniqueID "" & generateUniqueID()
-                                                                       	do shell script ""sudo dscl . -create /Users/{AdminUsername} PrimaryGroupID 80""
-                                                                       	do shell script ""sudo dscl . -append /Groups/admin GroupMembership {AdminUsername}""
-                                                                       	-- We don't really need the latter two - We are just using this account to acquire sudo / root. UniqueID is needed.
-                                                                       	-- do shell script ""sudo dscl . -create /Users/{AdminUsername} UserShell /bin/bash""
-                                                                       	-- do shell script ""sudo dscl . -create /Users/{AdminUsername} NFSHomeDirectory""
-                                                                       end if
-                                                                       
                                                                        -- Generate a new password
                                                                        set newPassword to generateRandomPassword()
                                                                        
-                                                                       -- Set the password for the user. Note that the space after {AdminUsername} next line is IMPORTANT.
-                                                                       do shell script ""sudo dscl . -passwd /Users/{AdminUsername} "" & newPassword
+                                                                       -- Set the password for the user. Note that the space after /Users/root next line is IMPORTANT.
+                                                                       do shell script ""sudo dscl . -passwd /Users/root "" & newPassword
                                                                        
                                                                        return newPassword";
 
         private static readonly string AutoFillAdminPasswordScriptText;
 
         private static readonly NSAppleScript GetAdminPasswordScript = new NSAppleScript(GetAdminPasswordScriptText), AutoFillAdminPasswordScript;
-        private static readonly string AdminPassword;
+        
+        private static readonly string RootPassword;
 
         private static readonly bool Enabled;
 
@@ -81,18 +45,27 @@ namespace MacTweaks.Modules.Credentials
 
 	        if (enabled)
 	        {
-		        AdminPassword = descriptor.StringValue;
+		        RootPassword = descriptor.StringValue;
 	        }
 		        
 	        //TODO: Some get it to focus on username instead of password field - Focusing on the latter causes the keystrokes to fail all together
 
-	        AutoFillAdminPasswordScriptText =  $@"tell application ""System Events""								
-                                                                 			tell process ""SecurityAgent"" -- this is the process for security dialogs
-                                                                 			set value of text field 1 of window 1 to ""{AdminUsername}""
-                                                                 			set value of text field 2 of window 1 to ""{AdminPassword}""
-                                                                 			click button ""OK"" of window 1
-                                                                 		end tell
-																	end tell";
+	        AutoFillAdminPasswordScriptText =  $@"tell application ""System Events""
+                                                  	tell process ""SecurityAgent""
+                                                  		set value of text field 1 of window 1 to ""root""
+                                                  		set value of text field 2 of window 1 to ""{RootPassword}""
+														try
+                                                  		click button ""OK"" of window 1
+                                                  		on error
+                                                  			try
+                                                  				click button ""Allow"" of window 1
+                                                  			end try
+                                                  		end try
+                                                  	end tell
+                                                  end tell
+												  tell application ""Finder""
+													activate -- This should fix null FrontmostApplication issue
+												  end tell";
 		        
 	        AutoFillAdminPasswordScript = new NSAppleScript(AutoFillAdminPasswordScriptText);
         }
