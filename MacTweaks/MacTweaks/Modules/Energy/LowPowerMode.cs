@@ -112,7 +112,7 @@ namespace MacTweaks.Modules.Energy
 
         public void Stop()
         {
-            // Battery.BatteryInfoChanged -= BatteryInfoChanged;
+            Battery.BatteryInfoChanged -= BatteryInfoChanged;
             
             PowerStateDidChangeObserver.Dispose();
             
