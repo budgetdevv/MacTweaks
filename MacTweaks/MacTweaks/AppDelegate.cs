@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
+using System.IO;
 using AppKit;
 using CoreGraphics;
 using Foundation;
@@ -68,12 +67,17 @@ namespace MacTweaks
 
         private void Start()
         {
+            if (!Directory.Exists(ConstantHelpers.MAC_TWEAKS_LOGS_PATH))
+            {
+                Directory.CreateDirectory(ConstantHelpers.MAC_TWEAKS_LOGS_PATH);
+            }
+            
             #if RELEASE
             if (!AccessibilityHelpers.IsRoot())
             {
                 var macTweaks = NSRunningApplication.CurrentApplication;
                 
-                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > ~/Library/Logs/{ConstantHelpers.APP_NAME}/Output.txt 2>~/Library/Logs/{ConstantHelpers.APP_NAME}/Error.txt &'";
+                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
                 
                 var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
                 {
