@@ -73,7 +73,7 @@ namespace MacTweaks
             {
                 var macTweaks = NSRunningApplication.CurrentApplication;
                 
-                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > /dev/null 2>&1 &'";
+                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > ~/Library/Logs/{ConstantHelpers.APP_NAME}/Output.txt 2>~/Library/Logs/{ConstantHelpers.APP_NAME}/Error.txt &'";
                 
                 var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
                 {
@@ -195,6 +195,7 @@ namespace MacTweaks
                 {
                     Environment.Exit(0);
                 });
+            
             menuBarIconMenu.AddItem(exitMenuItem);
 
             // Display tray icon in upper-right-hand corner of the screen
