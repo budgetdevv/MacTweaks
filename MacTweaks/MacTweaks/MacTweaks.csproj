@@ -9,7 +9,8 @@
 
 <!--    <EnableCodeSigning>false</EnableCodeSigning>-->
 <!--    <CodeSigningKey>Mac Developer</CodeSigningKey>-->
-<!--    <CreatePackage>true</CreatePackage>-->
+    <CreatePackage>true</CreatePackage>
+    <LinkMode>SdkOnly</LinkMode>
 <!--    <EnablePackageSigning>false</EnablePackageSigning>-->
     
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
