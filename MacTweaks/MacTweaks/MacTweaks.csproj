@@ -1,109 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-        <ProjectGuid>{E129A9FD-2639-443B-A5C0-F02213577190}</ProjectGuid>
-        <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-        <OutputType>Exe</OutputType>
-        <RootNamespace>MacTweaks</RootNamespace>
-        <AssemblyName>MacTweaks</AssemblyName>
-        <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-        <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
-        <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup>
-        <TieredCompilation>false</TieredCompilation>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug</OutputPath>
-        <DefineConstants>DEBUG;</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <EnableCodeSigning>false</EnableCodeSigning>
-        <CodeSigningKey>Mac Developer</CodeSigningKey>
-        <CreatePackage>false</CreatePackage>
-        <EnablePackageSigning>false</EnablePackageSigning>
-        <IncludeMonoRuntime>false</IncludeMonoRuntime>
-        <UseSGen>true</UseSGen>
-        <UseRefCounting>true</UseRefCounting>
-        <PlatformTarget>ARM64</PlatformTarget>
-        <XamMacArch>ARM64</XamMacArch>
-        <Entitlements>entitlements.plist</Entitlements>
-        <UseHardenedRuntime>true</UseHardenedRuntime>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release</OutputPath>
-        <DefineConstants>RELEASE;</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <EnableCodeSigning>false</EnableCodeSigning>
-        <CreatePackage>true</CreatePackage>
-        <EnablePackageSigning>false</EnablePackageSigning>
-        <IncludeMonoRuntime>true</IncludeMonoRuntime>
-        <UseSGen>true</UseSGen>
-        <UseRefCounting>true</UseRefCounting>
-        <LinkMode>SdkOnly</LinkMode>
-        <PlatformTarget>ARM64</PlatformTarget>
-        <XamMacArch>ARM64</XamMacArch>
-        <Entitlements>entitlements.plist</Entitlements>
-        <UseHardenedRuntime>true</UseHardenedRuntime>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="Microsoft.Extensions.DependencyInjection, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-          <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.8.0.0-rc.2.23479.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-          <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.8.0.0-rc.2.23479.6\lib\netstandard2.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-        </Reference>
-        <Reference Include="OpenTK" />
-        <Reference Include="System"/>
-        <Reference Include="System.Core"/>
-        <Reference Include="System.Numerics.Vectors" />
-        <Reference Include="System.Web.Services" />
-        <Reference Include="Xamarin.Essentials, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-          <HintPath>..\packages\Xamarin.Essentials.1.8.0\lib\xamarinmac20\Xamarin.Essentials.dll</HintPath>
-        </Reference>
-        <Reference Include="Xamarin.Mac"/>
-    </ItemGroup>
-    <ItemGroup>
-        <ImageAsset Include="Assets.xcassets\Contents.json"/>
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="Info.plist"/>
-        <None Include="Entitlements.plist"/>
-        <None Include="packages.config" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Helpers\AccessibilityHelpers.cs" />
-        <Compile Include="Helpers\CGHelpers.cs" />
-        <Compile Include="Helpers\ConstantHelpers.cs" />
-        <Compile Include="Helpers\BinaryHelpers.cs" />
-        <Compile Include="Main.cs"/>
-        <Compile Include="AppDelegate.cs"/>
-        <Compile Include="Modules\Clipboarding\CutModule.cs" />
-        <Compile Include="Modules\Credentials\BypassAskForPasswordModule.cs" />
-        <Compile Include="Modules\Dock\DockDebugModule.cs" />
-        <Compile Include="Modules\Dock\DockModule.cs" />
-        <Compile Include="Modules\Energy\LowPowerMode.cs" />
-        <Compile Include="Modules\IModule.cs" />
-        <Compile Include="Modules\Keystrokes\CommandDeleteModule.cs" />
-        <Compile Include="Modules\Keystrokes\CommandQModule.cs" />
-        <Compile Include="Modules\Window\RedQuitModule.cs" />
-        <Compile Include="Views\RectDrawView.cs" />
-        <Compile Include="Views\ViewController.cs" />
-        <Compile Include="Views\ViewController.designer.cs">
-          <DependentUpon>ViewController.cs</DependentUpon>
-        </Compile>
-    </ItemGroup>
-    <ItemGroup>
-        <InterfaceDefinition Include="Main.storyboard"/>
-    </ItemGroup>
-    <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets"/>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0-macos</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <SupportedOSPlatformVersion>12.0</SupportedOSPlatformVersion>
+<!--    <Entitlements>entitlements.plist</Entitlements>-->
+<!--    <UseHardenedRuntime>true</UseHardenedRuntime>-->
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+
+<!--    <EnableCodeSigning>true</EnableCodeSigning>-->
+<!--    <CodeSigningKey>Mac Developer</CodeSigningKey>-->
+<!--    <CreatePackage>true</CreatePackage>-->
+<!--    <EnablePackageSigning>false</EnablePackageSigning>-->
+    
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.2.23479.6" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.8.0" />
+  </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@ using AppKit;
 using CoreFoundation;
 using Foundation;
 using MacTweaks.Helpers;
+using ObjCRuntime;
 
 namespace MacTweaks.Modules.Keystrokes
 {
@@ -37,7 +38,7 @@ namespace MacTweaks.Modules.Keystrokes
         {
             if (!type.CGEventTapIsDisabled())
             {
-                var @event = new CGEvent(handle);
+                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
 
                 if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
                 {

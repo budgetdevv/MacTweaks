@@ -4,6 +4,7 @@ namespace MacTweaks.Helpers
 {
     public static class BinaryHelpers
     {
+        #if DEBUG
         public static void PrintBinary(this byte input)
         {
             Console.WriteLine(Convert.ToString(input, 2).PadLeft(8, '0'));
@@ -66,5 +67,6 @@ namespace MacTweaks.Helpers
                 PrintBinary((ulong) (object) input);
             }
         }
+        #endif
     }
 }

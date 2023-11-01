@@ -33,27 +33,20 @@ namespace MacTweaks.Modules.Energy
             brightnessPoller.Invalidate();
             brightnessPoller.Dispose();
         }
+
+        private Action<NSNotification> PowerStateDidChangeHandle;
+
+        private EventHandler<BatteryInfoChangedEventArgs> Yes;
         
         public void Start()
         {
-            Battery.BatteryInfoChanged += BatteryInfoChanged;
+            //TODO: Replace with C-API
+            //Battery.BatteryInfoChanged += BatteryInfoChanged;
             
-            PowerStateDidChangeObserver = NSNotificationCenter.DefaultCenter.AddObserver(NSProcessInfo.PowerStateDidChangeNotification, PowerStateDidChange);
+            PowerStateDidChangeObserver = NSNotificationCenter.DefaultCenter.AddObserver(NSProcessInfo.PowerStateDidChangeNotification, (PowerStateDidChangeHandle = PowerStateDidChange));
             
             // Create a timer that repeats every second
             CreateAndRegisterBrightnessPoller();
-
-            _ = GCCollect();
-            
-            async Task GCCollect()
-            {
-                while (true)
-                {
-                    await Task.Delay(1000);
-                
-                    GC.Collect();
-                }
-            }
         }
         
         private void PowerStateDidChange(NSNotification notification)
@@ -145,7 +138,7 @@ namespace MacTweaks.Modules.Energy
 
         public void Stop()
         {
-            Battery.BatteryInfoChanged -= BatteryInfoChanged;
+            //Battery.BatteryInfoChanged -= BatteryInfoChanged;
             
             PowerStateDidChangeObserver.Dispose();
             

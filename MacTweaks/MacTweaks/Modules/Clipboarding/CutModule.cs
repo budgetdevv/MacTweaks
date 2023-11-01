@@ -3,6 +3,7 @@ using AppKit;
 using CoreFoundation;
 using CoreGraphics;
 using MacTweaks.Helpers;
+using ObjCRuntime;
 
 namespace MacTweaks.Modules.Clipboarding
 {
@@ -41,7 +42,7 @@ namespace MacTweaks.Modules.Clipboarding
         {
             if (!type.CGEventTapIsDisabled())
             {
-                var @event = new CGEvent(handle);
+                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
 
                 var flags = @event.Flags;
                 

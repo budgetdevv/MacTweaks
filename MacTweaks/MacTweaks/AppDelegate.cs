@@ -79,6 +79,7 @@ namespace MacTweaks
                 
                 var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
                 
+                
                 var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
                 {
                     // To hide the window, set UseShellExecute to false and RedirectStandardOutput to true

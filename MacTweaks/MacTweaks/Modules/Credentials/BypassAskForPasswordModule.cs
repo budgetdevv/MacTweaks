@@ -4,6 +4,7 @@ using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
+using ObjCRuntime;
 
 namespace MacTweaks.Modules.Credentials
 {
@@ -98,7 +99,7 @@ namespace MacTweaks.Modules.Credentials
         {
             if (!type.CGEventTapIsDisabled())
             {
-                var @event = new CGEvent(handle);
+                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
 
                 if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
                 {
@@ -107,8 +108,6 @@ namespace MacTweaks.Modules.Credentials
                     if (keyCode == NSKey.Grave) // ASCII code 96 = ` ( Grave accent ) ( https://theasciicode.com.ar/ )
                     {
 	                    AutoFillAdminPasswordScript.ExecuteAndReturnError(out var zzz);
-
-	                    Console.WriteLine(zzz);
 	                    
                         return IntPtr.Zero;
                     }

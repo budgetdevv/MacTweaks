@@ -1,17 +1,14 @@
 using System;
-using System.Linq;
-using AppKit;
 using CoreFoundation;
 using CoreGraphics;
-using Foundation;
 using MacTweaks.Helpers;
-using Microsoft.Extensions.DependencyInjection;
+using ObjCRuntime;
 
 namespace MacTweaks.Modules.Dock
 {
+    #if DEBUG
     public class DockDebugModule: IModule
     {
-
         private readonly AppDelegate AppDelegate;
         
         private CFMachPort OnRightMouseDownHandle;
@@ -40,9 +37,9 @@ namespace MacTweaks.Modules.Dock
             CGEvent.TapEnable(eventTap);
         }
         
-        private IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr eventRef, IntPtr userInfo)
+        private IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr handle, IntPtr userInfo)
         {
-            var @event = new CGEvent(eventRef);
+            var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
 
             var mouseLocation = @event.Location;
             
@@ -50,7 +47,7 @@ namespace MacTweaks.Modules.Dock
                     
             Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {data.PID} | {data.Rect} [ x:{mouseLocation.X} y:{mouseLocation.Y} ]");
 
-            return eventRef;
+            return handle;
         }
         
         public void Stop()
@@ -58,4 +55,5 @@ namespace MacTweaks.Modules.Dock
             OnRightMouseDownHandle.Dispose();
         }
     }
+    #endif
 }

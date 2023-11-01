@@ -3,6 +3,7 @@ using AppKit;
 using CoreFoundation;
 using CoreGraphics;
 using MacTweaks.Helpers;
+using ObjCRuntime;
 
 namespace MacTweaks.Modules.Window
 {
@@ -35,7 +36,7 @@ namespace MacTweaks.Modules.Window
         {
             if (!type.CGEventTapIsDisabled())
             {
-                var @event = new CGEvent(handle);
+                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
 
                 var mouseLocation = @event.Location;
             

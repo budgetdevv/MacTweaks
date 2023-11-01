@@ -5,6 +5,7 @@ using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
+using ObjCRuntime;
 
 namespace MacTweaks.Modules.Dock
 {
@@ -140,7 +141,7 @@ namespace MacTweaks.Modules.Dock
         {
             if (!type.CGEventTapIsDisabled())
             {
-                var @event = new CGEvent(handle);
+                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
 
                 var mouseLocation = @event.Location;
 

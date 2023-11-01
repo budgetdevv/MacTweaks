@@ -22,8 +22,6 @@ namespace MacTweaks.Views
 
         public override void DrawRect(CGRect dirtyRect)
         {
-            Console.WriteLine("ZZZZZZ");
-            
             base.DrawRect(dirtyRect);
 
             if (shouldDrawRectangle)

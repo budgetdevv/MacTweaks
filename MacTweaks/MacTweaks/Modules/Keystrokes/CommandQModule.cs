@@ -3,6 +3,7 @@ using CoreGraphics;
 using AppKit;
 using CoreFoundation;
 using MacTweaks.Helpers;
+using ObjCRuntime;
 
 namespace MacTweaks.Modules.Keystrokes
 {
@@ -42,7 +43,7 @@ namespace MacTweaks.Modules.Keystrokes
                     return handle;
                 }
             
-                var @event = new CGEvent(handle);
+                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
 
                 if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
                 {
