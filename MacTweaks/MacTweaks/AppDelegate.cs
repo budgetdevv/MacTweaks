@@ -23,6 +23,34 @@ namespace MacTweaks
 
         private NSStatusItem MenuBarStatusItem; // Prevent the menubar icon from being GC-ed
         
+        private ServiceCollection GetServiceCollection()
+        {
+            var collection = new ServiceCollection();
+            
+            collection.AddSingleton<AppDelegate>(this);
+            
+            #if DEBUG
+            collection.AddSingleton<IModule, DockDebugModule>();
+            #endif
+            
+            collection.AddSingleton<IModule, DockModule>();
+            
+            collection.AddSingleton<IModule, CommandQModule>();
+            
+            collection.AddSingleton<IModule, RedQuitModule>();
+            
+            collection.AddSingleton<IModule, CommandDeleteModule>();
+            
+            collection.AddSingleton<IModule, CutModule>();
+            
+            //TODO: Make C-APIs
+            //collection.AddSingleton<IModule, LowPowerMode>();
+            
+            collection.AddSingleton<IModule, BypassAskForPasswordModule>();
+
+            return collection;
+        }
+        
         public AppDelegate()
         {
             Services = GetServiceCollection().BuildServiceProvider();
@@ -79,7 +107,6 @@ namespace MacTweaks
                 var macTweaks = NSRunningApplication.CurrentApplication;
                 
                 var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl!.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
-                
                 
                 var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
                 {
@@ -162,33 +189,6 @@ namespace MacTweaks
             {
                 service.Start();
             }
-        }
-        
-        private ServiceCollection GetServiceCollection()
-        {
-            var collection = new ServiceCollection();
-            
-            collection.AddSingleton<AppDelegate>(this);
-            
-            #if DEBUG
-            collection.AddSingleton<IModule, DockDebugModule>();
-            #endif
-            
-            collection.AddSingleton<IModule, DockModule>();
-            
-            collection.AddSingleton<IModule, CommandQModule>();
-            
-            collection.AddSingleton<IModule, RedQuitModule>();
-            
-            collection.AddSingleton<IModule, CommandDeleteModule>();
-            
-            collection.AddSingleton<IModule, CutModule>();
-            
-            collection.AddSingleton<IModule, LowPowerMode>();
-            
-            collection.AddSingleton<IModule, BypassAskForPasswordModule>();
-
-            return collection;
         }
 
         private void ConstructMenuBarIcon()
