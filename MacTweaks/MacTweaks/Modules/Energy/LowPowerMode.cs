@@ -42,6 +42,18 @@ namespace MacTweaks.Modules.Energy
             
             // Create a timer that repeats every second
             CreateAndRegisterBrightnessPoller();
+
+            _ = GCCollect();
+            
+            async Task GCCollect()
+            {
+                while (true)
+                {
+                    await Task.Delay(1000);
+                
+                    GC.Collect();
+                }
+            }
         }
         
         private void PowerStateDidChange(NSNotification notification)
