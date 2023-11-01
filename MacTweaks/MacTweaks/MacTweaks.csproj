@@ -7,7 +7,7 @@
 <!--    <UseHardenedRuntime>true</UseHardenedRuntime>-->
     <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
 
-<!--    <EnableCodeSigning>true</EnableCodeSigning>-->
+<!--    <EnableCodeSigning>false</EnableCodeSigning>-->
 <!--    <CodeSigningKey>Mac Developer</CodeSigningKey>-->
 <!--    <CreatePackage>true</CreatePackage>-->
 <!--    <EnablePackageSigning>false</EnablePackageSigning>-->
