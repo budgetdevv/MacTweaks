@@ -49,6 +49,7 @@ namespace MacTweaks
         
         private static bool RequestForPermissions()
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             return RequestForPermissionsScript.ExecuteAndReturnError(out _) != null && AccessibilityHelpers.RequestForAccessibilityIfNotGranted();
         }
         
@@ -77,7 +78,7 @@ namespace MacTweaks
             {
                 var macTweaks = NSRunningApplication.CurrentApplication;
                 
-                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
+                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl!.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
                 
                 
                 var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
@@ -115,7 +116,7 @@ namespace MacTweaks
                     label.Bordered = false;
                     label.DrawsBackground = false;
                     
-                    var contentView = window.ContentView;
+                    var contentView = window.ContentView!;
 
                     contentView.AddSubview(label);
 
@@ -135,6 +136,7 @@ namespace MacTweaks
                     button.Title = "No";
                     button.BezelStyle = NSBezelStyle.Rounded;
             
+                    // ReSharper disable once UnusedParameter.Local
                     button.Activated += (sender, args) =>
                     {
                         Environment.Exit(0);
@@ -249,7 +251,7 @@ namespace MacTweaks
                 }
             };
 
-            var contentView = window.ContentView;
+            var contentView = window.ContentView!;
             
             // Add the label and the button to the window's content view
             contentView.AddSubview(label);
