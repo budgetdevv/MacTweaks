@@ -1,8 +1,6 @@
 using System;
-using CoreFoundation;
 using CoreGraphics;
 using MacTweaks.Helpers;
-using ObjCRuntime;
 
 namespace MacTweaks.Modules.Dock
 {
@@ -21,7 +19,7 @@ namespace MacTweaks.Modules.Dock
             CGHelpers.CGEventTapManager.OnRightMouseDown.Event += OnRightMouseDown;
         }
         
-        private IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr handle, CGEvent @event)
+        private static IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr handle, CGEvent @event)
         {
             var mouseLocation = @event.Location;
             

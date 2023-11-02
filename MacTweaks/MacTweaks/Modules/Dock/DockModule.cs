@@ -1,11 +1,9 @@
 using System;
 using System.Web;
 using AppKit;
-using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
-using ObjCRuntime;
 
 namespace MacTweaks.Modules.Dock
 {

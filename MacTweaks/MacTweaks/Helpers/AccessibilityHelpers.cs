@@ -133,13 +133,13 @@ namespace MacTweaks.Helpers
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationAllWindowsAreMinimized(int pid, out bool areMinimized);
         
-        [DllImport("libc")]
-        public static extern uint getuid();
-
-        public static bool IsRoot()
-        {
-            return getuid() == 0;
-        }
+        [DllImport("libc", EntryPoint = "getuid")]
+        public static extern uint GetUID();
+        
+        // Can't transition from sudo to non-sudo
+        // However, I believe you could relinquish sudo rights
+        // But MacTweaks won't do that
+        public static readonly bool IsSudoUser = GetUID() == 0;
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationFocusedWindowIsFullScreen(int pid);

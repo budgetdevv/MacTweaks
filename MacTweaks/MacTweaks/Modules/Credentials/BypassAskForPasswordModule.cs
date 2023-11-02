@@ -8,7 +8,7 @@ using ObjCRuntime;
 
 namespace MacTweaks.Modules.Credentials
 {
-	public class BypassAskForPasswordModule : IModule
+	public class BypassAskForPasswordModule: ISudoModule
     {
         private static readonly string GetAdminPasswordScriptText = $@"-- Function to generate a random password
                                                                        on generateRandomPassword()
@@ -42,8 +42,9 @@ namespace MacTweaks.Modules.Credentials
         {
 	        var descriptor = GetAdminPasswordScript.ExecuteAndReturnError(out var error);
 		        
+	        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
 	        var enabled = Enabled = descriptor != null;
-
+	        
 	        if (enabled)
 	        {
 		        RootPassword = descriptor.StringValue;
@@ -71,60 +72,37 @@ namespace MacTweaks.Modules.Credentials
 	        AutoFillAdminPasswordScript = new NSAppleScript(AutoFillAdminPasswordScriptText);
         }
         
-        private CGEvent.CGEventTapCallback OnCommandBacktickCallback;
-
-        private CFMachPort OnCommandBacktickHandle;
-        
         public void Start()
         {
 	        if (Enabled)
 	        {
-		        var onCommandBacktickCallback = OnCommandBacktickCallback = OnCommandBacktick;
-            
-		        var onCommandBacktickHandle = OnCommandBacktickHandle = CGEvent.CreateTap(
-			        CGEventTapLocation.HID, 
-			        CGEventTapPlacement.HeadInsert,
-			        CGEventTapOptions.Default, 
-			        CGEventMask.KeyDown, 
-			        onCommandBacktickCallback,
-			        IntPtr.Zero);
-            
-		        CFRunLoop.Main.AddSource(onCommandBacktickHandle.CreateRunLoopSource(), CFRunLoop.ModeCommon);
-            
-		        CGEvent.TapEnable(onCommandBacktickHandle);
+		        CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
 	        }
         }
         
-        private IntPtr OnCommandBacktick(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
+        private static IntPtr OnCommandBacktick(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
         {
-            if (!type.CGEventTapIsDisabled())
-            {
-                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
+	        if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
+	        {
+		        var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
 
-                if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
-                {
-                    var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
-
-                    if (keyCode == NSKey.Grave) // ASCII code 96 = ` ( Grave accent ) ( https://theasciicode.com.ar/ )
-                    {
-	                    AutoFillAdminPasswordScript.ExecuteAndReturnError(out var zzz);
+		        if (keyCode == NSKey.Grave) // ASCII code 96 = ` ( Grave accent ) ( https://theasciicode.com.ar/ )
+		        {
+			        AutoFillAdminPasswordScript.ExecuteAndReturnError(out var zzz);
 	                    
-                        return IntPtr.Zero;
-                    }
-                }
-            }
-
-            else
-            {
-                CGEvent.TapEnable(OnCommandBacktickHandle);
-            }
+			        return IntPtr.Zero;
+		        }
+	        }
             
             return handle;
         }
 
         public void Stop()
         {
-            OnCommandBacktickHandle.Dispose();
+	        if (Enabled)
+	        {
+		        CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
+	        }
         }
     }
 }

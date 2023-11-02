@@ -5,7 +5,7 @@ using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
 using MacTweaks.Modules;
-using MacTweaks.Modules.Clipboarding;
+using MacTweaks.Modules.Clipboard;
 using MacTweaks.Modules.Credentials;
 using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Energy;
@@ -100,7 +100,7 @@ namespace MacTweaks
             }
             
             #if RELEASE
-            if (!AccessibilityHelpers.IsRoot())
+            if (!AccessibilityHelpers.IsSudoUser())
             {
                 var macTweaks = NSRunningApplication.CurrentApplication;
                 
