@@ -8,6 +8,7 @@ using MacTweaks.Modules;
 using MacTweaks.Modules.Clipboarding;
 using MacTweaks.Modules.Credentials;
 using MacTweaks.Modules.Dock;
+using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
 using MacTweaks.Modules.Window;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,8 +42,7 @@ namespace MacTweaks
             
             collection.AddSingleton<IModule, CutModule>();
             
-            //TODO: Make C-APIs
-            //collection.AddSingleton<IModule, LowPowerMode>();
+            collection.AddSingleton<IModule, LowPowerMode>();
             
             collection.AddSingleton<IModule, BypassAskForPasswordModule>();
 
