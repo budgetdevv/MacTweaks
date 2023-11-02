@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AppKit;
 using Foundation;
 using MacTweaks.Helpers;
+using MacTweaks.Modules.Energy.PlatformBattery;
 
 namespace MacTweaks.Modules.Energy
 {
@@ -38,13 +39,26 @@ namespace MacTweaks.Modules.Energy
         
         public void Start()
         {
-            //TODO: Replace with C-API
-            //Battery.BatteryInfoChanged += BatteryInfoChanged;
+            Battery.BatteryInfoChanged += BatteryInfoChanged;
             
             PowerStateDidChangeObserver = NSNotificationCenter.DefaultCenter.AddObserver(NSProcessInfo.PowerStateDidChangeNotification, (PowerStateDidChangeHandle = PowerStateDidChange));
             
             // Create a timer that repeats every second
             CreateAndRegisterBrightnessPoller();
+
+            // _ = GCCol();
+            //
+            // async Task GCCol()
+            // {
+            //     while (true)
+            //     {
+            //         await Task.Delay(500);
+            //     
+            //         GC.Collect();
+            //
+            //         Console.WriteLine("Collected!");
+            //     }
+            // }
         }
         
         private void PowerStateDidChange(NSNotification notification)
@@ -123,20 +137,20 @@ namespace MacTweaks.Modules.Energy
         
         private static readonly NSAppleScript EnableLowPowerModeOnBatteryScript = new NSAppleScript(EnableLowPowerModeOnBatteryScriptText);
         
-        // // ReSharper disable once MemberCanBeMadeStatic.Local
-        // private void BatteryInfoChanged(object sender, BatteryInfoChangedEventArgs batteryInfoChangedEventArgs)
-        // {
-        //     #if RELEASE
-        //     if (batteryInfoChangedEventArgs.PowerSource != BatteryPowerSource.Battery)
-        //     {
-        //         EnableLowPowerModeOnBatteryScript.ExecuteAndReturnError(out _);
-        //     }
-        //     #endif
-        // }
+        // ReSharper disable once MemberCanBeMadeStatic.Local
+        private void BatteryInfoChanged(object sender, BatteryInfoChangedEventArgs batteryInfoChangedEventArgs)
+        {
+            #if RELEASE
+            if (batteryInfoChangedEventArgs.PowerSource != BatteryPowerSource.Battery)
+            {
+                EnableLowPowerModeOnBatteryScript.ExecuteAndReturnError(out _);
+            }
+            #endif
+        }
 
         public void Stop()
         {
-            //Battery.BatteryInfoChanged -= BatteryInfoChanged;
+            Battery.BatteryInfoChanged -= BatteryInfoChanged;
             
             PowerStateDidChangeObserver.Dispose();
             
