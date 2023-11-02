@@ -46,11 +46,11 @@ namespace MacTweaks.Modules.Keystrokes
 
                     if (keyCode == NSKey.Delete)
                     {
-                        if (AccessibilityHelpers.SelectedElementsEjectOrMoveToTrash(out var diskPaths))
+                        if (AccessibilityHelpers.SelectedElementsMoveToTrashOrReturnEjectables(out var diskPaths))
                         {
                             foreach (var diskPath in diskPaths)
                             {
-                                if (AccessibilityHelpers.UnmountVolume(diskPath))
+                                if (AccessibilityHelpers.TryUnmountVolume(diskPath))
                                 {
                                     continue;
                                 }

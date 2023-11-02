@@ -416,74 +416,49 @@ namespace MacTweaks.Helpers
 
             return false;
         }
-        
         public static bool IsVolumeInUse(string volumePath)
         {
-            var process = new Process();
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "lsof",
-                Arguments = "-n | grep \"" + volumePath + "\"",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            process.StartInfo = startInfo;
-            process.Start();
+            var process = new TerminalCommand($"lsof '{volumePath}'").Process;
 
             var output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
 
             return !string.IsNullOrWhiteSpace(output);
         }
         
-        public static bool UnmountVolume(string volumePath, bool force = false)
+        public static bool TryUnmountVolume(string volumePath, bool force = false)
         {
             if (!force && IsVolumeInUse(volumePath))
             {
                 return false;
             }
             
-            var process = new Process();
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "umount",
-                // Account for volumes with whitespace
-                Arguments = $"\"{volumePath}\"",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+            var process = new TerminalCommand($"umount '{volumePath}'").Process;
 
-            process.StartInfo = startInfo;
-            
-            process.Start();
             process.WaitForExit();
-
+            
             return process.ExitCode == 0;
         }
         
         private const string FinderToggleTrashWindowScriptText = @"tell application ""Finder""
-                                                                    set trashTarget to trash
-                                                                    set trashWindows to windows whose name is ""Trash""
-
-                                                                    repeat with trashWindow in trashWindows
-                                                                        if (target of trashWindow) is trashTarget then
-                                                                            set isMinimized to collapsed of trashWindow
-                                                                            
-                                                                            if isMinimized is false then
-				                                                                set collapsed of trashWindow to true
-			                                                                else
-				                                                                set collapsed of trashWindow to false
-			                                                                end if
-
-                                                                            return true
-                                                                        end if
-                                                                    end repeat
-
-                                                                    return false
-                                                                end tell";
+                                                                   	set trashTarget to trash
+                                                                   	set trashWindows to windows whose name is ""Trash""
+                                                                   	
+                                                                   	repeat with trashWindow in trashWindows
+                                                                   		if (target of trashWindow) is trashTarget then
+                                                                   			set isMinimized to collapsed of trashWindow
+                                                                   			
+                                                                   			if isMinimized is false then
+                                                                   				set collapsed of trashWindow to true
+                                                                   			else
+                                                                   				set collapsed of trashWindow to false
+                                                                   			end if
+                                                                   			
+                                                                   			return true
+                                                                   		end if
+                                                                   	end repeat
+                                                                   	
+                                                                   	return false
+                                                                   end tell";
         
         private static readonly NSAppleScript FinderToggleTrashWindowScript = new NSAppleScript(FinderToggleTrashWindowScriptText);
         
@@ -514,12 +489,11 @@ namespace MacTweaks.Helpers
                                                                                     	end repeat
                                                                                     	
                                                                                     	return ejectables
-                                                                                    end tell
-";
+                                                                                    end tell";
 
         private static readonly NSAppleScript FinderSelectedElementsEjectOrMoveToTrashScript = new NSAppleScript(FinderSelectedElementsEjectOrMoveToTrashScriptText);
         
-        public static bool SelectedElementsEjectOrMoveToTrash(out List<string> diskPaths)
+        public static bool SelectedElementsMoveToTrashOrReturnEjectables(out List<string> diskPaths)
         {
             var descriptor = FinderSelectedElementsEjectOrMoveToTrashScript.ExecuteAndReturnError(out _);
             

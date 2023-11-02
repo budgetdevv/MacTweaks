@@ -105,21 +105,9 @@ namespace MacTweaks
                 var macTweaks = NSRunningApplication.CurrentApplication;
                 
                 var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl!.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
-                
-                var psi = new System.Diagnostics.ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
-                {
-                    // To hide the window, set UseShellExecute to false and RedirectStandardOutput to true
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true, 
-                    RedirectStandardInput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-            
-                var process = new System.Diagnostics.Process();
-                process.StartInfo = psi;
-                process.Start();
 
+                var process = new TerminalCommand(command).Process;
+                
                 process.WaitForExit();
 
                 if (process.ExitCode == 0)
