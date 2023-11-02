@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using AppKit;
 using CoreGraphics;
@@ -9,7 +8,6 @@ using MacTweaks.Modules;
 using MacTweaks.Modules.Clipboarding;
 using MacTweaks.Modules.Credentials;
 using MacTweaks.Modules.Dock;
-using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
 using MacTweaks.Modules.Window;
 using Microsoft.Extensions.DependencyInjection;
@@ -108,7 +106,7 @@ namespace MacTweaks
                 
                 var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl!.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
                 
-                var psi = new ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
+                var psi = new System.Diagnostics.ProcessStartInfo("/bin/zsh", $"-c \"{command}\"")
                 {
                     // To hide the window, set UseShellExecute to false and RedirectStandardOutput to true
                     UseShellExecute = false,
@@ -118,7 +116,7 @@ namespace MacTweaks
                     CreateNoWindow = true
                 };
             
-                var process = new Process();
+                var process = new System.Diagnostics.Process();
                 process.StartInfo = psi;
                 process.Start();
 
