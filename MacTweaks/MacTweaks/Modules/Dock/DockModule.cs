@@ -49,10 +49,6 @@ namespace MacTweaks.Modules.Dock
 
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
 
-        private CFMachPort OnRightMouseDownHandle;
-
-        private CGEvent.CGEventTapCallback Callback;
-
         private void CalculateScreenMetadata(NSScreen mainScreen)
         {
             // Unfortunately, NSStatusBar.SystemStatusBar.Thickness is unreliable. See: https://github.com/feedback-assistant/reports/issues/140
@@ -83,19 +79,7 @@ namespace MacTweaks.Modules.Dock
             
             DockTile = NSApplication.SharedApplication.DockTile;
             
-            Callback = OnDockLeftClick;
-            
-            var eventTap = OnRightMouseDownHandle = CGEvent.CreateTap(
-                CGEventTapLocation.HID,
-                CGEventTapPlacement.HeadInsert,
-                CGEventTapOptions.Default,
-                CGEventMask.LeftMouseDown,
-                Callback,
-                IntPtr.Zero);
-            
-            CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeCommon);
-            
-            CGEvent.TapEnable(eventTap);
+            CGHelpers.CGEventTapManager.OnLeftMouseDown.Event += OnDockLeftClick;
 
             NSNotificationCenter.DefaultCenter.AddObserver(NSApplication.DidChangeScreenParametersNotification, DidChangeScreenParameters);
             
@@ -137,125 +121,115 @@ namespace MacTweaks.Modules.Dock
             // window.MakeKeyAndOrderFront(default);
         }
         
-        private IntPtr OnDockLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
+        private IntPtr OnDockLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
         {
-            if (!type.CGEventTapIsDisabled())
+            var mouseLocation = @event.Location;
+
+            if (mouseLocation.Y <= DockHeightThreshold)
             {
-                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
+                return handle;
+            }
 
-                var mouseLocation = @event.Location;
-
-                if (mouseLocation.Y <= DockHeightThreshold)
-                {
-                    return handle;
-                }
-
-                var sharedWorkspace = SharedWorkspace;
+            var sharedWorkspace = SharedWorkspace;
             
-                var activeApp = sharedWorkspace.FrontmostApplication;
+            var activeApp = sharedWorkspace.FrontmostApplication;
                 
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                if (activeApp == null)
-                {
-                    // Let's just put it this way...It is never supposed to be null,
-                    // but it is right after you enter password for admin dialog ( For sudo or system changes etc )
-                    // Just let the mouse event flow through...
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (activeApp == null)
+            {
+                // Let's just put it this way...It is never supposed to be null,
+                // but it is right after you enter password for admin dialog ( For sudo or system changes etc )
+                // Just let the mouse event flow through...
                     
-                    //TODO: FIND OUT WHY!!!
+                //TODO: FIND OUT WHY!!!
 
-                    goto FlowThrough;
-                }
+                goto FlowThrough;
+            }
                 
-                var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
+            var exists = AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var clickedElement);
 
-                string title;
+            string title;
                 
-                if (exists && (title = clickedElement.AXTitle) != null)
-                {
-                    var subrole = clickedElement.AXSubrole;
+            if (exists && (title = clickedElement.AXTitle) != null)
+            {
+                var subrole = clickedElement.AXSubrole;
                     
-                    if (clickedElement.ApplicationIsRunning && subrole == "AXApplicationDockItem")
+                if (clickedElement.ApplicationIsRunning && subrole == "AXApplicationDockItem")
+                {
+                    var titleSpan = title.AsSpan();
+                    
+                    if (!activeApp.GetDockName().SequenceEqual(titleSpan))
                     {
-                        var titleSpan = title.AsSpan();
-                    
-                        if (!activeApp.GetDockName().SequenceEqual(titleSpan))
-                        {
-                            goto HideApp;
-                        }
-                    
-                        // Check if the active application have all windows minimized.
-                        // If so, we shouldn't attempt to hide the application
-                        // AccessibilityHelpers.ApplicationAllWindowsAreMinimized will return false if there are no active
-                        // windows. This resolves the bug of finder not launching when there are no active windows.
-                    
-                        if (!AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier, out var areMinimized) || areMinimized)
-                        {
-                            return handle;
-                        }
-                    
-                        HideApp:
-                        foreach (var app in sharedWorkspace.RunningApplications)
-                        {
-                            if (!app.GetDockName().SequenceEqual(titleSpan))
-                            {
-                                continue;
-                            }
-
-                            if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
-                            {
-                                if (title != ConstantHelpers.FINDER_APP_NAME)
-                                {
-                                    app.Hide();
-                                }
-
-                                else
-                                {
-                                    // This is necessary. If we use hide for Finder, and all other apps are hidden,
-                                    // it will force another app to become active
-                                    // ( Thus they will appear, and it is weird )
-                                    AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
-                                }
-
-                                return IntPtr.Zero;
-                            }
-
-                            // Clicking on dock icon re-activates app anyway
-                            break;
-                        }
+                        goto HideApp;
                     }
-
-                    else if (subrole == "AXTrashDockItem" && AccessibilityHelpers.TryToggleTrashWindow())
+                    
+                    // Check if the active application have all windows minimized.
+                    // If so, we shouldn't attempt to hide the application
+                    // AccessibilityHelpers.ApplicationAllWindowsAreMinimized will return false if there are no active
+                    // windows. This resolves the bug of finder not launching when there are no active windows.
+                    
+                    if (!AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier, out var areMinimized) || areMinimized)
                     {
-                        return IntPtr.Zero;
+                        return handle;
+                    }
+                    
+                    HideApp:
+                    foreach (var app in sharedWorkspace.RunningApplications)
+                    {
+                        if (!app.GetDockName().SequenceEqual(titleSpan))
+                        {
+                            continue;
+                        }
+
+                        if (app.Active) // TODO: Replace this weird hack with new mouse detection mechanism
+                        {
+                            if (title != ConstantHelpers.FINDER_APP_NAME)
+                            {
+                                app.Hide();
+                            }
+
+                            else
+                            {
+                                // This is necessary. If we use hide for Finder, and all other apps are hidden,
+                                // it will force another app to become active
+                                // ( Thus they will appear, and it is weird )
+                                AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
+                            }
+
+                            return IntPtr.Zero;
+                        }
+
+                        // Clicking on dock icon re-activates app anyway
+                        break;
                     }
                 }
 
-                else
+                else if (subrole == "AXTrashDockItem" && AccessibilityHelpers.TryToggleTrashWindow())
                 {
-                    if (!AccessibilityHelpers.ApplicationFocusedWindowIsFullScreen(activeApp.ProcessIdentifier))
-                    {
-                        // Hot corners
-                
-                        var centerX = CenterX;
-                
-                        if (mouseLocation.X > centerX)
-                        {
-                            OnBottomRightHotCornerLeftClick?.Invoke(@event);
-                        }
-                
-                        else
-                        {
-                            OnBottomLeftHotCornerLeftClick?.Invoke(@event);
-                        }
-                    }
-                
-                    // Don't do anything in fullscreen mode
+                    return IntPtr.Zero;
                 }
             }
 
             else
             {
-                CGEvent.TapEnable(OnRightMouseDownHandle);
+                if (!AccessibilityHelpers.ApplicationFocusedWindowIsFullScreen(activeApp.ProcessIdentifier))
+                {
+                    // Hot corners
+                
+                    var centerX = CenterX;
+                
+                    if (mouseLocation.X > centerX)
+                    {
+                        OnBottomRightHotCornerLeftClick?.Invoke(@event);
+                    }
+                
+                    else
+                    {
+                        OnBottomLeftHotCornerLeftClick?.Invoke(@event);
+                    }
+                }
+                
+                // Don't do anything in fullscreen mode
             }
 
             FlowThrough:
@@ -264,7 +238,7 @@ namespace MacTweaks.Modules.Dock
 
         public void Stop()
         {
-            OnRightMouseDownHandle.Dispose();
+            CGHelpers.CGEventTapManager.OnLeftMouseDown.Event -= OnDockLeftClick; 
         }
     }
 }

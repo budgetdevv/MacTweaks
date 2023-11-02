@@ -175,6 +175,8 @@ namespace MacTweaks
             {
                 service.Start();
             }
+            
+            CGHelpers.CGEventTapManager.Initialize();
         }
 
         private void ConstructMenuBarIcon()

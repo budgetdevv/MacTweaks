@@ -10,10 +10,6 @@ namespace MacTweaks.Modules.Dock
     public class DockDebugModule: IModule
     {
         private readonly AppDelegate AppDelegate;
-        
-        private CFMachPort OnRightMouseDownHandle;
-
-        private CGEvent.CGEventTapCallback Callback;
 
         public DockDebugModule(AppDelegate appDelegate)
         {
@@ -22,25 +18,11 @@ namespace MacTweaks.Modules.Dock
         
         public void Start()
         {
-            Callback = OnRightMouseDown;
-            
-            var eventTap = OnRightMouseDownHandle = CGEvent.CreateTap(
-                CGEventTapLocation.HID,
-                CGEventTapPlacement.HeadInsert,
-                CGEventTapOptions.Default,
-                CGEventMask.RightMouseDown,
-                Callback,
-                IntPtr.Zero);
-            
-            CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeCommon);
-            
-            CGEvent.TapEnable(eventTap);
+            CGHelpers.CGEventTapManager.OnRightMouseDown.Event += OnRightMouseDown;
         }
         
-        private IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr handle, IntPtr userInfo)
+        private IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr handle, CGEvent @event)
         {
-            var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
-
             var mouseLocation = @event.Location;
             
             AccessibilityHelpers.AXGetElementAtPosition((float) mouseLocation.X, (float) mouseLocation.Y, out var data);
@@ -52,7 +34,7 @@ namespace MacTweaks.Modules.Dock
         
         public void Stop()
         {
-            OnRightMouseDownHandle.Dispose();
+            CGHelpers.CGEventTapManager.OnRightMouseDown.Event -= OnRightMouseDown;
         }
     }
     #endif

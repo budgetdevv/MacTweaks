@@ -127,6 +127,7 @@ namespace MacTweaks.Helpers
                 }
             }
             
+            // ReSharper disable MemberCanBePrivate.Global
             public static CGEventTapCallback
                 OnNull = new CGEventTapCallback(),
                 OnLeftMouseDown = new CGEventTapCallback(),
@@ -145,6 +146,7 @@ namespace MacTweaks.Helpers
                 OnOtherMouseDown = new CGEventTapCallback(),
                 OnOtherMouseUp = new CGEventTapCallback(),
                 OnOtherMouseDragged = new CGEventTapCallback();
+            // ReSharper restore MemberCanBePrivate.Global
 
             private static bool Initialized = false;
             
@@ -283,7 +285,7 @@ namespace MacTweaks.Helpers
                         CGEventTapOptions.Default,
                         Mask = mask,
                         Callback = OnCallback,
-                        IntPtr.Zero);
+                        IntPtr.Zero)!;
                     
                     CFRunLoop.Main.AddSource(eventTap.CreateRunLoopSource(), CFRunLoop.ModeCommon);
             
