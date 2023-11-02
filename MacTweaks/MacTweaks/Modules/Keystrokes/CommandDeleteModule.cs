@@ -1,79 +1,49 @@
 using System;
-using System.Linq;
 using CoreGraphics;
 using AppKit;
-using CoreFoundation;
-using Foundation;
 using MacTweaks.Helpers;
-using ObjCRuntime;
 
 namespace MacTweaks.Modules.Keystrokes
 {
     public class CommandDeleteModule: IModule
     {
-        private CGEvent.CGEventTapCallback OnCommandDeleteCallback;
-
-        private CFMachPort OnCommandDeleteHandle;
+        private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
         
         public void Start()
         {
-            var onCommandDeleteCallback = OnCommandDeleteCallback = OnCommandDelete;
-            
-            var onCommandDeleteHandle = OnCommandDeleteHandle = CGEvent.CreateTap(
-                CGEventTapLocation.Session, 
-                CGEventTapPlacement.HeadInsert,
-                CGEventTapOptions.Default, 
-                CGEventMask.KeyDown, 
-                onCommandDeleteCallback,
-                IntPtr.Zero);
-            
-            CFRunLoop.Main.AddSource(onCommandDeleteHandle.CreateRunLoopSource(), CFRunLoop.ModeCommon);
-            
-            CGEvent.TapEnable(onCommandDeleteHandle);
+            CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandDelete;
         }
-
-        private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
         
-        private IntPtr OnCommandDelete(IntPtr proxy, CGEventType type, IntPtr handle, IntPtr userInfo)
+        private static IntPtr OnCommandDelete(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
         {
-            if (!type.CGEventTapIsDisabled())
+            if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
             {
-                var @event = Runtime.GetINativeObject<CGEvent>(handle, false);
+                var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
 
-                if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
+                if (keyCode == NSKey.Delete)
                 {
-                    var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
-
-                    if (keyCode == NSKey.Delete)
+                    if (AccessibilityHelpers.SelectedElementsMoveToTrashOrReturnEjectables(out var diskPaths))
                     {
-                        if (AccessibilityHelpers.SelectedElementsMoveToTrashOrReturnEjectables(out var diskPaths))
+                        foreach (var diskPath in diskPaths)
                         {
-                            foreach (var diskPath in diskPaths)
+                            if (AccessibilityHelpers.TryUnmountVolume(diskPath))
                             {
-                                if (AccessibilityHelpers.TryUnmountVolume(diskPath))
-                                {
-                                    continue;
-                                }
-                                
-                                // Volume is in use. Display a warning dialog.
-                                var alert = new NSAlert
-                                {
-                                    AlertStyle = NSAlertStyle.Warning,
-                                    InformativeText = $"The volume {diskPath} is in use and cannot be ejected.",
-                                    MessageText = "Warning"
-                                };
-                                alert.RunSheetModal(null);
+                                continue;
                             }
+                                
+                            // Volume is in use. Display a warning dialog.
+                            var alert = new NSAlert
+                            {
+                                AlertStyle = NSAlertStyle.Warning,
+                                InformativeText = $"The volume {diskPath} is in use and cannot be ejected.",
+                                MessageText = "Warning"
+                            };
+                            alert.RunSheetModal(null);
                         }
-
-                        return IntPtr.Zero;
                     }
-                }
-            }
 
-            else
-            {
-                CGEvent.TapEnable(OnCommandDeleteHandle);
+                    return IntPtr.Zero;
+                }
             }
             
             return handle;
@@ -81,7 +51,7 @@ namespace MacTweaks.Modules.Keystrokes
 
         public void Stop()
         {
-            OnCommandDeleteHandle.Dispose();
+            CGHelpers.CGEventTapManager.OnKeyDown.Event -= OnCommandDelete;
         }
     }
 }
