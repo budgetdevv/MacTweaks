@@ -10,25 +10,24 @@ namespace MacTweaks.Modules.Credentials
 {
 	public class BypassAskForPasswordModule : ISudoModule
 	{
-		private static readonly string GetAdminPasswordScriptText = $@"-- Function to generate a random password
-                                                                       on generateRandomPassword()
-                                                                       	set possibleCharacters to ""abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ""
-                                                                       	set passwordLength to 12
-                                                                       	set generatedPassword to """"
-                                                                       	repeat passwordLength times
-                                                                       		set randomIndex to (random number from 1 to (count of possibleCharacters))
-                                                                       		set generatedPassword to generatedPassword & character randomIndex of possibleCharacters
-                                                                       	end repeat
-                                                                       	return generatedPassword
-                                                                       end generateRandomPassword
-                                                                       
-                                                                       -- Generate a new password
-                                                                       set newPassword to generateRandomPassword()
-                                                                       
-                                                                       -- Set the password for the user. Note that the space after /Users/root next line is IMPORTANT.
-                                                                       do shell script ""sudo dscl . -passwd /Users/root "" & newPassword
-                                                                       
-                                                                       return newPassword";
+		private const string GetAdminPasswordScriptText = @"on generateRandomPassword()
+                                                            	set possibleCharacters to ""abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ""
+                                                            	set passwordLength to 12
+                                                            	set generatedPassword to """"
+                                                            	repeat passwordLength times
+                                                            		set randomIndex to random number from 1 to (count of possibleCharacters)
+                                                            		set generatedPassword to generatedPassword & character randomIndex of possibleCharacters
+                                                            	end repeat
+                                                            	return generatedPassword
+                                                            end generateRandomPassword
+                                                            
+                                                            -- Generate a new password
+                                                            set newPassword to generateRandomPassword()
+                                                            
+                                                            -- Set the password for the user. Note that the space after /Users/root next line is IMPORTANT.
+                                                            do shell script ""sudo dscl . -passwd /Users/root "" & newPassword
+                                                            
+                                                            return newPassword";
 
 		private static readonly string AutoFillAdminPasswordScriptText;
 
