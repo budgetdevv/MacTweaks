@@ -301,7 +301,7 @@ namespace MacTweaks.Helpers
 
                     EventTapStatusPoller = new ThreadHelpers.MainLoopTimer(TimeSpan.FromSeconds(5), _ =>
                     {
-                        if (!AccessibilityHelpers.AccessibilityPermissionsRevoked())
+                        if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
                         {
                             return;
                         }
@@ -443,7 +443,7 @@ namespace MacTweaks.Helpers
                     [MethodImpl(MethodImplOptions.NoInlining)]
                     IntPtr HandleDisabled()
                     {
-                        if (!AccessibilityHelpers.AccessibilityPermissionsRevoked())
+                        if (AccessibilityHelpers.RequestForAccessibilityIfNotGranted())
                         {
                             CGEvent.TapEnable(EventTap);
                         }

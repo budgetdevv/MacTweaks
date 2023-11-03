@@ -637,33 +637,6 @@ namespace MacTweaks.Helpers
 
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool GetMenuBarSize(int pid, out CGSize size);
-
-        public static bool AccessibilityPermissionsRevoked()
-        {
-            // TODO: Find out if there's a cheaper way to do this
-            CGEvent.CGEventTapCallback @delegate = OnEmptyCallback;
-            
-            // https://developer.apple.com/forums/thread/735204
-            var validatorTap = CGEvent.CreateTap(
-                CGEventTapLocation.HID,
-                CGEventTapPlacement.HeadInsert,
-                CGEventTapOptions.Default,
-                unchecked((CGEventMask) (ulong) (-1)),
-                @delegate,
-                IntPtr.Zero)!;
-            
-            GC.KeepAlive(@delegate);
-
-            var revoked =  validatorTap == null;
-
-            if (!revoked)
-            {
-                validatorTap.Invalidate();
-                validatorTap.Dispose();
-            }
-
-            return revoked;
-        }
         
         private static IntPtr OnEmptyCallback(IntPtr proxy, CGEventType type, IntPtr eventHandle, IntPtr userInfo)
         {
