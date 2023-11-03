@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using AppKit;
 using Foundation;
 
@@ -8,9 +9,34 @@ namespace MacTweaks.Helpers
     {
         private static readonly NSRunningApplication CurrentApplication = NSRunningApplication.CurrentApplication;
 
-        public static void InvokeOnMainThread(Action action)
+        // Allow tryExecuteInline to be constant folded, eliminating a branch if it is false
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InvokeOnMainThread(Action action, bool tryExecuteInline = false)
         {
-            CurrentApplication.InvokeOnMainThread(action);
+            if (tryExecuteInline && IsMainThread())
+            {
+                action();
+            }
+
+            else
+            {
+                CurrentApplication.BeginInvokeOnMainThread(action);
+            }
+        }
+        
+        // Allow tryExecuteInline to be constant folded, eliminating a branch if it is false
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InvokeOnMainThreadBlocking(Action action, bool tryExecuteInline = false)
+        {
+            if (tryExecuteInline && IsMainThread())
+            {
+                action();
+            }
+
+            else
+            {
+                CurrentApplication.InvokeOnMainThread(action);
+            }
         }
 
         public readonly struct MainLoopTimer: IDisposable
@@ -37,6 +63,42 @@ namespace MacTweaks.Helpers
                 timer.Invalidate();
                 timer.Dispose();
             }
+        }
+        
+        private static readonly int MainThreadID;
+
+        static ThreadHelpers()
+        {
+            int threadID;
+            
+            // We do this check, since we don't want to
+            // block InvokeOnMainThreadBlocking if we are
+            // running on main thread already. Doing so will
+            // cause a dead lock
+            if (NSThread.Current.IsMainThread)
+            {
+                threadID = Environment.CurrentManagedThreadId;
+            }
+
+            else
+            {
+                var threadIDBox = new StrongBox<int>();
+            
+                InvokeOnMainThreadBlocking(() =>
+                {
+                    threadIDBox.Value = Environment.CurrentManagedThreadId;
+                });
+
+                threadID = threadIDBox.Value;
+            }
+
+            MainThreadID = threadID;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsMainThread()
+        {
+            return Environment.CurrentManagedThreadId == MainThreadID;
         }
     }
 }
