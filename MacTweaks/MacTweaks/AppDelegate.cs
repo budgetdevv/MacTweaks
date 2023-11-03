@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using AppKit;
-using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
