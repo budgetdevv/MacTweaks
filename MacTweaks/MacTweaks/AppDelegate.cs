@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using AppKit;
+using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
@@ -188,7 +189,7 @@ namespace MacTweaks
             // Display tray icon in upper-right-hand corner of the screen
             var statusItem = MenuBarStatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
             statusItem.Menu = menuBarIconMenu;
-            statusItem.Image = NSImage.FromStream(System.IO.File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
+            statusItem.Image = NSImage.FromStream(File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
             statusItem.HighlightMode = true;
         }
 

@@ -183,11 +183,14 @@ namespace MacTweaks.Helpers
                     OnOtherMouseUpEnabled, 
                     OnOtherMouseDraggedEnabled;
                 
+                // Ensures that the garbage collector won't collect it.
                 private static readonly CGEvent.CGEventTapCallback Callback;
 
                 private static readonly CGEventMask Mask;
 
                 private static readonly bool UseSwitch, BypassCheck;
+
+                private static readonly ThreadHelpers.MainLoopTimer EventTapStatusPoller;
                 
                 [SuppressMessage("ReSharper", "AssignmentInConditionalExpression")]
                 static CGEventTapCache()
@@ -295,6 +298,16 @@ namespace MacTweaks.Helpers
                     
                     UseSwitch = count > 2;
                     BypassCheck = count <= 1;
+
+                    EventTapStatusPoller = new ThreadHelpers.MainLoopTimer(TimeSpan.FromSeconds(5), _ =>
+                    {
+                        if (!AccessibilityHelpers.AccessibilityPermissionsRevoked())
+                        {
+                            return;
+                        }
+
+                        HandleAccessibilityRevokedAccess();
+                    });
                 }
 
                 [SkipLocalsInit]
@@ -430,39 +443,25 @@ namespace MacTweaks.Helpers
                     [MethodImpl(MethodImplOptions.NoInlining)]
                     IntPtr HandleDisabled()
                     {
-                        // https://developer.apple.com/forums/thread/735204
-                        var validatorTap = CGEvent.CreateTap(
-                            CGEventTapLocation.HID,
-                            CGEventTapPlacement.HeadInsert,
-                            CGEventTapOptions.Default,
-                            unchecked((CGEventMask) (ulong) (-1)),
-                            OnEmptyCallback,
-                            IntPtr.Zero)!;
-
-                        var eventTap= EventTap;
-
-                        if (validatorTap != null && validatorTap.IsValid)
+                        if (!AccessibilityHelpers.AccessibilityPermissionsRevoked())
                         {
-                            validatorTap.Invalidate();
-                            validatorTap.Dispose();
-                            CGEvent.TapEnable(eventTap);
+                            CGEvent.TapEnable(EventTap);
                         }
 
                         else
                         {
-                            eventTap.Invalidate();
-                            eventTap.Dispose();
-                            AppHelpers.TryRelaunchApp();
-                            Environment.Exit(0);
+                            HandleAccessibilityRevokedAccess();
                         }
                         
                         return eventHandle;
                     }
                 }
 
-                private static IntPtr OnEmptyCallback(IntPtr proxy, CGEventType type, IntPtr eventHandle, IntPtr userInfo)
+                [MethodImpl(MethodImplOptions.NoInlining)]
+                private static void HandleAccessibilityRevokedAccess()
                 {
-                    return eventHandle;
+                    AppHelpers.TryRelaunchApp();
+                    Environment.Exit(0);
                 }
             }
         }

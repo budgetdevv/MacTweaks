@@ -15,26 +15,22 @@ namespace MacTweaks.Modules.Energy
         
         private float PreviousBrightnessLevel;
 
-        private NSTimer BrightnessPoller;
+        private ThreadHelpers.MainLoopTimer BrightnessPoller;
         
         // Keep a reference to avoid GC collecting the handle
         private Action<NSNotification> PowerStateDidChangeHandle;
 
         private void CreateAndRegisterBrightnessPoller()
         {
-            var brightnessPoller = BrightnessPoller = NSTimer.CreateRepeatingTimer(TimeSpan.FromSeconds(1), timer =>
+            BrightnessPoller = new ThreadHelpers.MainLoopTimer(TimeSpan.FromSeconds(1), timer =>
             {
                 AccessibilityHelpers.GetMainDisplayBrightness(out PreviousBrightnessLevel);
             });
-
-            NSRunLoop.Main.AddTimer(brightnessPoller, NSRunLoopMode.Common);
         }
 
         private void DisposeBrightnessPoller()
         {
-            var brightnessPoller = BrightnessPoller;
-            brightnessPoller.Invalidate();
-            brightnessPoller.Dispose();
+            BrightnessPoller.Dispose();
         }
         
         public void Start()
