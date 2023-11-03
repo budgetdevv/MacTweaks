@@ -65,6 +65,8 @@ namespace MacTweaks.Helpers
             }
         }
         
+        // https://learn.microsoft.com/en-us/dotnet/api/system.threading.thread.managedthreadid?view=net-7.0
+        // "The value of the ManagedThreadId property does not vary over time, even if unmanaged code that hosts the common language runtime implements the thread as a fiber."
         private static readonly int MainThreadID;
 
         static ThreadHelpers()
