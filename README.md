@@ -12,4 +12,4 @@ This project is not really ready for public consumption atm, as there are loads 
 - Command+X to cut files and folders
 - Retain brightness when toggling low power mode ( ON / OFF ).
 - Reset low power config to "Low power mode on battery only" when plugged back into AC. This is useful when you wish to override power settings to use high performance mode for certain workloads while running on battery.
-- Command+` to bypass "Enter admin password" dialog!!!
+- Auto bypass "Enter admin password" dialog!!!
