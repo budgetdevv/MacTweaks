@@ -430,10 +430,39 @@ namespace MacTweaks.Helpers
                     [MethodImpl(MethodImplOptions.NoInlining)]
                     IntPtr HandleDisabled()
                     {
-                        CGEvent.TapEnable(EventTap);
+                        // https://developer.apple.com/forums/thread/735204
+                        var validatorTap = CGEvent.CreateTap(
+                            CGEventTapLocation.HID,
+                            CGEventTapPlacement.HeadInsert,
+                            CGEventTapOptions.Default,
+                            unchecked((CGEventMask) (ulong) (-1)),
+                            OnEmptyCallback,
+                            IntPtr.Zero)!;
+
+                        var eventTap= EventTap;
+
+                        if (validatorTap != null && validatorTap.IsValid)
+                        {
+                            validatorTap.Invalidate();
+                            validatorTap.Dispose();
+                            CGEvent.TapEnable(eventTap);
+                        }
+
+                        else
+                        {
+                            eventTap.Invalidate();
+                            eventTap.Dispose();
+                            AppHelpers.TryRelaunchApp();
+                            Environment.Exit(0);
+                        }
                         
                         return eventHandle;
                     }
+                }
+
+                private static IntPtr OnEmptyCallback(IntPtr proxy, CGEventType type, IntPtr eventHandle, IntPtr userInfo)
+                {
+                    return eventHandle;
                 }
             }
         }

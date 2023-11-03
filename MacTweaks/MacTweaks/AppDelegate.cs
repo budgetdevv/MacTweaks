@@ -100,17 +100,9 @@ namespace MacTweaks
             }
             
             #if RELEASE
-            if (!AccessibilityHelpers.IsSudoUser())
+            if (!AccessibilityHelpers.IsSudoUser)
             {
-                var macTweaks = NSRunningApplication.CurrentApplication;
-                
-                var command = $"sudo sh -c 'nohup \"{macTweaks.BundleUrl!.Path}/Contents/MacOS/{macTweaks.GetDockName().ToString()}\" > \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Output.txt\" 2> \"{ConstantHelpers.MAC_TWEAKS_LOGS_PATH}/Error.txt\" &'";
-
-                var process = new TerminalCommand(command).Process;
-                
-                process.WaitForExit();
-
-                if (process.ExitCode == 0)
+                if (AppHelpers.TryRelaunchApp(true))
                 {
                     Environment.Exit(0);
                 }
