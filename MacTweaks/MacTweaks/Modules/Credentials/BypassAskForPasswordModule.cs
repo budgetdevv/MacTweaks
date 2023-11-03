@@ -43,14 +43,14 @@ namespace MacTweaks.Modules.Credentials
 		{
 			bool enabled;
 			
-			const bool Bypass =
+			const bool BYPASS =
 			#if DEBUG_BypassAskForPasswordModule
 			true;
 			#else
 			false;
 			#endif
 
-			if (AccessibilityHelpers.IsSudoUser || Bypass)
+			if (AccessibilityHelpers.IsSudoUser || BYPASS)
 			{
 				var descriptor = GetAdminPasswordScript.ExecuteAndReturnError(out var error);
 
