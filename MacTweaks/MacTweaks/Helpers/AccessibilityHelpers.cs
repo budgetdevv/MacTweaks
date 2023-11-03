@@ -16,6 +16,8 @@ namespace MacTweaks.Helpers
         
         private const string ApplicationServicesLibrary = "/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices";
         
+        private const string MacTweaksAXUIStubLibrary = "MacTweaksAXUIStub.dylib";
+        
         private static readonly NSDictionary AccessibilityChecker = new NSDictionary("AXTrustedCheckOptionPrompt", true);
 
         public static bool RequestForAccessibilityIfNotGranted()
@@ -23,7 +25,7 @@ namespace MacTweaks.Helpers
             return AXIsProcessTrustedWithOptions(AccessibilityChecker.Handle);
         }
 
-        [DllImport("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")]
+        [DllImport(ApplicationServicesLibrary)]
         private static extern bool AXIsProcessTrustedWithOptions(IntPtr options);
         
         [DllImport(CoreFoundationLibrary)]
@@ -34,9 +36,6 @@ namespace MacTweaks.Helpers
 
         [DllImport(ApplicationServicesLibrary)]
         public static extern IntPtr AXUIElementCreateSystemWide();
-        
-        //TODO: Improve this
-        private const string MacTweaksAXUIStubLibrary = "/Users/trumpmcdonaldz/Desktop/Code/MacTweaks/MacTweaksAXUIStub/MacTweaksAXUIStub.dylib";
 
         [StructLayout(LayoutKind.Sequential)]
         public struct AXUIElementMarshaller
@@ -534,8 +533,7 @@ namespace MacTweaks.Helpers
                                                                       	on error
                                                                       		return false -- return false if there's an error
                                                                       	end try
-                                                                      end run
-";
+                                                                      end run";
         
         private static readonly NSAppleScript MoveItemsToDestinationPathScript = new NSAppleScript(MoveItemsToDestinationPathScriptText);
         
