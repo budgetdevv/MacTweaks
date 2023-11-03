@@ -98,26 +98,14 @@ namespace MacTweaks.Modules.Credentials
                                                  end tell";
 			AutoFillAdminPasswordScript = new NSAppleScript(AutoFillAdminPasswordScriptText);
 		}
-
+		
 		private NSObject DidActivateApplicationNotification;
-
-		// private AppDelegate AppDelegate;
-		//
-		// private DockModule DockModule;
-		//
-		// public BypassAskForPasswordModule(AppDelegate appDelegate)
-		// {
-		// 	AppDelegate = appDelegate;
-		// }
 		
 		public void Start()
 		{
 			if (Enabled)
 			{
-				// DockModule = AppDelegate.Services.GetServices<IModule>().First(x => x.GetType() == typeof(DockModule)) as DockModule;
-				
-				//CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
-
+				// CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
 				DidActivateApplicationNotification = NSWorkspace.Notifications.ObserveDidActivateApplication(OnApplicationActivated);
 			}
 		}
@@ -161,7 +149,7 @@ namespace MacTweaks.Modules.Credentials
         {
 	        if (Enabled)
 	        {
-		        //CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
+		        // CGHelpers.CGEventTapManager.OnKeyDown.Event -= OnCommandBacktick;
 	        }
         }
     }
