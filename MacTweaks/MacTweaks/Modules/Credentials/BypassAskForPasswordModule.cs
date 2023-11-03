@@ -1,16 +1,16 @@
+#define DEBUG_BypassAskForPasswordModule
+
 using System;
 using AppKit;
-using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
-using ObjCRuntime;
 
 namespace MacTweaks.Modules.Credentials
 {
-	public class BypassAskForPasswordModule: ISudoModule
-    {
-        private static readonly string GetAdminPasswordScriptText = $@"-- Function to generate a random password
+	public class BypassAskForPasswordModule : ISudoModule
+	{
+		private static readonly string GetAdminPasswordScriptText = $@"-- Function to generate a random password
                                                                        on generateRandomPassword()
                                                                        	set possibleCharacters to ""abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ""
                                                                        	set passwordLength to 12
@@ -30,67 +30,114 @@ namespace MacTweaks.Modules.Credentials
                                                                        
                                                                        return newPassword";
 
-        private static readonly string AutoFillAdminPasswordScriptText;
+		private static readonly string AutoFillAdminPasswordScriptText;
 
-        private static readonly NSAppleScript GetAdminPasswordScript = new NSAppleScript(GetAdminPasswordScriptText), AutoFillAdminPasswordScript;
-        
-        private static readonly string RootPassword;
+		private static readonly NSAppleScript GetAdminPasswordScript = new NSAppleScript(GetAdminPasswordScriptText),
+											  AutoFillAdminPasswordScript;
 
-        private static readonly bool Enabled;
+		private static readonly string RootPassword;
 
-        static BypassAskForPasswordModule()
-        {
-	        bool enabled;
+		private static readonly bool Enabled;
 
-	        if (AccessibilityHelpers.IsSudoUser)
-	        {
-		        var descriptor = GetAdminPasswordScript.ExecuteAndReturnError(out var error);
-		        
-		        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-		        enabled = descriptor != null;
-	        
-		        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-		        if (enabled)
-		        {
-			        RootPassword = descriptor.StringValue;
-		        }
-	        }
+		static BypassAskForPasswordModule()
+		{
+			bool enabled;
+			
+			const bool Bypass =
+			#if DEBUG_BypassAskForPasswordModule
+			true;
+			#else
+			false;
+			#endif
 
-	        else
-	        {
-		        enabled = false;
-	        }
+			if (AccessibilityHelpers.IsSudoUser || Bypass)
+			{
+				var descriptor = GetAdminPasswordScript.ExecuteAndReturnError(out var error);
 
-	        Enabled = enabled;
-		        
-	        //TODO: Some get it to focus on username instead of password field - Focusing on the latter causes the keystrokes to fail all together
+				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+				enabled = descriptor != null;
 
-	        AutoFillAdminPasswordScriptText =  $@"tell application ""System Events""
-                                                  	tell process ""SecurityAgent""
-                                                  		set value of text field 1 of window 1 to ""root""
-                                                  		set value of text field 2 of window 1 to ""{RootPassword}""
-														try
-                                                  		click button ""OK"" of window 1
-                                                  		on error
-                                                  			try
-                                                  				click button ""Allow"" of window 1
-                                                  			end try
-                                                  		end try
-                                                  	end tell
-                                                  end tell
-												  tell application ""Finder""
-													activate -- This should fix null FrontmostApplication issue
-												  end tell";
-		        
-	        AutoFillAdminPasswordScript = new NSAppleScript(AutoFillAdminPasswordScriptText);
-        }
-        
-        public void Start()
-        {
-	        if (Enabled)
-	        {
-		        CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
-	        }
+				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+				if (enabled)
+				{
+					RootPassword = descriptor.StringValue;
+				}
+			}
+
+			else
+			{
+				enabled = false;
+			}
+
+			Enabled = enabled;
+
+			//TODO: Some get it to focus on username instead of password field - Focusing on the latter causes the keystrokes to fail all together
+
+			AutoFillAdminPasswordScriptText = $@"tell application ""System Events""
+                                                 	set securityAgent to first process whose name is ""SecurityAgent""
+                                                 	
+                                                 	tell securityAgent
+                                                 		try
+                                                 			set usePasswordText to title of button 1 of window 1
+                                                 			if usePasswordText is ""Use Password…"" then
+                                                 				click button 1 of window 1
+                                                 			end if
+                                                 		end try
+                                                 		
+                                                 		set value of text field 1 of window 1 to ""root""
+                                                 		set value of text field 2 of window 1 to ""{RootPassword}""
+                                                 		
+                                                 		try
+                                                 			click button 2 of window 1
+                                                 		end try
+                                                 	end tell
+                                                 	
+                                                 	tell application ""Finder""
+                                                 		activate -- This should fix null FrontmostApplication issue
+                                                 	end tell
+                                                 end tell";
+			AutoFillAdminPasswordScript = new NSAppleScript(AutoFillAdminPasswordScriptText);
+		}
+
+		private NSObject DidActivateApplicationNotification;
+
+		// private AppDelegate AppDelegate;
+		//
+		// private DockModule DockModule;
+		//
+		// public BypassAskForPasswordModule(AppDelegate appDelegate)
+		// {
+		// 	AppDelegate = appDelegate;
+		// }
+		
+		public void Start()
+		{
+			if (Enabled)
+			{
+				// DockModule = AppDelegate.Services.GetServices<IModule>().First(x => x.GetType() == typeof(DockModule)) as DockModule;
+				
+				//CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
+
+				DidActivateApplicationNotification = NSWorkspace.Notifications.ObserveDidActivateApplication(OnApplicationActivated);
+			}
+		}
+
+		private static void OnApplicationActivated(object sender, NSWorkspaceApplicationEventArgs e)
+		{
+			if (e.Application.LocalizedName == ConstantHelpers.SECURITY_AGENT_NAME)
+			{
+				AutoFillAdminPasswordScript.ExecuteAndReturnError(out var _);
+				
+				// TODO: Make a window which asks end-user if they wanna autofill
+				// the password.
+				
+				// var x = NSScreen.MainScreen.Frame;
+				// x.Height = DockModule.DockHeight;
+				// x.Location = new CGPoint(0, 0); 
+				// var window = new NSWindow(x, NSWindowStyle.Closable, NSBackingStore.Buffered, false); 
+				// window.MakeKeyAndOrderFront(default); 
+				// Console.WriteLine(NSRunningApplication.CurrentApplication.Activate(NSApplicationActivationOptions.ActivateAllWindows));
+			}
         }
         
         private static IntPtr OnCommandBacktick(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
@@ -114,7 +161,7 @@ namespace MacTweaks.Modules.Credentials
         {
 	        if (Enabled)
 	        {
-		        CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
+		        //CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandBacktick;
 	        }
         }
     }

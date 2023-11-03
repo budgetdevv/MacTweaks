@@ -35,11 +35,11 @@ namespace MacTweaks.Modules.Dock
     {
         //Do NOT cache NSScreen.MainScreen or NSStatusBar.SystemStatusBar, since data might become stale
         
-        private nfloat DockHeight, DockHeightThreshold, MenuBarHeight;
+        public nfloat DockHeight, DockHeightThreshold, MenuBarHeight;
 
-        private NSDockTile DockTile;
+        public NSDockTile DockTile;
 
-        private nfloat CenterX;
+        public nfloat CenterX;
         
         public delegate void MouseEvent(CGEvent @event);
 

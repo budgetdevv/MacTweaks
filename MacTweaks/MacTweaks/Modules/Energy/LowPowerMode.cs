@@ -10,8 +10,6 @@ namespace MacTweaks.Modules.Energy
     public class LowPowerMode: IModule
     {
         private static readonly NSScreen MainScreen = NSScreen.MainScreen;
-
-        private NSObject PowerStateDidChangeObserver;
         
         private float PreviousBrightnessLevel;
 
@@ -19,6 +17,8 @@ namespace MacTweaks.Modules.Energy
         
         // Keep a reference to avoid GC collecting the handle
         private Action<NSNotification> PowerStateDidChangeHandle;
+        
+        private NSObject PowerStateDidChangeObserver;
 
         private void CreateAndRegisterBrightnessPoller()
         {
@@ -37,7 +37,7 @@ namespace MacTweaks.Modules.Energy
         {
             Battery.BatteryInfoChanged += BatteryInfoChanged;
             
-            PowerStateDidChangeObserver = NSNotificationCenter.DefaultCenter.AddObserver(NSProcessInfo.PowerStateDidChangeNotification, (PowerStateDidChangeHandle = PowerStateDidChange));
+            PowerStateDidChangeObserver = NSNotificationCenter.DefaultCenter.AddObserver(NSProcessInfo.PowerStateDidChangeNotification, PowerStateDidChangeHandle = PowerStateDidChange);
             
             // Create a timer that repeats every second
             CreateAndRegisterBrightnessPoller();
