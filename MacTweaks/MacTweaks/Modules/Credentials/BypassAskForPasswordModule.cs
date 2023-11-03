@@ -40,15 +40,28 @@ namespace MacTweaks.Modules.Credentials
 
         static BypassAskForPasswordModule()
         {
-	        var descriptor = GetAdminPasswordScript.ExecuteAndReturnError(out var error);
-		        
-	        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-	        var enabled = Enabled = descriptor != null;
-	        
-	        if (enabled)
+	        bool enabled;
+
+	        if (AccessibilityHelpers.IsSudoUser)
 	        {
-		        RootPassword = descriptor.StringValue;
+		        var descriptor = GetAdminPasswordScript.ExecuteAndReturnError(out var error);
+		        
+		        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+		        enabled = descriptor != null;
+	        
+		        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+		        if (enabled)
+		        {
+			        RootPassword = descriptor.StringValue;
+		        }
 	        }
+
+	        else
+	        {
+		        enabled = false;
+	        }
+
+	        Enabled = enabled;
 		        
 	        //TODO: Some get it to focus on username instead of password field - Focusing on the latter causes the keystrokes to fail all together
 
@@ -88,7 +101,7 @@ namespace MacTweaks.Modules.Credentials
 
 		        if (keyCode == NSKey.Grave) // ASCII code 96 = ` ( Grave accent ) ( https://theasciicode.com.ar/ )
 		        {
-			        AutoFillAdminPasswordScript.ExecuteAndReturnError(out var zzz);
+			        AutoFillAdminPasswordScript.ExecuteAndReturnError(out _);
 	                    
 			        return IntPtr.Zero;
 		        }
