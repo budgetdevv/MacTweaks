@@ -1,4 +1,4 @@
-#define DEBUG_BypassAskForPasswordModule
+// #define DEBUG_BypassAskForPasswordModule
 
 using System;
 using AppKit;
