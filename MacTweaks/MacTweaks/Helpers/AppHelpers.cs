@@ -8,6 +8,8 @@ public static class AppHelpers
 {
     public static readonly uint ActualUID;
 
+    private const string LibC = "libc";
+    
     static AppHelpers()
     {
         var getActualUID = new TerminalCommand("id -u $SUDO_USER").Process;
@@ -15,14 +17,14 @@ public static class AppHelpers
         ActualUID = uint.Parse(getActualUID.StandardOutput.ReadLine()!);
     }
     
-    [DllImport("libc", EntryPoint = "getuid")]
+    [DllImport(LibC, EntryPoint = "getuid")]
     public static extern uint GetUID();
         
-    [DllImport("libSystem.Native", EntryPoint = "SystemNative_GetEUid", ExactSpelling = true)]
-    public static extern uint GetEUid();
-        
-    [DllImport("libc", EntryPoint = "setuid")]
+    [DllImport(LibC, EntryPoint = "setuid")]
     public static extern int SetUID(uint uid);
+    
+    [DllImport(LibC, EntryPoint = "geteuid")]
+    public static extern uint GetEffectiveUID();
         
     // Can't transition from sudo to non-sudo
     // However, I believe you could relinquish sudo rights

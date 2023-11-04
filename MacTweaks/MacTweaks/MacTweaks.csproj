@@ -22,11 +22,11 @@
   </Target>
 
   <!-- Since this has inputs/outputs, it will fire only when the inputs are changed or the output does not exist -->
-  <Target Name="CopyOurFiles" Inputs="../../MacTweaksAXUIStub/MacTweaksAXUIStub.dylib" Outputs="$(AppBundleDir)/Contents/MonoBundle/MacTweaksAXUIStub.dylib">
+  <Target Name="CopyOurFiles" Inputs="../../MacTweaksNative/MacTweaksNative.dylib" Outputs="$(AppBundleDir)/Contents/MonoBundle/MacTweaksNative.dylib">
     <Message Text="This is us copying the dylib file into the app bundle!" />
     <!-- This could have easily been done w/ a built in build action, but you can extend it arbitrary. -->
-    <Copy SourceFiles="../../MacTweaksAXUIStub/MacTweaksAXUIStub.dylib" DestinationFiles="$(AppBundleDir)/Contents/MonoBundle/MacTweaksAXUIStub.dylib" />
+    <Copy SourceFiles="../../MacTweaksNative/MacTweaksNative.dylib" DestinationFiles="$(AppBundleDir)/Contents/MonoBundle/MacTweaksNative.dylib" />
     <!-- This is us fixing the install name of the dylib file to match the app bundle path -->
-    <Exec Command="install_name_tool -id @executable_path/../MacOS/MacTweaksAXUIStub.dylib $(AppBundleDir)/Contents/MonoBundle/MacTweaksAXUIStub.dylib" />
+    <Exec Command="install_name_tool -id @executable_path/../MacOS/MacTweaksNative.dylib $(AppBundleDir)/Contents/MonoBundle/MacTweaksNative.dylib" />
   </Target>
 </Project>

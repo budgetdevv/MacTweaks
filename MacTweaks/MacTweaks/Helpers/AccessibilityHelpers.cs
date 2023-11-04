@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,13 +9,15 @@ using ObjCRuntime;
 
 namespace MacTweaks.Helpers
 {
+    // ReSharper disable InconsistentNaming
+    
     public static class AccessibilityHelpers
     {
         private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
         
         private const string ApplicationServicesLibrary = "/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices";
         
-        private const string MacTweaksAXUIStubLibrary = "MacTweaksAXUIStub.dylib";
+        private const string MacTweaksNativeLibrary = "MacTweaksNative.dylib";
         
         private static readonly NSDictionary AccessibilityChecker = new NSDictionary("AXTrustedCheckOptionPrompt", true);
 
@@ -49,7 +50,7 @@ namespace MacTweaks.Helpers
             public int PID;
         }
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         private static extern bool AXGetElementAtPosition(IntPtr sysWide, float x, float y, out AXUIElementMarshaller output);
         
         private static readonly IntPtr SysWide = AXUIElementCreateSystemWide();
@@ -128,13 +129,13 @@ namespace MacTweaks.Helpers
             return success;
         }
 
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool MinimizeAllWindowsForApplication(int pid);
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool ApplicationAllWindowsAreMinimized(int pid, out bool areMinimized);
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool ApplicationFocusedWindowIsFullScreen(int pid);
 
         public enum CGEventField
@@ -201,13 +202,13 @@ namespace MacTweaks.Helpers
             EventUnacceleratedPointerMovementY = 171, // 0x000000AB
         }
 
-        [DllImport(MacTweaksAXUIStubLibrary, EntryPoint = "CGEventGetIntegerValueFieldWrapper")]
+        [DllImport(MacTweaksNativeLibrary, EntryPoint = "CGEventGetIntegerValueFieldWrapper")]
         public static extern long CGEventGetIntegerValueField(IntPtr cgEvent, CGEventField field);
         
-        [DllImport(MacTweaksAXUIStubLibrary, EntryPoint = "CGEventSetIntegerValueFieldWrapper")]
+        [DllImport(MacTweaksNativeLibrary, EntryPoint = "CGEventSetIntegerValueFieldWrapper")]
         public static extern void CGEventSetIntegerValueField(IntPtr cgEvent, CGEventField field, long value);
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool ApplicationCloseFocusedWindow(int pid);
         
         [StructLayout(LayoutKind.Sequential)]
@@ -218,7 +219,7 @@ namespace MacTweaks.Helpers
             public IntPtr Handle;
         }
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         private static extern bool AXGetElementAtPositionRaw(IntPtr sysWide, float x, float y, out AXUIElementRawMarshaller output);
         
         public struct AXUIElementRaw: IDisposable
@@ -308,7 +309,7 @@ namespace MacTweaks.Helpers
         // [DllImport("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices")]
         // public static extern bool AXMakeProcessTrusted(IntPtr pid);
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         private static extern bool GetWindowListForApplication(int pid, out IntPtr windowsHandle);
 
         public static bool GetWindowListForApplication(int pid, out NSValue[] windows)
@@ -462,7 +463,7 @@ namespace MacTweaks.Helpers
             return descriptor.BooleanValue;
         }
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool WindowToggleMinimize(IntPtr window);
 
         private const string FinderSelectedElementsEjectOrMoveToTrashScriptText = @"tell application ""Finder""
@@ -555,59 +556,6 @@ namespace MacTweaks.Helpers
             return descriptor != null;
         }
 
-        private const string MoveClipboardItemsToActiveFinderPathScriptText = @"on run
-                                                                                	try
-                                                                                		tell application ""Finder""
-                                                                                			if exists window 1 then
-                                                                                				set destination_folder to folder (POSIX path of ((target of front window) as alias) as POSIX file)
-                                                                                			else
-                                                                                				set destination_folder to folder (POSIX path of (path to desktop folder) as POSIX file)
-                                                                                			end if
-                                                                                			
-                                                                                			-- Get the clipboard contents as text
-                                                                                			set clipboard_text to (do shell script ""pbpaste"")
-                                                                                			
-                                                                                			-- Split the text by line breaks to get an array of paths
-                                                                                			set file_paths to paragraphs of clipboard_text
-                                                                                			
-                                                                                			set actual_files to {}
-                                                                                			
-                                                                                			repeat with sourcePath in file_paths
-                                                                                				set file_to_move to file (sourcePath as POSIX file)
-                                                                                				
-                                                                                				set end of actual_files to file_to_move
-                                                                                			end repeat
-                                                                                			
-                                                                                			set actual_files_alias to (actual_files as alias list)
-                                                                                			
-                                                                                			move actual_files_alias to destination_folder
-                                                                                			
-                                                                                			try
-                                                                                				delete actual_files_alias
-                                                                                			on error
-                                                                                				
-                                                                                			end try
-                                                                                		end tell
-                                                                                		
-                                                                                		return true -- Return true on success
-                                                                                		
-                                                                                	on error errMsg
-                                                                                		return errMsg
-                                                                                		return false -- Return false if any errors are caught
-                                                                                	end try
-                                                                                end run";
-        
-        private static readonly NSAppleScript MoveClipboardItemsToActiveFinderPathScript = new NSAppleScript(MoveClipboardItemsToActiveFinderPathScriptText);
-        
-        public static async Task<bool> MoveClipboardItemsToActiveFinderPath()
-        {
-            await Task.Yield();
-            
-            var descriptor = MoveClipboardItemsToActiveFinderPathScript.ExecuteAndReturnError(out var error);
-
-            return descriptor != null && descriptor.BooleanValue;
-        }
-
         private const string FinderGetSelectedItemsCountScriptText = @"tell application ""Finder""
                                                                        	set selectedItems to selection
                                                                        	-- For some reason, count of selection always return zero
@@ -621,13 +569,13 @@ namespace MacTweaks.Helpers
             return FinderGetSelectedItemsCountScript.ExecuteAndReturnError(out _).Int32Value;
         }
 
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool GetMainDisplayBrightness(out float brightnessLevel);
         
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool SetMainDisplayBrightness(float brightnessLevel);
 
-        [DllImport(MacTweaksAXUIStubLibrary)]
+        [DllImport(MacTweaksNativeLibrary)]
         public static extern bool GetMenuBarSize(int pid, out CGSize size);
         
         private static IntPtr OnEmptyCallback(IntPtr proxy, CGEventType type, IntPtr eventHandle, IntPtr userInfo)
