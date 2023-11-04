@@ -460,6 +460,7 @@ namespace MacTweaks.Helpers
                 [MethodImpl(MethodImplOptions.NoInlining)]
                 private static void HandleAccessibilityRevokedAccess()
                 {
+                    AppHelpers.RelinquishSudoAccess();
                     AppHelpers.TryRelaunchApp();
                     Environment.Exit(0);
                 }

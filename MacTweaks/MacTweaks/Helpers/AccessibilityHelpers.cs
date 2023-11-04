@@ -20,9 +20,11 @@ namespace MacTweaks.Helpers
         
         private static readonly NSDictionary AccessibilityChecker = new NSDictionary("AXTrustedCheckOptionPrompt", true);
 
+        private static readonly IntPtr AccessibilityCheckerHandle = AccessibilityChecker.Handle;
+        
         public static bool RequestForAccessibilityIfNotGranted()
         {
-            return AXIsProcessTrustedWithOptions(AccessibilityChecker.Handle);
+            return AXIsProcessTrustedWithOptions(AccessibilityCheckerHandle);
         }
 
         [DllImport(ApplicationServicesLibrary)]
@@ -131,14 +133,6 @@ namespace MacTweaks.Helpers
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationAllWindowsAreMinimized(int pid, out bool areMinimized);
-        
-        [DllImport("libc", EntryPoint = "getuid")]
-        public static extern uint GetUID();
-        
-        // Can't transition from sudo to non-sudo
-        // However, I believe you could relinquish sudo rights
-        // But MacTweaks won't do that
-        public static readonly bool IsSudoUser = GetUID() == 0;
         
         [DllImport(MacTweaksAXUIStubLibrary)]
         public static extern bool ApplicationFocusedWindowIsFullScreen(int pid);

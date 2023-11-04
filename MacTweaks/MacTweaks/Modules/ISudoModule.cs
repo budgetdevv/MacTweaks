@@ -4,6 +4,6 @@ namespace MacTweaks.Modules
 {
     public interface ISudoModule: IModule
     {
-        public static readonly bool IsSudoUser = AccessibilityHelpers.IsSudoUser;
+        public static readonly bool IsSudoUser = AppHelpers.IsSudoUser;
     }
 }

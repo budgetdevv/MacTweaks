@@ -100,7 +100,7 @@ namespace MacTweaks
             }
             
             #if RELEASE
-            if (!AccessibilityHelpers.IsSudoUser)
+            if (!AppHelpers.IsSudoUser)
             {
                 if (AppHelpers.TryRelaunchApp(true))
                 {

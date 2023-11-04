@@ -6,12 +6,12 @@ current_dir=$(pwd)
 # Ensure the script is running in the intended directory
 cd "$(dirname "$0")"
 
-# Delete the /bin/release directory
-if [ -d "bin/release" ]; then
-    rm -rf bin/release
-    echo "bin/release directory deleted."
+# Delete the /bin/Release directory
+if [ -d "bin/Release" ]; then
+    rm -rf bin/Release
+    echo "bin/Release directory deleted."
 else
-    echo "bin/release directory not found."
+    echo "bin/Release directory not found."
 fi
 
 # Clean and rebuild the C# project
