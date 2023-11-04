@@ -16,7 +16,7 @@ namespace MacTweaks.Helpers
         
         public static CGPoint InvertY(this CGPoint point)
         {
-            //https://sl.bing.net/cQoOrHsLws0
+            // https://sl.bing.net/cQoOrHsLws0
             
             var screenHeight = ScreenHeight;
             
