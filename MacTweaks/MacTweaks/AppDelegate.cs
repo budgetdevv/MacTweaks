@@ -188,8 +188,32 @@ namespace MacTweaks
             // Display tray icon in upper-right-hand corner of the screen
             var statusItem = MenuBarStatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
             statusItem.Menu = menuBarIconMenu;
-            statusItem.Image = NSImage.FromStream(File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
+            //statusItem.Image = NSImage.FromStream(File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
+            
+            var image = NSImage.FromStream(File.OpenRead(ConstantHelpers.APP_ICON_PATH));
+
+            // Resize the image to fit the defined size
+            statusItem.Image = ResizeImage(image, new CGSize(25, 25));
+            
             statusItem.HighlightMode = true;
+            
+            return;
+
+            NSImage ResizeImage(NSImage sourceImage, CGSize newSize)
+            {
+                var newImage = new NSImage(newSize);
+
+                newImage.LockFocus();
+                sourceImage.Size = newSize;
+                NSGraphicsContext.CurrentContext.ImageInterpolation = NSImageInterpolation.High;
+                sourceImage.Draw(new CGRect(0, 0, newSize.Width, newSize.Height),
+                    new CGRect(0, 0, sourceImage.Size.Width, sourceImage.Size.Height),
+                    NSCompositingOperation.SourceOver,
+                    1);
+                newImage.UnlockFocus();
+
+                return newImage;
+            }
         }
 
         public void ConstructMenu()
