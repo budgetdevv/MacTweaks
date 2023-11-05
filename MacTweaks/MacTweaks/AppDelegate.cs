@@ -15,8 +15,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MacTweaks
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     [Register("AppDelegate")]
-    public class AppDelegate : NSApplicationDelegate
+    public class AppDelegate: NSApplicationDelegate
     {
         public readonly ServiceProvider Services;
 
@@ -177,13 +178,22 @@ namespace MacTweaks
             
             // Construct menu that will be displayed when tray icon is clicked
             var menuBarIconMenu = new NSMenu();
-            var exitMenuItem = new NSMenuItem($"Quit {ConstantHelpers.APP_NAME}",
+            
+            var menuItem = new NSMenuItem($"Compact App Memory",
+                (handler, args) =>
+                {
+                    GC.Collect();
+                });
+            
+            menuBarIconMenu.AddItem(menuItem);
+            
+            menuItem = new NSMenuItem($"Quit {ConstantHelpers.APP_NAME}",
                 (handler, args) =>
                 {
                     Environment.Exit(0);
                 });
             
-            menuBarIconMenu.AddItem(exitMenuItem);
+            menuBarIconMenu.AddItem(menuItem);
 
             // Display tray icon in upper-right-hand corner of the screen
             var statusItem = MenuBarStatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
