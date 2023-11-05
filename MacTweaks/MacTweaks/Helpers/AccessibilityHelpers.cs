@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using CoreGraphics;
@@ -10,6 +11,7 @@ namespace MacTweaks.Helpers
 {
     // ReSharper disable InconsistentNaming
     
+    [SuppressMessage("Interoperability", "CA1401:P/Invokes should not be visible")]
     public static partial class AccessibilityHelpers
     {
         private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
@@ -202,14 +204,15 @@ namespace MacTweaks.Helpers
             EventUnacceleratedPointerMovementY = 171, // 0x000000AB
         }
 
-        [DllImport(MacTweaksNativeLibrary, EntryPoint = "CGEventGetIntegerValueFieldWrapper")]
-        public static extern long CGEventGetIntegerValueField(IntPtr cgEvent, CGEventField field);
+        [LibraryImport(MacTweaksNativeLibrary, EntryPoint = "CGEventGetIntegerValueFieldWrapper")]
+        public static partial long CGEventGetIntegerValueField(IntPtr cgEvent, CGEventField field);
         
-        [DllImport(MacTweaksNativeLibrary, EntryPoint = "CGEventSetIntegerValueFieldWrapper")]
-        public static extern void CGEventSetIntegerValueField(IntPtr cgEvent, CGEventField field, long value);
+        [LibraryImport(MacTweaksNativeLibrary, EntryPoint = "CGEventSetIntegerValueFieldWrapper")]
+        public static partial void CGEventSetIntegerValueField(IntPtr cgEvent, CGEventField field, long value);
         
-        [DllImport(MacTweaksNativeLibrary)]
-        public static extern bool ApplicationCloseFocusedWindow(int pid);
+        [LibraryImport(MacTweaksNativeLibrary)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static partial bool ApplicationCloseFocusedWindow(int pid);
         
         [StructLayout(LayoutKind.Sequential)]
         public struct AXUIElementRawMarshaller
@@ -546,8 +549,10 @@ namespace MacTweaks.Helpers
         {
             return eventHandle;
         }
-
+        
         [DllImport(MacTweaksNativeLibrary)]
+        // No marshalling required, don't invoke source generator
+        [SuppressMessage("Interoperability", "SYSLIB1054:Use \'LibraryImportAttribute\' instead of \'DllImportAttribute\' to generate P/Invoke marshalling code at compile time")]
         public static extern int GetWindowCountForApplication(int pid);
     }
 }
