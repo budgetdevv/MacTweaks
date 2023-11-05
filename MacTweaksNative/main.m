@@ -81,6 +81,31 @@ bool GetWindowListForApplication(pid_t pid, CFArrayRef* windowsList)
     return success;
 }
 
+int32_t GetWindowCountForApplicationDirect(AXUIElementRef app)
+{
+    CFArrayRef windowsList;
+
+    if (AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef*) &windowsList) == 0)
+    {
+        int32_t count = CFArrayGetCount(windowsList);
+        CFRelease(windowsList);
+        return count;
+    }
+
+    return -1;
+}
+
+int32_t GetWindowCountForApplication(pid_t pid)
+{
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+
+    int32_t count = GetWindowCountForApplicationDirect(app);
+
+    CFRelease(app);
+
+    return count;
+}
+
 bool MinimizeAllWindowsForApplicationDirect(AXUIElementRef app)
 {
     // https://stackoverflow.com/questions/4231110/how-can-i-move-resize-windows-programmatically-from-another-application

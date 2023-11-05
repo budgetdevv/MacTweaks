@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using ObjCRuntime;
@@ -11,7 +10,7 @@ namespace MacTweaks.Helpers
 {
     // ReSharper disable InconsistentNaming
     
-    public static class AccessibilityHelpers
+    public static partial class AccessibilityHelpers
     {
         private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
         
@@ -28,8 +27,9 @@ namespace MacTweaks.Helpers
             return AXIsProcessTrustedWithOptions(AccessibilityCheckerHandle);
         }
 
-        [DllImport(ApplicationServicesLibrary)]
-        private static extern bool AXIsProcessTrustedWithOptions(IntPtr options);
+        [LibraryImport(ApplicationServicesLibrary)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static partial bool AXIsProcessTrustedWithOptions(IntPtr options);
         
         [DllImport(CoreFoundationLibrary)]
         public static extern IntPtr CFRetain(IntPtr handle);
@@ -385,24 +385,24 @@ namespace MacTweaks.Helpers
                 if (itemsCount != 0)
                 {
                     var i = 1;
-                
-                while (true)
-                {
-                    var itemDescriptor = descriptor.DescriptorAtIndex(i);
-
-                    var itemPath = itemDescriptor.StringValue;
-
-                    paths.Append(itemPath);
-
-                    if (i != itemsCount)
+                    
+                    while (true)
                     {
-                        paths.Append('\n');
-                        i++;
-                        continue;
-                    }
+                        var itemDescriptor = descriptor.DescriptorAtIndex(i);
 
-                    break;
-                }
+                        var itemPath = itemDescriptor.StringValue;
+
+                        paths.Append(itemPath);
+
+                        if (i != itemsCount)
+                        {
+                            paths.Append('\n');
+                            i++;
+                            continue;
+                        }
+
+                        break;
+                    }
                 }
 
                 return true;
@@ -491,8 +491,9 @@ namespace MacTweaks.Helpers
         {
             var descriptor = FinderSelectedElementsEjectOrMoveToTrashScript.ExecuteAndReturnError(out _);
             
+            // ReSharper disable ConditionIsAlwaysTrueOrFalse
             var success = descriptor != null;
-
+            
             if (success)
             {
                 var count = descriptor.NumberOfItems;
@@ -513,47 +514,8 @@ namespace MacTweaks.Helpers
             }
             
             return success;
-        }
-
-        private const string MoveItemsToDestinationPathScriptText = @"on run {sourcePaths, destinationPath}
-                                                                      	try
-                                                                      		tell application ""Finder""
-                                                                      			set destination_folder to folder (destinationPath as POSIX file)
-                                                                      			repeat with sourcePath in sourcePaths -- loop through each source path
-                                                                      				set file_to_move to file (sourcePath as POSIX file)
-                                                                      				move file_to_move to destination_folder
-                                                                      			end repeat
-                                                                      		end tell
-                                                                      		return true -- return true if no errors occurred
-                                                                      	on error
-                                                                      		return false -- return false if there's an error
-                                                                      	end try
-                                                                      end run";
-        
-        private static readonly NSAppleScript MoveItemsToDestinationPathScript = new NSAppleScript(MoveItemsToDestinationPathScriptText);
-        
-        public static async Task<bool> MoveItemsToDestinationPath(List<string> sourceFilePaths, string destinationPath)
-        {
-            var parameters = NSAppleEventDescriptor.ListDescriptor;
             
-            var sourcePaths = NSAppleEventDescriptor.ListDescriptor;
-
-            nint index = 1;
-
-            foreach (var sourcePath in sourceFilePaths)
-            {
-                sourcePaths.InsertDescriptoratIndex(NSAppleEventDescriptor.FromFileURL(new NSUrl(sourcePath)), index++);
-            }
-            
-            parameters.InsertDescriptoratIndex(sourcePaths, 1);
-            
-            parameters.InsertDescriptoratIndex(NSAppleEventDescriptor.FromFileURL(new NSUrl(destinationPath)), 2);
-
-            await Task.Yield();
-
-            var descriptor = MoveItemsToDestinationPathScript.ExecuteAppleEvent(parameters, out _);
-
-            return descriptor != null;
+            // ReSharper restore ConditionIsAlwaysTrueOrFalse
         }
 
         private const string FinderGetSelectedItemsCountScriptText = @"tell application ""Finder""
@@ -569,11 +531,13 @@ namespace MacTweaks.Helpers
             return FinderGetSelectedItemsCountScript.ExecuteAndReturnError(out _).Int32Value;
         }
 
-        [DllImport(MacTweaksNativeLibrary)]
-        public static extern bool GetMainDisplayBrightness(out float brightnessLevel);
+        [LibraryImport(MacTweaksNativeLibrary)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static partial bool GetMainDisplayBrightness(out float brightnessLevel);
         
-        [DllImport(MacTweaksNativeLibrary)]
-        public static extern bool SetMainDisplayBrightness(float brightnessLevel);
+        [LibraryImport(MacTweaksNativeLibrary)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static partial bool SetMainDisplayBrightness(float brightnessLevel);
 
         [DllImport(MacTweaksNativeLibrary)]
         public static extern bool GetMenuBarSize(int pid, out CGSize size);
@@ -582,5 +546,8 @@ namespace MacTweaks.Helpers
         {
             return eventHandle;
         }
+
+        [DllImport(MacTweaksNativeLibrary)]
+        public static extern int GetWindowCountForApplication(int pid);
     }
 }

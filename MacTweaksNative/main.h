@@ -20,6 +20,10 @@ bool GetWindowListForApplicationDirect(AXUIElementRef app, CFArrayRef* windowsLi
 
 bool GetWindowListForApplication(pid_t pid, CFArrayRef* windowsList);
 
+int32_t GetWindowCountForApplicationDirect(AXUIElementRef app);
+
+int32_t GetWindowCountForApplication(pid_t pid);
+
 bool MinimizeAllWindowsForApplicationDirect(AXUIElementRef app);
 
 bool MinimizeAllWindowsForApplication(int pid);
@@ -51,5 +55,17 @@ typedef struct
 bool AXGetElementAtPositionRaw(AXUIElementRef sysWide, float x, float y, AXUIElementRaw* outputPtr);
 
 bool WindowToggleMinimize(AXUIElementRef window);
+
+bool GetAllDisplaysBrightness(float* result, int* count);
+
+bool SetAllDisplaysBrightness(float brightnessLevel, int* count);
+
+bool GetDisplayBrightness(uint32_t display_id, float* result);
+
+bool GetMainDisplayBrightness(float* result);
+
+bool SetDisplayBrightness(uint32_t display_id, float brightnessLevel);
+
+bool SetMainDisplayBrightness(float brightnessLevel);
 
 bool GetMenuBarSize(pid_t pid, CGSize* size);
