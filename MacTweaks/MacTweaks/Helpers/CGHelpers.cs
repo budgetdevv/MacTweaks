@@ -83,19 +83,6 @@ namespace MacTweaks.Helpers
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public IntPtr Invoke(IntPtr proxy, CGEventType type, IntPtr eventHandle)
                 {
-                    for (int i = 1; i <= 4; i++)
-                    {
-                        var x = Runtime.GetINativeObject<CGEvent>(eventHandle, false)!;
-                    }
-
-                    Console.WriteLine(AccessibilityHelpers.CFRetainCount(eventHandle));
-                    
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                    
-                    Console.WriteLine(AccessibilityHelpers.CFRetainCount(eventHandle));
-                    
-                    
                     // https://developer.apple.com/documentation/coregraphics/cgeventtapcallback?language=objc
                     
                     // The original eventHandle and the returned will be released by
@@ -112,7 +99,12 @@ namespace MacTweaks.Helpers
                     var isOriginalEvent = true;
                     
                     // owns: true doesn't increment CFRetainCount
-                    var previousEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, false)!;
+                    var previousEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
+                    
+                    // Apparently NativeObject's finalizers call into CFRelease, causing us to crash
+                    // due to over-releasing when GC is invoked. This also improves performance,
+                    // as it avoids queuing the object into / removes from finalizer queue
+                    GC.SuppressFinalize(previousEvent);
                     
                     foreach (var callback in Callbacks)
                     {
