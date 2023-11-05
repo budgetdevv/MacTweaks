@@ -98,8 +98,12 @@ namespace MacTweaks.Helpers
                     
                     var isOriginalEvent = true;
                     
+                    Console.WriteLine(AccessibilityHelpers.CFRetainCount(eventHandle));
+                    
                     // owns: true doesn't increment CFRetainCount
-                    var previousEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
+                    var previousEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, false)!;
+                    
+                    Console.WriteLine(AccessibilityHelpers.CFRetainCount(eventHandle));
                     
                     foreach (var callback in Callbacks)
                     {
@@ -123,7 +127,8 @@ namespace MacTweaks.Helpers
                         }
                         
                         // Don't move this up - We need to make sure previousEvent
-                        // is released if it is not the original one
+                        // is released if it is not the original one, even if
+                        // current one is null.
                         if (currentEvent != null)
                         {
                             previousEvent = currentEvent;
@@ -449,7 +454,18 @@ namespace MacTweaks.Helpers
                         }
                     }
 
-                    return eventCallback.Invoke(proxy, type, eventHandle);
+                    var og = eventHandle;
+                    
+                    var ret = eventCallback.Invoke(proxy, type, eventHandle);
+                    
+                    Console.WriteLine($"{AccessibilityHelpers.CFRetainCount(og)} | {(ret == IntPtr.Zero ? -1 : AccessibilityHelpers.CFRetainCount(ret))}");
+                    
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    
+                    Console.WriteLine($"{AccessibilityHelpers.CFRetainCount(og)} | {(ret == IntPtr.Zero ? -1 : AccessibilityHelpers.CFRetainCount(ret))}");
+                    
+                    return ret;
                     
                     HandleDisabled:
                     return HandleDisabled();
