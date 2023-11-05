@@ -83,14 +83,24 @@ namespace MacTweaks.Helpers
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public IntPtr Invoke(IntPtr proxy, CGEventType type, IntPtr eventHandle)
                 {
+                    // https://developer.apple.com/documentation/coregraphics/cgeventtapcallback?language=objc
+                    
+                    // The original eventHandle and the returned will be released by
+                    // the library itself. So we shouldn't release them on our own.
+                    
+                    // We use owns: true for conversions to managed to avoid incrementing
+                    // CFRetainCount. For the first conversion ( Which is the original eventHandle ),
+                    // the library will only release it after our Invoke() function is called,
+                    // so there is no need to increment CFRetainCount. For subsequent conversions
+                    // that happen when the returned pointer is changed, we also do not increment
+                    // CFRetainCount. This is because any new CGEvents are assumed to be created
+                    // by the event callback. We do release those CGEvents, however.
+                    
                     var isOriginalHandle = true;
-
-                    Console.WriteLine($"Original Pre | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
                     
-                    var currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, false);
+                    // owns: true doesn't increment CFRetainCount
+                    var currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
                     
-                    Console.WriteLine($"Original Post | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
-
                     var currentHandle = eventHandle;
                     
                     foreach (var callback in Callbacks)
@@ -106,11 +116,7 @@ namespace MacTweaks.Helpers
                         
                         if (!isOriginalHandle)
                         {
-                            Console.WriteLine($"Release Pre | {AccessibilityHelpers.CFRetainCount(currentHandle)}");
-                            
-                            AccessibilityHelpers.CFRelease(currentHandle);
-
-                            Console.WriteLine($"Release Post | {AccessibilityHelpers.CFRetainCount(currentHandle)}");
+                            currentEvent.Dispose();
                         }
 
                         else // The original ptr and returned gets cleaned up
@@ -127,11 +133,7 @@ namespace MacTweaks.Helpers
                             goto Ret;
                         }
                         
-                        Console.WriteLine($"Current Pre | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
-                        
-                        currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, false);
-                        
-                        Console.WriteLine($"Current Post | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
+                        currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
                     }
 
                     Ret:
