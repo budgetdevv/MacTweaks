@@ -83,6 +83,19 @@ namespace MacTweaks.Helpers
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public IntPtr Invoke(IntPtr proxy, CGEventType type, IntPtr eventHandle)
                 {
+                    for (int i = 1; i <= 4; i++)
+                    {
+                        var x = Runtime.GetINativeObject<CGEvent>(eventHandle, false)!;
+                    }
+
+                    Console.WriteLine(AccessibilityHelpers.CFRetainCount(eventHandle));
+                    
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    
+                    Console.WriteLine(AccessibilityHelpers.CFRetainCount(eventHandle));
+                    
+                    
                     // https://developer.apple.com/documentation/coregraphics/cgeventtapcallback?language=objc
                     
                     // The original eventHandle and the returned will be released by
@@ -99,7 +112,7 @@ namespace MacTweaks.Helpers
                     var isOriginalEvent = true;
                     
                     // owns: true doesn't increment CFRetainCount
-                    var previousEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
+                    var previousEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, false)!;
                     
                     foreach (var callback in Callbacks)
                     {
