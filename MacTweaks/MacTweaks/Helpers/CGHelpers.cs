@@ -85,7 +85,11 @@ namespace MacTweaks.Helpers
                 {
                     var isOriginalHandle = true;
 
+                    Console.WriteLine($"Original Pre | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
+                    
                     var currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, false);
+                    
+                    Console.WriteLine($"Original Post | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
 
                     var currentHandle = eventHandle;
                     
@@ -102,7 +106,11 @@ namespace MacTweaks.Helpers
                         
                         if (!isOriginalHandle)
                         {
+                            Console.WriteLine($"Release Pre | {AccessibilityHelpers.CFRetainCount(currentHandle)}");
+                            
                             AccessibilityHelpers.CFRelease(currentHandle);
+
+                            Console.WriteLine($"Release Post | {AccessibilityHelpers.CFRetainCount(currentHandle)}");
                         }
 
                         else // The original ptr and returned gets cleaned up
@@ -119,7 +127,11 @@ namespace MacTweaks.Helpers
                             goto Ret;
                         }
                         
+                        Console.WriteLine($"Current Pre | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
+                        
                         currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, false);
+                        
+                        Console.WriteLine($"Current Post | {AccessibilityHelpers.CFRetainCount(eventHandle)}");
                     }
 
                     Ret:

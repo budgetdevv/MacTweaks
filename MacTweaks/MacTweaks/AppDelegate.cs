@@ -212,14 +212,17 @@ namespace MacTweaks
             NSImage ResizeImage(NSImage sourceImage, CGSize newSize)
             {
                 var newImage = new NSImage(newSize);
-
                 newImage.LockFocus();
+                
                 sourceImage.Size = newSize;
+                
                 NSGraphicsContext.CurrentContext.ImageInterpolation = NSImageInterpolation.High;
+                
                 sourceImage.Draw(new CGRect(0, 0, newSize.Width, newSize.Height),
                     new CGRect(0, 0, sourceImage.Size.Width, sourceImage.Size.Height),
                     NSCompositingOperation.SourceOver,
                     1);
+                
                 newImage.UnlockFocus();
 
                 return newImage;
