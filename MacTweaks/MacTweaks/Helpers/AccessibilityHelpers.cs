@@ -72,12 +72,13 @@ namespace MacTweaks.Helpers
             
             public AXUIElement(AXUIElementMarshaller marshaller)
             {
-                var mTitle = marshaller.AXTitle;
+                var titlePtr = marshaller.AXTitle;
 
-                if (mTitle != IntPtr.Zero)
+                if (titlePtr != IntPtr.Zero)
                 {
-                    AXTitle = Runtime.GetNSObject<NSString>(mTitle);
-                    CFRelease(mTitle);
+                    using var title = Runtime.GetINativeObject<NSString>(titlePtr, true);
+
+                    AXTitle = title;
                 }
 
                 else
@@ -85,12 +86,13 @@ namespace MacTweaks.Helpers
                     AXTitle = default;
                 }
 
-                var mSubrole = marshaller.AXSubrole;
+                var subrolePtr = marshaller.AXSubrole;
 
-                if (mSubrole != IntPtr.Zero)
+                if (subrolePtr != IntPtr.Zero)
                 {
-                    AXSubrole = Runtime.GetNSObject<NSString>(mSubrole);
-                    CFRelease(mSubrole);
+                    using var subrole = Runtime.GetINativeObject<NSString>(subrolePtr, true);
+                    
+                    AXSubrole = subrole;
                 }
 
                 else
@@ -104,8 +106,9 @@ namespace MacTweaks.Helpers
                 
                 if (mAXIsApplicationRunning != IntPtr.Zero)
                 {
-                    AXIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning).Int32Value;
-                    CFRelease(mAXIsApplicationRunning);
+                    using var axIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning)!;
+                    
+                    AXIsApplicationRunning = axIsApplicationRunning.Int32Value;
                 }
                 
                 else
@@ -243,12 +246,13 @@ namespace MacTweaks.Helpers
             {
                 var dataMarshaller = marshaller.Data;
                 
-                var mTitle = dataMarshaller.AXTitle;
+                var titlePtr = dataMarshaller.AXTitle;
 
-                if (mTitle != IntPtr.Zero)
+                if (titlePtr != IntPtr.Zero)
                 {
-                    AXTitle = Runtime.GetNSObject<NSString>(mTitle);
-                    CFRelease(mTitle);
+                    using var title = Runtime.GetINativeObject<NSString>(titlePtr, true);
+
+                    AXTitle = title;
                 }
 
                 else
@@ -256,12 +260,13 @@ namespace MacTweaks.Helpers
                     AXTitle = default;
                 }
 
-                var mSubrole = dataMarshaller.AXSubrole;
+                var subrolePtr = dataMarshaller.AXSubrole;
 
-                if (mSubrole != IntPtr.Zero)
+                if (subrolePtr != IntPtr.Zero)
                 {
-                    AXSubrole = Runtime.GetNSObject<NSString>(mSubrole);
-                    CFRelease(mSubrole);
+                    using var subrole = Runtime.GetINativeObject<NSString>(subrolePtr, true);
+                    
+                    AXSubrole = subrole;
                 }
 
                 else
@@ -275,8 +280,9 @@ namespace MacTweaks.Helpers
                 
                 if (mAXIsApplicationRunning != IntPtr.Zero)
                 {
-                    AXIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning).Int32Value;
-                    CFRelease(mAXIsApplicationRunning);
+                    using var axIsApplicationRunning = Runtime.GetNSObject<NSNumber>(mAXIsApplicationRunning)!;
+                    
+                    AXIsApplicationRunning = axIsApplicationRunning.Int32Value;
                 }
                 
                 else

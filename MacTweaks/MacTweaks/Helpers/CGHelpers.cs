@@ -81,6 +81,7 @@ namespace MacTweaks.Helpers
                 }
                 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                [SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize")]
                 public IntPtr Invoke(IntPtr proxy, CGEventType type, IntPtr eventHandle)
                 {
                     // https://developer.apple.com/documentation/coregraphics/cgeventtapcallback?language=objc
