@@ -14,11 +14,11 @@ namespace MacTweaks.Modules.Keystrokes
             CGHelpers.CGEventTapManager.OnKeyDown.Event += OnCommandDelete;
         }
         
-        private static IntPtr OnCommandDelete(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
+        private static CGEvent OnCommandDelete(IntPtr proxy, CGEventType type, CGEvent @event)
         {
             if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
             {
-                var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
+                var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(@event.Handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
 
                 if (keyCode == NSKey.Delete)
                 {
@@ -42,11 +42,11 @@ namespace MacTweaks.Modules.Keystrokes
                         }
                     }
 
-                    return IntPtr.Zero;
+                    return null;
                 }
             }
             
-            return handle;
+            return @event;
         }
 
         public void Stop()

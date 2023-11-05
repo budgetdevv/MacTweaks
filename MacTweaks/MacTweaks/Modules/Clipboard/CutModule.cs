@@ -20,7 +20,7 @@ namespace MacTweaks.Modules.Clipboard
 
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
         
-        private IntPtr OnCommandX(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
+        private CGEvent OnCommandX(IntPtr proxy, CGEventType type, CGEvent @event)
         {
             var flags = @event.Flags;
                 
@@ -28,7 +28,7 @@ namespace MacTweaks.Modules.Clipboard
             {
                 var keyCode = AccessibilityHelpers.CGEventField.KeyboardEventKeycode;
                     
-                var keyValue = unchecked((NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, keyCode));
+                var keyValue = unchecked((NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(@event.Handle, keyCode));
                     
                 var pasteboard = GeneralPasteboard;
 
@@ -73,7 +73,7 @@ namespace MacTweaks.Modules.Clipboard
                 }
             }
                 
-            return handle;
+            return @event;
         }
 
         public void Stop()

@@ -36,22 +36,8 @@ namespace MacTweaks.Helpers
         [DllImport(CoreFoundationLibrary)]
         public static extern IntPtr CFRetain(IntPtr handle);
         
-        [DllImport(CoreFoundationLibrary)]
-        public static extern long CFGetRetainCount(IntPtr obj);
-        
-        public static long CFRetainCount(IntPtr obj)
-        {
-            try
-            {
-                return CFGetRetainCount(obj);
-            }
-
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
+        [DllImport(CoreFoundationLibrary, EntryPoint = "CFGetRetainCount")]
+        public static extern long CFRetainCount(IntPtr obj);
 
         [DllImport(CoreFoundationLibrary)]
         public static extern void CFRelease(IntPtr handle);

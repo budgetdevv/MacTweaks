@@ -61,7 +61,7 @@ namespace MacTweaks.Helpers
 
         public static class CGEventTapManager
         {
-            public delegate IntPtr CGEventTapCallbackDelegate(IntPtr proxy, CGEventType type, IntPtr eventHandle, CGEvent @event);
+            public delegate CGEvent CGEventTapCallbackDelegate(IntPtr proxy, CGEventType type, CGEvent @event);
 
             public struct CGEventTapCallback
             {
@@ -96,48 +96,49 @@ namespace MacTweaks.Helpers
                     // CFRetainCount. This is because any new CGEvents are assumed to be created
                     // by the event callback. We do release those CGEvents, however.
                     
-                    var isOriginalHandle = true;
+                    var isOriginalEvent = true;
                     
                     // owns: true doesn't increment CFRetainCount
-                    var currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
-                    
-                    var currentHandle = eventHandle;
+                    var previousEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
                     
                     foreach (var callback in Callbacks)
                     {
-                        var result = callback(proxy, type, currentHandle, currentEvent);
+                        var currentEvent = callback(proxy, type, previousEvent);
 
-                        var areSame = currentHandle == result;
+                        var areSame = previousEvent == currentEvent;
                         
                         if (areSame)
                         {
                             continue;
                         }
                         
-                        if (!isOriginalHandle)
+                        if (!isOriginalEvent)
                         {
-                            currentEvent.Dispose();
+                            previousEvent.Dispose();
                         }
 
-                        else // The original ptr and returned gets cleaned up
+                        else // The original and returned CGEVent gets cleaned up
                         {
-                            isOriginalHandle = false;
+                            isOriginalEvent = false;
                         }
                         
-                        currentHandle = result;
-                        
-                        // Don't move this up - We need to make sure currentHandle
+                        // Don't move this up - We need to make sure previousEvent
                         // is released if it is not the original one
-                        if (currentHandle == IntPtr.Zero)
+                        if (currentEvent != null)
                         {
-                            goto Ret;
+                            previousEvent = currentEvent;
+                            continue;
                         }
-                        
-                        currentEvent = Runtime.GetINativeObject<CGEvent>(eventHandle, true)!;
-                    }
 
+                        eventHandle = IntPtr.Zero;
+                        goto Ret;
+                    }
+                    
+                    // Previous is actually current
+                    eventHandle = previousEvent.Handle;
+                    
                     Ret:
-                    return currentHandle;
+                    return eventHandle;
                 }
             }
             

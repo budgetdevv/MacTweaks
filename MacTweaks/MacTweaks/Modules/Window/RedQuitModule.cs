@@ -14,7 +14,7 @@ namespace MacTweaks.Modules.Window
             CGHelpers.CGEventTapManager.OnLeftMouseDown.Event += OnLeftClick;
         }
         
-        private static IntPtr OnLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
+        private static CGEvent OnLeftClick(IntPtr proxy, CGEventType type, CGEvent @event)
         {
             var mouseLocation = @event.Location;
             
@@ -22,7 +22,7 @@ namespace MacTweaks.Modules.Window
 
             if (!exists || clickedElement.AXSubrole != "AXCloseButton")
             {
-                return handle;
+                return @event;
             }
 
             var clickedElementPID = clickedElement.PID;
@@ -45,13 +45,13 @@ namespace MacTweaks.Modules.Window
                 {
                     app.Terminate();
 
-                    return IntPtr.Zero;
+                    return null;
                 }
 
                 break;
             }
 
-            return handle;
+            return @event;
         }
 
         public void Stop()

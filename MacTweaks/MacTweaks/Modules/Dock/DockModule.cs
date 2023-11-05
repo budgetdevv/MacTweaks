@@ -119,13 +119,13 @@ namespace MacTweaks.Modules.Dock
             // window.MakeKeyAndOrderFront(default);
         }
         
-        private IntPtr OnDockLeftClick(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
+        private CGEvent OnDockLeftClick(IntPtr proxy, CGEventType type, CGEvent @event)
         {
             var mouseLocation = @event.Location;
 
             if (mouseLocation.Y <= DockHeightThreshold)
             {
-                return handle;
+                return @event;
             }
 
             var sharedWorkspace = SharedWorkspace;
@@ -168,7 +168,7 @@ namespace MacTweaks.Modules.Dock
                     
                     if (!AccessibilityHelpers.ApplicationAllWindowsAreMinimized(activeApp.ProcessIdentifier, out var areMinimized) || areMinimized)
                     {
-                        return handle;
+                        return @event;
                     }
                     
                     HideApp:
@@ -194,7 +194,7 @@ namespace MacTweaks.Modules.Dock
                                 AccessibilityHelpers.MinimizeAllWindowsForApplication(app.ProcessIdentifier);
                             }
 
-                            return IntPtr.Zero;
+                            return null;
                         }
 
                         // Clicking on dock icon re-activates app anyway
@@ -204,7 +204,7 @@ namespace MacTweaks.Modules.Dock
 
                 else if (subrole == "AXTrashDockItem" && AccessibilityHelpers.TryToggleTrashWindow())
                 {
-                    return IntPtr.Zero;
+                    return null;
                 }
             }
 
@@ -231,7 +231,7 @@ namespace MacTweaks.Modules.Dock
             }
 
             FlowThrough:
-            return handle;
+            return @event;
         }
 
         public void Stop()

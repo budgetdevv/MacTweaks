@@ -19,7 +19,7 @@ namespace MacTweaks.Modules.Dock
             CGHelpers.CGEventTapManager.OnRightMouseDown.Event += OnRightMouseDown;
         }
         
-        private static IntPtr OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, IntPtr handle, CGEvent @event)
+        private static CGEvent OnRightMouseDown(IntPtr tapProxyEvent, CGEventType eventType, CGEvent @event)
         {
             var mouseLocation = @event.Location;
             
@@ -27,7 +27,7 @@ namespace MacTweaks.Modules.Dock
                     
             Console.WriteLine($"{data.AXTitle} | {data.AXSubrole} | {data.AXIsApplicationRunning} | {data.PID} | {data.Rect} [ x:{mouseLocation.X} y:{mouseLocation.Y} ]");
 
-            return handle;
+            return @event;
         }
         
         public void Stop()

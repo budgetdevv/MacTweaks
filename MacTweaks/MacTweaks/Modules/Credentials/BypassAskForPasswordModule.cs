@@ -222,21 +222,21 @@ namespace MacTweaks.Modules.Credentials
 			}
         }
         
-        private static IntPtr OnCommandBacktick(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
+        private static CGEvent OnCommandBacktick(IntPtr proxy, CGEventType type, CGEvent @event)
         {
 	        if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
 	        {
-		        var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
+		        var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(@event.Handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
 
 		        if (keyCode == NSKey.Grave) // ASCII code 96 = ` ( Grave accent ) ( https://theasciicode.com.ar/ )
 		        {
 			        AutoFillSystemSettingsModalStyleAdminPasswordScript.ExecuteAndReturnError(out _);
 	                    
-			        return IntPtr.Zero;
+			        return null;
 		        }
 	        }
             
-            return handle;
+            return @event;
         }
 
         public void Stop()

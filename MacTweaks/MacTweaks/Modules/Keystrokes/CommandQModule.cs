@@ -14,28 +14,28 @@ namespace MacTweaks.Modules.Keystrokes
 
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
         
-        private static IntPtr OnCommandQ(IntPtr proxy, CGEventType type, IntPtr handle, CGEvent @event)
+        private static CGEvent OnCommandQ(IntPtr proxy, CGEventType type, CGEvent @event)
         {
             var activeApp = SharedWorkspace.FrontmostApplication;
 
             if (activeApp.LocalizedName != ConstantHelpers.FINDER_APP_NAME)
             {
-                return handle;
+                return @event;
             }
 
             if (@event.Flags.GetKeyModifiersOnly() == CGEventFlags.Command)
             {
-                var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
+                var keyCode = (NSKey) AccessibilityHelpers.CGEventGetIntegerValueField(@event.Handle, AccessibilityHelpers.CGEventField.KeyboardEventKeycode);
 
                 if (keyCode == NSKey.Q)
                 {
                     AccessibilityHelpers.ApplicationCloseFocusedWindow(activeApp.ProcessIdentifier);
                     
-                    return IntPtr.Zero;
+                    return null;
                 }
             }
             
-            return handle;
+            return @event;
         }
 
         public void Stop()
