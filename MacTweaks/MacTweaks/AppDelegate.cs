@@ -1,4 +1,4 @@
-﻿#define DEBUG_ElevatedPrivileges
+﻿// #define DEBUG_ElevatedPrivileges
 
 using System;
 using System.IO;
