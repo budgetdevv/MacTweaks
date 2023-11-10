@@ -27,13 +27,15 @@ public static class AppHelpers
     {
         public Dictionary<string, bool> ModulesEnabledStatus;
 
-        public List<string> RedQuitWhitelist;
+        public HashSet<string> RedQuitWhitelist;
 
         public AppConfig(): this(isCreate: false)
         {
             // JsonSerializer.Deserialize calls this ctor
         }
 
+        // Allow isCreate to be constant-folded
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AppConfig(bool isCreate)
         {
             // This constructor is called, even when deserialization happens
@@ -46,15 +48,28 @@ public static class AppHelpers
             // but we do not care since it acts like an empty list ( Since it is 
             // initialized ).
             
-            ModulesEnabledStatus = new Dictionary<string, bool>();
-            RedQuitWhitelist = new List<string>();
+            EnsureFieldsArePopulated(isCreate);
+        }
 
+        // Allow isCreate to be constant-folded
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureFieldsArePopulated(bool isCreate)
+        {
+            var modulesEnabledStatus = ModulesEnabledStatus;
+            ModulesEnabledStatus = (!isCreate && modulesEnabledStatus != null) ? modulesEnabledStatus : new Dictionary<string, bool>();
+
+            var redQuitWhitelist = RedQuitWhitelist;
+            RedQuitWhitelist = (!isCreate && redQuitWhitelist != null) ? redQuitWhitelist : new HashSet<string>()
+            {
+                ConstantHelpers.FINDER_BUNDLE_ID // We don't want to terminate Finder...it will cause desktop to go KABOOM!
+            };
+            
             if (isCreate)
             {
                 PopulateModulesEnabledStatus();
             }
         }
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref bool ModuleEnabledStatusGetRef(string moduleName)
         {
@@ -104,6 +119,7 @@ public static class AppHelpers
 
         public void OnDeserialized()
         {
+            EnsureFieldsArePopulated(isCreate: false);
             PopulateModulesEnabledStatus();
         }
         
@@ -129,6 +145,11 @@ public static class AppHelpers
             }
         }
 
+        public bool RedQuitAppIsWhitelisted(NSRunningApplication app)
+        {
+            return RedQuitWhitelist.Contains(app.BundleIdentifier);
+        }
+        
         public void Save()
         {
             File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this, JOpts));

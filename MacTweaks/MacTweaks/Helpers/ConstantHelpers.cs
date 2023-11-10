@@ -6,6 +6,7 @@ namespace MacTweaks.Helpers
     {
         public const string APP_NAME = "MacTweaks",
                             FINDER_APP_NAME = "Finder",
+                            FINDER_BUNDLE_ID = "com.apple.finder",
                             SECURITY_AGENT_NAME = "SecurityAgent",
                             APP_ICON_PATH = "Contents/Resources/AppIcon.icns";
         

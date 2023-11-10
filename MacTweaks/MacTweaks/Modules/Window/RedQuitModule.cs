@@ -27,6 +27,8 @@ namespace MacTweaks.Modules.Window
 
             var clickedElementPID = clickedElement.PID;
 
+            var config = AppHelpers.Config;
+
             foreach (var app in SharedWorkspace.RunningApplications)
             {
                 var currentPID = app.ProcessIdentifier;
@@ -35,13 +37,8 @@ namespace MacTweaks.Modules.Window
                 {
                     continue;
                 }
-
-                // We don't want to terminate Finder...it will cause desktop to go KABOOM!
-                // app.ActivationPolicy == NSApplicationActivationPolicy.Regular is the lazy way to do it for now...
-                // TODO: Add whitelist functionality for this module
-                if (app.LocalizedName != ConstantHelpers.FINDER_APP_NAME
-                    && app.ActivationPolicy == NSApplicationActivationPolicy.Regular
-                    && AccessibilityHelpers.GetWindowCountForApplication(currentPID) <= 1)
+                
+                if (!config.RedQuitAppIsWhitelisted(app) && AccessibilityHelpers.GetWindowCountForApplication(currentPID) <= 1)
                 {
                     if ((@event.Flags & CGEventFlags.Shift) != CGEventFlags.Shift)
                     {
