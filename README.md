@@ -22,4 +22,4 @@ This project is not really ready for public consumption atm, as there are loads 
 
 # Some gotchas
 - Does not support intel-based CPUs YET ( I will have to compile dynlib for intel-based )
-- Hopefully no more gotchas
+- No support for disabling modules YET
