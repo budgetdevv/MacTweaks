@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -19,6 +20,8 @@ public static class AppHelpers
 
     private const string LibC = "libc";
     
+    private static readonly string ConfigFilePath = $"{ConstantHelpers.MAC_TWEAKS_PREFERENCES_PATH}/Config.json";
+    
     public struct AppConfig: IJsonOnDeserialized
     {
         public Dictionary<string, bool> ModulesEnabledStatus;
@@ -30,13 +33,26 @@ public static class AppHelpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ModuleEnabled(string moduleName)
+        public ref bool ModuleEnabledGetRef(string moduleName)
         {
-            var dict = ModulesEnabledStatus;
+            return ref CollectionsMarshal.GetValueRefOrNullRef(ModulesEnabledStatus, moduleName);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref bool ModuleEnabledGetRef<ModuleT>() where ModuleT: IModule
+        {
+            var moduleIdentifier = ModuleT.ModuleIdentifier;
+            
+            // TODO: Remove this when we make it mandatory to declare identifier
+            if (moduleIdentifier != null)
+            {
+                return ref ModuleEnabledGetRef(ModuleT.ModuleIdentifier);
+            }
 
-            // It should throw if a given moduleName doesn't exist.
-            // This is why we don't use TryGetValue()
-            return dict[moduleName];
+            else
+            {
+                return ref Unsafe.NullRef<bool>();
+            }
         }
 
         public void OnDeserialized()
@@ -65,6 +81,11 @@ public static class AppHelpers
                 }
             }
         }
+
+        public void Save()
+        {
+            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this, JOpts));
+        }
     }
     
     private static readonly JsonSerializerOptions JOpts = new JsonSerializerOptions
@@ -72,6 +93,8 @@ public static class AppHelpers
         IncludeFields = true,
         WriteIndented = true
     };
+
+    public static AppConfig Config;
     
     static AppHelpers()
     {
@@ -89,14 +112,30 @@ public static class AppHelpers
         {
             ActualUsername = Environment.UserName;
         }
+        
+        if (!Directory.Exists(ConstantHelpers.MAC_TWEAKS_PREFERENCES_PATH))
+        {
+            Directory.CreateDirectory(ConstantHelpers.MAC_TWEAKS_PREFERENCES_PATH);
 
-        // var zzz = JsonSerializer.Serialize(new AppConfig(), JOpts);
-        //
-        // Console.WriteLine(zzz);
-        //
-        // var x = JsonSerializer.Deserialize<AppConfig>(zzz, JOpts);
-        //
-        // Console.WriteLine(JsonSerializer.Serialize(x, JOpts));
+            goto FileDoesNotExist;
+        }
+
+        AppConfig config;
+
+        if (File.Exists(ConfigFilePath))
+        {
+            config = JsonSerializer.Deserialize<AppConfig>(ConfigFilePath, JOpts);
+
+            goto SetConfig;
+        }
+        
+        FileDoesNotExist:
+        config = new AppConfig();
+
+        config.Save();
+        
+        SetConfig:
+        Config = config;
     }
     
     [DllImport(LibC, EntryPoint = "getuid")]

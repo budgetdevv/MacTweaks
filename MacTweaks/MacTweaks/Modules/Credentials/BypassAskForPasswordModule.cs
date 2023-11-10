@@ -204,8 +204,6 @@ namespace MacTweaks.Modules.Credentials
 
 		private static void OnApplicationActivated(object sender, NSWorkspaceApplicationEventArgs e)
 		{
-			Console.WriteLine(e.Application.LocalizedName);
-			
 			if (e.Application.LocalizedName == ConstantHelpers.SECURITY_AGENT_NAME)
 			{
 				AutoFillRootPasswordScript.ExecuteAndReturnError(out var _);

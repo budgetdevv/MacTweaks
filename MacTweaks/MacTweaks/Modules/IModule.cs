@@ -1,5 +1,6 @@
-using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using MacTweaks.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MacTweaks.Modules
@@ -14,17 +15,14 @@ namespace MacTweaks.Modules
         }
         
         public static virtual string ModuleIdentifier { get; } = null;
-
-        public static virtual bool Enabled
-        {
-            get
-            {
-                return true;
-            }
-        }
-
+        
         void Start();
         
         void Stop();
+
+        public static ref bool ModuleEnabledStatusGetRef<ModuleT>() where ModuleT: IModule
+        {
+            return ref AppHelpers.Config.ModuleEnabledGetRef<ModuleT>();
+        }
     }
 }
