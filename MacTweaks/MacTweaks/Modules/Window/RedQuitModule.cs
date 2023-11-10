@@ -43,7 +43,15 @@ namespace MacTweaks.Modules.Window
                     && app.ActivationPolicy == NSApplicationActivationPolicy.Regular
                     && AccessibilityHelpers.GetWindowCountForApplication(currentPID) <= 1)
                 {
-                    app.Terminate();
+                    if ((@event.Flags & CGEventFlags.Shift) != CGEventFlags.Shift)
+                    {
+                        app.Terminate();
+                    }
+
+                    else
+                    {
+                        app.ForceTerminate();
+                    }
 
                     return null;
                 }
