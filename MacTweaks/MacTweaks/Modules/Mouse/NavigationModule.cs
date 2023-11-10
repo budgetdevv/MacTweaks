@@ -27,12 +27,12 @@ namespace MacTweaks.Modules.Mouse
             
             if (diff <= BACK && SharedWorkspace.FrontmostApplication.LocalizedName == ConstantHelpers.FINDER_APP_NAME)
             {
-                // In modern runtimes, it is converted into a cmov
-
                 var isBack = diff == 0;
-                
+             
+                // In modern runtimes, it is converted into a cmov
                 var key = isBack ? NSKey.LeftBracket : NSKey.RightBracket;
 
+                // In modern runtimes, it is converted into a cmov
                 key = isBack && ((@event.Flags & CGEventFlags.Shift) == CGEventFlags.Shift) ? NSKey.UpArrow : key;
                 
                 @event = new CGEvent(null, (ushort) key, true);
