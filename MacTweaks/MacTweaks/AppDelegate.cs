@@ -204,10 +204,12 @@ namespace MacTweaks
             // Display tray icon in upper-right-hand corner of the screen
             var statusItem = MenuBarStatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(ICON_SIZE);
             statusItem.Menu = menuBarIconMenu;
+
+            var statusButton = statusItem.Button;
             
             var image = NSImage.FromStream(File.OpenRead(ConstantHelpers.APP_ICON_PATH));
-            statusItem.Image = ResizeImage(image, new CGSize(ICON_SIZE, ICON_SIZE));
-            statusItem.HighlightMode = true;
+            statusButton.Image = ResizeImage(image, new CGSize(ICON_SIZE, ICON_SIZE));
+            statusButton.Highlighted = false;
             
             return;
 
