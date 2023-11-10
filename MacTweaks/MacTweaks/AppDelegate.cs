@@ -185,7 +185,8 @@ namespace MacTweaks
             var menuItem = new NSMenuItem($"Compact App Memory",
                 (handler, args) =>
                 {
-                    GC.Collect();
+                    AppHelpers.TryRelaunchApp(asSudo: AppHelpers.IsSudoUser);
+                    Environment.Exit(0);
                 });
             
             menuBarIconMenu.AddItem(menuItem);
