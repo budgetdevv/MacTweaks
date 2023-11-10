@@ -422,13 +422,18 @@ namespace MacTweaks.Helpers
 
             return false;
         }
+
+        // https://github.com/budgetdevv/MacTweaks/issues/9#issuecomment-1805223167
+        private static readonly int Threshold = AppHelpers.IsSudoUser ? 1 : 0;
+        
         public static bool IsVolumeInUse(string volumePath)
         {
             var process = new TerminalCommand($"lsof '{volumePath}'").Process;
 
             var output = process.StandardOutput.ReadToEnd();
-
-            return !string.IsNullOrWhiteSpace(output);
+            
+            // https://github.com/budgetdevv/MacTweaks/issues/9#issuecomment-1805223167
+            return output.Length <= Threshold;
         }
         
         public static bool TryUnmountVolume(string volumePath, bool force = false)
