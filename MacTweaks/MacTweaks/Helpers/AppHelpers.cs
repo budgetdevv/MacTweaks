@@ -20,16 +20,39 @@ public static class AppHelpers
 
     private const string LibC = "libc";
     
-    private static readonly string ConfigFilePath = $"{ConstantHelpers.MAC_TWEAKS_PREFERENCES_PATH}/Config.json";
+    private static readonly string ConfigFilePath = $"{ConstantHelpers.MAC_TWEAKS_PREFERENCES_PATH}/Config.json",
+                                   BackupConfigPath = $"{ConstantHelpers.MAC_TWEAKS_PREFERENCES_PATH}/ConfigBackup.json";
     
     public struct AppConfig: IJsonOnDeserialized
     {
         public Dictionary<string, bool> ModulesEnabledStatus;
 
-        public AppConfig()
+        public List<string> RedQuitWhitelist;
+
+        public AppConfig(): this(isCreate: false)
         {
+            // JsonSerializer.Deserialize calls this ctor
+        }
+
+        public AppConfig(bool isCreate)
+        {
+            // This constructor is called, even when deserialization happens
+            // That means, even if a given field does not exist or is null,
+            // it will still be initialized. The actual config file will not
+            // have said fields initialized until the next SaveChanges() call.
+            // That being said however, it does not matter since there are no
+            // potential side-effects. E.x. If an element is added to the list,
+            // but SaveChanges() is not called, the list would still remain null,
+            // but we do not care since it acts like an empty list ( Since it is 
+            // initialized ).
+            
             ModulesEnabledStatus = new Dictionary<string, bool>();
-            PopulateModulesEnabledStatus();
+            RedQuitWhitelist = new List<string>();
+
+            if (isCreate)
+            {
+                PopulateModulesEnabledStatus();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,13 +171,29 @@ public static class AppHelpers
 
         if (File.Exists(ConfigFilePath))
         {
-            config = JsonSerializer.Deserialize<AppConfig>(ConfigFilePath, JOpts);
+            try
+            {
+                config = JsonSerializer.Deserialize<AppConfig>(File.ReadAllText(ConfigFilePath), JOpts);
 
-            goto SetConfig;
+                goto SetConfig;
+            }
+
+            catch
+            {
+                try
+                {
+                    File.Move(ConfigFilePath, BackupConfigPath);
+                }
+
+                catch
+                {
+                    // Ignored
+                }
+            }
         }
         
         FileDoesNotExist:
-        config = new AppConfig();
+        config = new AppConfig(isCreate: true);
 
         config.Save();
         
