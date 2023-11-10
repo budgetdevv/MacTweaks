@@ -19,10 +19,5 @@ namespace MacTweaks.Modules
         void Start();
         
         void Stop();
-
-        public static ref bool ModuleEnabledStatusGetRef<ModuleT>() where ModuleT: IModule
-        {
-            return ref AppHelpers.Config.ModuleEnabledGetRef<ModuleT>();
-        }
     }
 }

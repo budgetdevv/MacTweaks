@@ -33,25 +33,49 @@ public static class AppHelpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref bool ModuleEnabledGetRef(string moduleName)
+        public ref bool ModuleEnabledStatusGetRef(string moduleName)
         {
             return ref CollectionsMarshal.GetValueRefOrNullRef(ModulesEnabledStatus, moduleName);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref bool ModuleEnabledGetRef<ModuleT>() where ModuleT: IModule
+        public ref bool ModuleEnabledStatusGetRef<ModuleT>() where ModuleT: IModule
         {
             var moduleIdentifier = ModuleT.ModuleIdentifier;
             
             // TODO: Remove this when we make it mandatory to declare identifier
+            // Sadly the JIT does not specialize where ModuleT: class
             if (moduleIdentifier != null)
             {
-                return ref ModuleEnabledGetRef(ModuleT.ModuleIdentifier);
+                return ref ModuleEnabledStatusGetRef(ModuleT.ModuleIdentifier);
             }
 
             else
             {
                 return ref Unsafe.NullRef<bool>();
+            }
+        }
+
+        public readonly ref struct ModuleStatusEnabledHandle<ModuleT> where ModuleT: IModule
+        {
+            private readonly ref bool Enabled;
+
+            private readonly ref AppConfig Config;
+            
+            public ModuleStatusEnabledHandle(ref AppConfig config)
+            {
+                Enabled = ref config.ModuleEnabledStatusGetRef<ModuleT>();
+                Config = ref config;
+            }
+
+            public void SaveChanges()
+            {
+                Config.Save();
+            }
+            
+            public void Dispose()
+            {
+                SaveChanges();
             }
         }
 
