@@ -40,9 +40,7 @@ namespace MacTweaks.Modules.Clipboard
                     {
                         if (AccessibilityHelpers.FinderGetSelectedItemsCount() != 0)
                         {
-                            var eventSource = new CGEventSource(CGEventSourceStateID.HidSystem);
-
-                            var commandC = new CGEvent(eventSource, (ushort) NSKey.C, true);
+                            var commandC = new CGEvent(CGHelpers.HIDEventSource, (ushort) NSKey.C, true);
                             
                             CGEvent.Post(commandC, CGEventTapLocation.HID);
 

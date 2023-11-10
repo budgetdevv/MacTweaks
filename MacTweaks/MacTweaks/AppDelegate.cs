@@ -10,6 +10,7 @@ using MacTweaks.Modules.Credentials;
 using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
+using MacTweaks.Modules.Mouse;
 using MacTweaks.Modules.Window;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -46,6 +47,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, LowPowerMode>();
             
             collection.AddSingleton<IModule, BypassAskForPasswordModule>();
+            
+            collection.AddSingleton<IModule, NavigationModule>();
 
             return collection;
         }
