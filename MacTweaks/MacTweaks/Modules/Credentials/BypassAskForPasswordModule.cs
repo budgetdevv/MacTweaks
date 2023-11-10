@@ -91,7 +91,7 @@ namespace MacTweaks.Modules.Credentials
 											  AutoFillAdminPasswordScript,
 											  AutoFillSystemSettingsModalStyleAdminPasswordScript;
 
-		private const string AdminUsername = "MacTweaks";
+		private const string AdminUsername = ConstantHelpers.APP_NAME;
 		
 		private static readonly string RootPassword, AdminPassword;
 

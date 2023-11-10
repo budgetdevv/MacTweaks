@@ -425,20 +425,12 @@ namespace MacTweaks.Helpers
         
         public static bool IsVolumeInUse(string volumePath)
         {
-            var process = new TerminalCommand($"lsof '{volumePath}'").Process;
-
-            var output = process.StandardOutput.ReadToEnd();
-
             // https://github.com/budgetdevv/MacTweaks/issues/9#issuecomment-1805223167
-            if (AppHelpers.IsSudoUser)
-            {
-                return !output.Contains('\n');
-            }
-
-            else
-            {
-                return output.Length != 0;
-            }
+            var process = new TerminalCommand($"sudo -u {AppHelpers.ActualUsername} lsof '{volumePath}'").Process;
+            
+            var output = process.StandardOutput.ReadToEnd();
+            
+            return output.Length != 0;
         }
         
         public static bool TryUnmountVolume(string volumePath, bool force = false)

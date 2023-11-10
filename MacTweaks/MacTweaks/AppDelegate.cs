@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DEBUG_ElevatedPrivileges
+
+using System;
 using System.IO;
 using AppKit;
 using CoreGraphics;
@@ -103,7 +105,7 @@ namespace MacTweaks
                 Directory.CreateDirectory(ConstantHelpers.MAC_TWEAKS_LOGS_PATH);
             }
             
-            #if RELEASE
+            #if RELEASE || DEBUG_ElevatedPrivileges
             if (!AppHelpers.IsSudoUser)
             {
                 if (AppHelpers.TryRelaunchApp(true))

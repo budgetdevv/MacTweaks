@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using AppKit;
 using MacTweaks.Modules.Dock;
@@ -8,6 +9,8 @@ public static class AppHelpers
 {
     public static readonly uint ActualUID;
 
+    public static readonly string ActualUsername;
+
     private const string LibC = "libc";
     
     static AppHelpers()
@@ -15,6 +18,17 @@ public static class AppHelpers
         var getActualUID = new TerminalCommand("id -u $SUDO_USER").Process;
 
         ActualUID = uint.Parse(getActualUID.StandardOutput.ReadLine()!);
+
+        if (IsSudoUser)
+        {
+            // https://unix.stackexchange.com/questions/36580/how-can-i-look-up-a-username-by-id-in-linux
+            ActualUsername = new TerminalCommand($"id -nu {ActualUID}").Process.StandardOutput.ReadLine();
+        }
+
+        else
+        {
+            ActualUsername = Environment.UserName;
+        }
     }
     
     [DllImport(LibC, EntryPoint = "getuid")]
