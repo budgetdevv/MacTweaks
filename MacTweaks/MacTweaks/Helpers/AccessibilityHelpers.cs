@@ -433,7 +433,7 @@ namespace MacTweaks.Helpers
             var output = process.StandardOutput.ReadToEnd();
             
             // https://github.com/budgetdevv/MacTweaks/issues/9#issuecomment-1805223167
-            return output.Length <= Threshold;
+            return output.Length > Threshold;
         }
         
         public static bool TryUnmountVolume(string volumePath, bool force = false)
