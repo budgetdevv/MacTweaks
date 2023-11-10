@@ -7,13 +7,6 @@ namespace MacTweaks.Modules.Dock
     #if DEBUG
     public class DockDebugModule: IModule
     {
-        private readonly AppDelegate AppDelegate;
-
-        public DockDebugModule(AppDelegate appDelegate)
-        {
-            AppDelegate = appDelegate;
-        }
-        
         public void Start()
         {
             CGHelpers.CGEventTapManager.OnRightMouseDown.Event += OnRightMouseDown;

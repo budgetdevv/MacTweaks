@@ -22,15 +22,11 @@ namespace MacTweaks
     [Register("AppDelegate")]
     public class AppDelegate: NSApplicationDelegate
     {
-        public readonly ServiceProvider Services;
-
-        private NSStatusItem MenuBarStatusItem; // Prevent the menubar icon from being GC-ed
+        public static readonly ServiceProvider Services = GetServiceCollection().BuildServiceProvider();
         
-        private ServiceCollection GetServiceCollection()
+        private static ServiceCollection GetServiceCollection()
         {
             var collection = new ServiceCollection();
-            
-            collection.AddSingleton<AppDelegate>(this);
             
             #if DEBUG
             collection.AddSingleton<IModule, DockDebugModule>();
@@ -53,11 +49,6 @@ namespace MacTweaks
             collection.AddSingleton<IModule, NavigationModule>();
 
             return collection;
-        }
-        
-        public AppDelegate()
-        {
-            Services = GetServiceCollection().BuildServiceProvider();
         }
 
         private const string RequestForPermissionsScriptText = @"tell application ""System Events""
@@ -84,6 +75,8 @@ namespace MacTweaks
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             return RequestForPermissionsScript.ExecuteAndReturnError(out _) != null && AccessibilityHelpers.RequestForAccessibilityIfNotGranted();
         }
+        
+        private NSStatusItem MenuBarStatusItem; // Prevent the menubar icon from being GC-ed
         
         public override void DidFinishLaunching(NSNotification notification)
         {

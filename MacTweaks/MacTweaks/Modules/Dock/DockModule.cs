@@ -33,6 +33,8 @@ namespace MacTweaks.Modules.Dock
     
     public class DockModule: IModule
     {
+        public static string ModuleIdentifier => "Dock";
+        
         //Do NOT cache NSScreen.MainScreen or NSStatusBar.SystemStatusBar, since data might become stale
         
         public nfloat DockHeight, DockHeightThreshold, MenuBarHeight;

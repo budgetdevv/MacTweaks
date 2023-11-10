@@ -1,6 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using AppKit;
+using MacTweaks.Modules;
 using MacTweaks.Modules.Dock;
 
 namespace MacTweaks.Helpers;
@@ -12,6 +18,60 @@ public static class AppHelpers
     public static readonly string ActualUsername;
 
     private const string LibC = "libc";
+    
+    public struct AppConfig: IJsonOnDeserialized
+    {
+        public Dictionary<string, bool> ModulesEnabledStatus;
+
+        public AppConfig()
+        {
+            ModulesEnabledStatus = new Dictionary<string, bool>();
+            PopulateModulesEnabledStatus();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ModuleEnabled(string moduleName)
+        {
+            var dict = ModulesEnabledStatus;
+
+            // It should throw if a given moduleName doesn't exist.
+            // This is why we don't use TryGetValue()
+            return dict[moduleName];
+        }
+
+        public void OnDeserialized()
+        {
+            PopulateModulesEnabledStatus();
+        }
+        
+        private void PopulateModulesEnabledStatus()
+        {
+            var propName = nameof(IModule.ModuleIdentifier);
+
+            var bf = (BindingFlags) (-1);
+
+            var dict = ModulesEnabledStatus;
+            
+            foreach (var module in IModule.Modules)
+            {
+                var prop = module.GetType().GetProperty(propName, bf);
+
+                if (prop != null)
+                {
+                    var moduleName = Unsafe.As<string>(prop.GetValue(null));
+                    
+                    // Add won't work if there is already existing value
+                    var isNew = dict.TryAdd(moduleName, true);
+                }
+            }
+        }
+    }
+    
+    private static readonly JsonSerializerOptions JOpts = new JsonSerializerOptions
+    {
+        IncludeFields = true,
+        WriteIndented = true
+    };
     
     static AppHelpers()
     {
@@ -29,6 +89,14 @@ public static class AppHelpers
         {
             ActualUsername = Environment.UserName;
         }
+
+        // var zzz = JsonSerializer.Serialize(new AppConfig(), JOpts);
+        //
+        // Console.WriteLine(zzz);
+        //
+        // var x = JsonSerializer.Deserialize<AppConfig>(zzz, JOpts);
+        //
+        // Console.WriteLine(JsonSerializer.Serialize(x, JOpts));
     }
     
     [DllImport(LibC, EntryPoint = "getuid")]
