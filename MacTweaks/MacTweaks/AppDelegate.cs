@@ -198,16 +198,14 @@ namespace MacTweaks
             
             menuBarIconMenu.AddItem(menuItem);
 
+            const int ICON_SIZE = 25;
+
             // Display tray icon in upper-right-hand corner of the screen
-            var statusItem = MenuBarStatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(30);
+            var statusItem = MenuBarStatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(ICON_SIZE);
             statusItem.Menu = menuBarIconMenu;
-            //statusItem.Image = NSImage.FromStream(File.OpenRead("/Users/trumpmcdonaldz/Pictures/DonaldNaSmirk.jpeg"));
             
             var image = NSImage.FromStream(File.OpenRead(ConstantHelpers.APP_ICON_PATH));
-
-            // Resize the image to fit the defined size
-            statusItem.Image = ResizeImage(image, new CGSize(25, 25));
-            
+            statusItem.Image = ResizeImage(image, new CGSize(ICON_SIZE, ICON_SIZE));
             statusItem.HighlightMode = true;
             
             return;
