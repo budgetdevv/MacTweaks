@@ -50,6 +50,8 @@ namespace MacTweaks.Modules.Window
 
                     else
                     {
+                        // TODO: It seems impossible to get accessibility element of a window
+                        // that is not responding. Find out if there's a way to remedy this.
                         app.ForceTerminate();
                     }
 
