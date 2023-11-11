@@ -37,27 +37,26 @@ namespace MacTweaks.Modules.Window
                 {
                     continue;
                 }
-                
-                if (!config.RedQuitAppIsWhitelisted(app) && AccessibilityHelpers.GetWindowCountForApplication(currentPID) <= 1)
+
+                if ((@event.Flags & CGEventFlags.Shift) != CGEventFlags.Shift)
                 {
-                    if ((@event.Flags & CGEventFlags.Shift) != CGEventFlags.Shift)
+                    if (config.RedQuitAppIsWhitelisted(app) || AccessibilityHelpers.GetWindowCountForApplication(currentPID) > 1)
                     {
-                        app.Terminate();
+                        goto FlowThrough;
                     }
-
-                    else
-                    {
-                        // It seems impossible to get accessibility element of a window that is not responding. 
-                        // TODO: Find out if there's a way to remedy this.
-                        app.ForceTerminate();
-                    }
-
-                    return null;
+                    
+                    app.Terminate();
                 }
 
-                break;
+                else
+                {
+                    app.ForceTerminate();
+                }
+
+                return null;
             }
 
+            FlowThrough:
             return @event;
         }
 
