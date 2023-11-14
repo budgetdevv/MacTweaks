@@ -35,10 +35,14 @@ namespace MacTweaks.Modules.Clipboard
                 if (SharedWorkspace.FrontmostApplication.LocalizedName == ConstantHelpers.FINDER_APP_NAME)
                 {
                     var currentChangeCount = pasteboard.ChangeCount;
-                        
+
+                    var finderSelectedItemsCount = AccessibilityHelpers.FinderGetSelectedItemsCount();
+
+                    var finderHaveSelectedItems = finderSelectedItemsCount != 0;
+                    
                     if (keyValue == NSKey.X)
                     {
-                        if (AccessibilityHelpers.FinderGetSelectedItemsCount() != 0)
+                        if (finderHaveSelectedItems)
                         {
                             var commandC = new CGEvent(CGHelpers.HIDEventSource, (ushort) NSKey.C, true);
                             
@@ -62,7 +66,10 @@ namespace MacTweaks.Modules.Clipboard
                         }
                     }
                     
-                    else if (keyValue == NSKey.V && currentChangeCount == LastCommandXChangeCount)
+                    // We check for !finderHaveSelectedItems, since command + alt + V doesn't
+                    // work for pasting when we are trying to rename a finder element ( Folder, files etc )
+                    // When renaming element(s), they are considered "selected"
+                    else if (keyValue == NSKey.V && currentChangeCount == LastCommandXChangeCount && !finderHaveSelectedItems)
                     {
                         // Holding down option causes it to move instead of paste.
                         // Modify the event to do so
