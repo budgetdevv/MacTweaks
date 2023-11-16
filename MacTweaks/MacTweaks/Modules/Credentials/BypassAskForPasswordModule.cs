@@ -191,6 +191,7 @@ namespace MacTweaks.Modules.Credentials
 			AutoFillSystemSettingsModalStyleAdminPasswordScript = new NSAppleScript(AutoFillSystemSettingsModalStyleAdminPasswordScriptText);
 		}
 		
+		// Make sure GC holds onto a reference
 		private NSObject DidActivateApplicationNotification;
 		
 		public void Start()
@@ -242,6 +243,7 @@ namespace MacTweaks.Modules.Credentials
 	        if (Enabled)
 	        {
 		        CGHelpers.CGEventTapManager.OnKeyDown.Event -= OnCommandBacktick;
+		        DidActivateApplicationNotification.Dispose();
 	        }
         }
     }

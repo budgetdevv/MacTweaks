@@ -8,7 +8,8 @@ namespace MacTweaks.Helpers
                             FINDER_APP_NAME = "Finder",
                             FINDER_BUNDLE_ID = "com.apple.finder",
                             SECURITY_AGENT_NAME = "SecurityAgent",
-                            APP_ICON_PATH = "Contents/Resources/AppIcon.icns";
+                            APP_ICON_PATH = "Contents/Resources/AppIcon.icns",
+                            LOCKDOWN_BROWSER_BUNDLE_ID = "com.Respondus.LockDownBrowser";
         
         
         public static readonly string LIBRARY_PATH = $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}/Library",

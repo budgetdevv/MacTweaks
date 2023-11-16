@@ -12,6 +12,7 @@ using MacTweaks.Modules.Credentials;
 using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
+using MacTweaks.Modules.LockdownBrowser;
 using MacTweaks.Modules.Mouse;
 using MacTweaks.Modules.Window;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +48,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, BypassAskForPasswordModule>();
             
             collection.AddSingleton<IModule, NavigationModule>();
+
+            collection.AddSingleton<IModule, QuitOnLockDownBrowserLaunch>();
 
             return collection;
         }
