@@ -9,6 +9,7 @@ using MacTweaks.Helpers;
 using MacTweaks.Modules;
 using MacTweaks.Modules.Clipboard;
 using MacTweaks.Modules.Credentials;
+using MacTweaks.Modules.Debugging;
 using MacTweaks.Modules.Dock;
 using MacTweaks.Modules.Energy;
 using MacTweaks.Modules.Keystrokes;
@@ -31,6 +32,7 @@ namespace MacTweaks
             
             #if DEBUG
             collection.AddSingleton<IModule, DockDebugModule>();
+            collection.AddSingleton<IModule, GCStresser>();
             #endif
             
             collection.AddSingleton<IModule, DockModule>();
