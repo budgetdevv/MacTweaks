@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using AppKit;
 using CoreFoundation;
 using CoreGraphics;
 using ObjCRuntime;
@@ -97,7 +96,29 @@ namespace MacTweaks.Helpers
                     
                     foreach (var callback in Callbacks)
                     {
-                        var currentEvent = callback(proxy, type, previousEvent);
+                        CGEvent currentEvent;
+
+                        const bool SHOULD_THROW = true;
+
+                        if (SHOULD_THROW)
+                        {
+                            try
+                            {
+                                currentEvent = callback(proxy, type, previousEvent);
+                            }
+                        
+                            // Native callback won't propagate exception
+                            // ReSharper disable once RedundantCatchClause
+                            catch
+                            {
+                                throw;
+                            }
+                        }
+
+                        else
+                        {
+                            currentEvent = callback(proxy, type, previousEvent);
+                        }
 
                         var areSame = previousEvent == currentEvent;
                         
