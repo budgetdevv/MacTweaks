@@ -466,3 +466,4 @@ FodyWeavers.xsd
 /MacTweaksAXUIStub/MacTweaksAXUIStub.dylib.dSYM/Contents/Info.plist
 /MacTweaksAXUIStub/MacTweaksAXUIStub.dylib
 /MacTweaksAXUIStub/MacTweaksAXUIStub.dylib.dSYM/Contents/Resources/Relocations/aarch64/MacTweaksAXUIStub.dylib.yml
+MacTweaksNative.dylib
