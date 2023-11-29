@@ -148,11 +148,12 @@ namespace MacTweaks.Helpers
                         eventHandle = IntPtr.Zero;
                         goto Ret;
                     }
-                    
-                    // C-side will release the object.
-                    // Ensure that GC does not attempt
-                    // to release it.
-                    GC.SuppressFinalize(previousEvent);
+
+                    if (!isOriginalEvent)
+                    {
+                        // C-side will release the object. Ensure that GC does not attempt to release it.
+                        GC.SuppressFinalize(previousEvent);
+                    }
                     
                     // Previous is actually current
                     eventHandle = previousEvent.Handle;
