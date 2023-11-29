@@ -151,11 +151,7 @@ namespace MacTweaks.Modules.Credentials
                                                  		end try
                                                  		
                                                  		set value of text field 1 of window 1 to ""root""
-                                                 		set value of text field 2 of window 1 to ""{RootPassword}""
-                                                 		
-                                                 		try
-                                                 			click button 2 of window 1
-                                                 		end try
+                                                 		set value of text field 2 of window 1 to ""{RootPassword}""                            		
                                                  	end tell
                                                  	
                                                  	tell application ""Finder""
