@@ -21,9 +21,9 @@ namespace MacTweaks.Modules.LockdownBrowser
             DidActivateApplicationNotification = NSWorkspace.Notifications.ObserveDidActivateApplication(OnApplicationActivated);
         }
 
-        private static void OnApplicationActivated(object sender, NSWorkspaceApplicationEventArgs args)
+        private static void OnApplicationActivated(object sender, NSWorkspaceApplicationEventArgs eventArgs)
         {
-            if (args.Application.BundleIdentifier != ConstantHelpers.LOCKDOWN_BROWSER_BUNDLE_ID)
+            if (eventArgs.Application.BundleIdentifier != ConstantHelpers.LOCKDOWN_BROWSER_BUNDLE_ID)
             {
                 return;
             }

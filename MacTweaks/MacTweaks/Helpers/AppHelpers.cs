@@ -27,7 +27,7 @@ public static class AppHelpers
     {
         public Dictionary<string, bool> ModulesEnabledStatus;
 
-        public HashSet<string> RedQuitWhitelist;
+        public HashSet<string> RedQuitWhitelist, ApplicationBlacklist;
 
         public AppConfig(): this(isCreate: false)
         {
@@ -39,35 +39,32 @@ public static class AppHelpers
         public AppConfig(bool isCreate)
         {
             // This constructor is called, even when deserialization happens
-            // That means, even if a given field does not exist or is null,
-            // it will still be initialized. The actual config file will not
-            // have said fields initialized until the next SaveChanges() call.
-            // That being said however, it does not matter since there are no
-            // potential side-effects. E.x. If an element is added to the list,
-            // but SaveChanges() is not called, the list would still remain null,
-            // but we do not care since it acts like an empty list ( Since it is 
-            // initialized ).
-            
-            EnsureFieldsArePopulated(isCreate);
+            // Avoid double calling. ( OnDeserialized() calls it too )
+            if (isCreate)
+            {
+                EnsureFieldsArePopulated(isCreate: true);
+            }
         }
 
         // Allow isCreate to be constant-folded
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureFieldsArePopulated(bool isCreate)
         {
+            var isNotCreate = !isCreate;
+            
             var modulesEnabledStatus = ModulesEnabledStatus;
-            ModulesEnabledStatus = (!isCreate && modulesEnabledStatus != null) ? modulesEnabledStatus : new Dictionary<string, bool>();
+            ModulesEnabledStatus = (isNotCreate && modulesEnabledStatus != null) ? modulesEnabledStatus : new Dictionary<string, bool>();
 
             var redQuitWhitelist = RedQuitWhitelist;
-            RedQuitWhitelist = (!isCreate && redQuitWhitelist != null) ? redQuitWhitelist : new HashSet<string>()
+            RedQuitWhitelist = (isNotCreate && redQuitWhitelist != null) ? redQuitWhitelist : new HashSet<string>()
             {
                 ConstantHelpers.FINDER_BUNDLE_ID // We don't want to terminate Finder...it will cause desktop to go KABOOM!
             };
             
-            if (isCreate)
-            {
-                PopulateModulesEnabledStatus();
-            }
+            var applicationBlacklist = ApplicationBlacklist;
+            ApplicationBlacklist = (isNotCreate && applicationBlacklist != null) ? applicationBlacklist : new HashSet<string>();
+            
+            PopulateModulesEnabledStatus();
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,7 +117,6 @@ public static class AppHelpers
         public void OnDeserialized()
         {
             EnsureFieldsArePopulated(isCreate: false);
-            PopulateModulesEnabledStatus();
         }
         
         private void PopulateModulesEnabledStatus()
@@ -143,11 +139,6 @@ public static class AppHelpers
                     var isNew = dict.TryAdd(moduleName, true);
                 }
             }
-        }
-
-        public bool RedQuitAppIsWhitelisted(NSRunningApplication app)
-        {
-            return RedQuitWhitelist.Contains(app.BundleIdentifier);
         }
         
         public void Save()
@@ -211,15 +202,17 @@ public static class AppHelpers
                     // Ignored
                 }
             }
-        }
+        }   
         
         FileDoesNotExist:
         config = new AppConfig(isCreate: true);
-
-        config.Save();
         
         SetConfig:
         Config = config;
+        
+        // Unconditionally save the config. For new configs, this is a given to ensure that a config exists.
+        // For existing configs, it enables us to update it with new fields specific to newer iterations of the app.
+        config.Save();
     }
     
     [DllImport(LibC, EntryPoint = "getuid")]

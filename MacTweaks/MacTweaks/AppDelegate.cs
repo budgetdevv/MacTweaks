@@ -7,6 +7,7 @@ using CoreGraphics;
 using Foundation;
 using MacTweaks.Helpers;
 using MacTweaks.Modules;
+using MacTweaks.Modules.Application;
 using MacTweaks.Modules.Clipboard;
 using MacTweaks.Modules.Credentials;
 using MacTweaks.Modules.Debugging;
@@ -52,6 +53,8 @@ namespace MacTweaks
             collection.AddSingleton<IModule, NavigationModule>();
 
             collection.AddSingleton<IModule, QuitOnLockDownBrowserLaunch>();
+            
+            collection.AddSingleton<IModule, ApplicationBlacklist>();
 
             return collection;
         }

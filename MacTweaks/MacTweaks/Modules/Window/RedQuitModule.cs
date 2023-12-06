@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AppKit;
 using CoreGraphics;
 using MacTweaks.Helpers;
@@ -8,13 +9,17 @@ namespace MacTweaks.Modules.Window
     public class RedQuitModule : IModule
     {
         private static readonly NSWorkspace SharedWorkspace = NSWorkspace.SharedWorkspace;
+
+        private HashSet<string> Whitelist;
         
         public void Start()
         {
             CGHelpers.CGEventTapManager.OnLeftMouseDown.Event += OnLeftClick;
+
+            Whitelist = AppHelpers.Config.RedQuitWhitelist;
         }
         
-        private static CGEvent OnLeftClick(IntPtr proxy, CGEventType type, CGEvent @event)
+        private CGEvent OnLeftClick(IntPtr proxy, CGEventType type, CGEvent @event)
         {
             var mouseLocation = @event.Location;
             
@@ -40,7 +45,7 @@ namespace MacTweaks.Modules.Window
 
                 if ((@event.Flags & CGEventFlags.Shift) != CGEventFlags.Shift)
                 {
-                    if (config.RedQuitAppIsWhitelisted(app) || AccessibilityHelpers.GetWindowCountForApplication(currentPID) > 1)
+                    if (Whitelist.Contains(app.BundleIdentifier) || AccessibilityHelpers.GetWindowCountForApplication(currentPID) > 1)
                     {
                         goto FlowThrough;
                     }
