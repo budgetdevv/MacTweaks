@@ -8,6 +8,18 @@ This project is not really ready for public consumption atm, as there are loads 
 - Native apple silicon support
 - High performance and low memory footprint
 
+# Setup
+
+MacTweaks relies on the terminal for sudo elevation via shell-less execution. However, this prompts for a password in the console dialog, which is inaccessible when running shell-less.
+
+While MacTweaks could request the user's password in a dialog, it wouldn't be a native macOS dialog, and entering a password every time MacTweaks is launched can be cumbersome.
+
+The ideal solution is to enable Touch ID for Terminal sudo elevation. Follow these steps (as shown in the screenshot) to configure this feature:
+
+<img width="785" alt="image" src="https://github.com/user-attachments/assets/aa3dcdcd-5613-4fb4-9c53-d4d541f38b93">
+
+Once set up, users can choose to use Touch ID or enter their password for sudo elevation. Note that this process needs to be repeated after installing a new version of macOS.
+
 # Feature List
 - Click on dock icon to hide app
 - Click on bottom right corner to hide all apps
