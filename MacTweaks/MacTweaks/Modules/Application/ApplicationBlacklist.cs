@@ -3,35 +3,36 @@ using AppKit;
 using Foundation;
 using MacTweaks.Helpers;
 
-namespace MacTweaks.Modules.Application;
-
-public class ApplicationBlacklist: IModule
+namespace MacTweaks.Modules.Application
 {
-    private NSObject DidActivateApplicationNotification;
-
-    private HashSet<string> Blacklist;
-
-    public void Start()
+    public class ApplicationBlacklist: IModule
     {
-        DidActivateApplicationNotification = NSWorkspace.Notifications.ObserveDidActivateApplication(OnApplicationActivated);
+        private NSObject DidActivateApplicationNotification;
 
-        Blacklist = AppHelpers.Config.ApplicationBlacklist;
-    }
+        private HashSet<string> Blacklist;
 
-    private void OnApplicationActivated(object sender, NSWorkspaceApplicationEventArgs eventArgs)
-    {
-        var app = eventArgs.Application;
-        
-        if (!Blacklist.Contains(app.BundleIdentifier))
+        public void Start()
         {
-             return;
+            DidActivateApplicationNotification = NSWorkspace.Notifications.ObserveDidActivateApplication(OnApplicationActivated);
+
+            Blacklist = AppHelpers.Config.ApplicationBlacklist;
         }
+
+        private void OnApplicationActivated(object sender, NSWorkspaceApplicationEventArgs eventArgs)
+        {
+            var app = eventArgs.Application;
         
-        app.ForceTerminate();
-    }
+            if (!Blacklist.Contains(app.BundleIdentifier))
+            {
+                return;
+            }
+        
+            app.ForceTerminate();
+        }
     
-    public void Stop()
-    {
-        DidActivateApplicationNotification.Dispose();
+        public void Stop()
+        {
+            DidActivateApplicationNotification.Dispose();
+        }
     }
 }
