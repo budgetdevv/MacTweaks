@@ -16,7 +16,23 @@ While MacTweaks could request the user's password in a dialog, it wouldn't be a 
 
 The ideal solution is to enable Touch ID for Terminal sudo elevation. Follow these steps (as shown in the screenshot) to configure this feature:
 
-<img width="785" alt="image" src="https://github.com/user-attachments/assets/aa3dcdcd-5613-4fb4-9c53-d4d541f38b93">
+**1. Ensure Touch ID is Enabled for `sudo`:**
+
+Check if Touch ID is configured for `sudo` by editing the `/etc/pam.d/sudo` file.
+
+1. Open the terminal and run:
+   ```bash
+   sudo nano /etc/pam.d/sudo
+   ```
+
+2. Add the following line at the top (if it’s not already there):
+   ```bash
+   auth       sufficient     pam_tid.so
+   ```
+
+   This setting allows macOS to use Touch ID for `sudo` commands.
+
+3. Save the file (`Ctrl + O`, then `Enter`) and exit (`Ctrl + X`).
 
 Once set up, users can choose to use Touch ID or enter their password for sudo elevation. Note that this process needs to be repeated after installing a new version of macOS.
 
